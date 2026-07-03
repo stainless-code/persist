@@ -8,11 +8,6 @@ Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [READM
 
 - **Upstream TanStack Persist collaboration** — pitch the `persistSource` middleware model (structural `PersistableSource` + first-class hydration lifecycle) to the TanStack Persist maintainers as a merge target, after the stainless-code publish stabilises. Draft: [`plans/upstream-tanstack-pitch.md`](./plans/upstream-tanstack-pitch.md).
 
-> **Shipped**
->
-> - Framework-matrix tests: a vitest + jsdom + @testing-library/react suite under `tests-dom/` covers the React `useHydrated` rerender + unmount-detach path that `bun:test` can't (no DOM). `bun test ./src` and `vitest` never overlap (top-level `tests-dom/` is outside `bun test ./src`'s scope). Wired into `check` (`test:dom`) and CI (`Test (DOM)` job). See [architecture.md § Test matrix](./architecture.md#test-matrix).
-> - Publish-time JSDoc tooling: `stripInternal` guard, TypeDoc site (`bun run docs:api`), `{@link}` resolution gated. See [architecture.md § Publishing & API docs](./architecture.md#publishing--api-docs).
-
 ---
 
 ## Strategy
