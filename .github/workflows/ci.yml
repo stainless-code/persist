@@ -122,6 +122,25 @@ jobs:
       - name: Run build
         run: bun run build
 
+  audit:
+    # Non-blocking — known-CVE visibility only; does not catch supply-chain malware.
+    # Team policy: if this job is red on a dep/lockfile PR, triage before merge
+    # (overrides, fork swaps, or accepted risk with issue) even though CI stays green.
+    # Promote to blocking (drop continue-on-error) after main stays clean for a
+    # few weeks — Dependabot handles action bumps; dep bumps are intentional via bun update -i.
+    name: 🛡 Audit (non-blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: bun audit
+        run: bun audit
+
   ci-complete:
     name: CI complete
     needs: [skip-ci, format, lint, typecheck, test, test-dom, build]
