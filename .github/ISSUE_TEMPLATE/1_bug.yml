@@ -1,0 +1,69 @@
+name: Bug
+description: Something is wrong in core — hydration, persist lifecycle, a codec, a backend adapter, or a framework hook.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Core** means the shared middleware: `persistSource`, the hydration lifecycle, `createStorage` / codecs, shipped backends (`./seroval`, `./idb`), the TanStack Store adapters, or the React `useHydrated` hook. For a new backend / codec / framework adapter, use **Feature / adapter proposal** instead.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One or two sentences.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: Commands you ran, the entry point you imported, and a minimal example if possible.
+      placeholder: |
+        1. …
+        2. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Runtime
+      description: Where you saw the bug.
+      options:
+        - Node.js
+        - Bun
+        - Browser (React)
+        - Both / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: e.g. `@stainless-code/persist` version or commit, the optional peer you installed, Node/Bun/React version, OS.
+      placeholder: persist 0.x / @tanstack/store 0.11 / react 19 / bun 1.3 / macOS 14
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Logs or extra context
+      description: Optional stack traces, a link to a minimal repo, or the `onError` phase you observed (`write` / `hydrate` / `migrate` / `crossTab`).

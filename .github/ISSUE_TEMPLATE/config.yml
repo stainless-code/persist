@@ -1,0 +1,10 @@
+blank_issues_enabled: true
+
+contact_links:
+  - name: Documentation
+    url: https://github.com/stainless-code/persist/tree/main/docs
+    about: Architecture (seam model), roadmap, and plans.
+
+  - name: Contributing
+    url: https://github.com/stainless-code/persist/blob/main/.github/CONTRIBUTING.md
+    about: Public surface, dev workflow, and releases.

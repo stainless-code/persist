@@ -1,0 +1,48 @@
+name: Feature / adapter proposal
+description: Propose a new backend, codec, framework adapter, or persist option — keep core small and seam-shaped.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Adapters** plug in via the three seams — backend (`StateStorage`), codec (`StorageCodec`), source (`PersistableSource`) — without bloating core. See the [extensibility guide](https://github.com/stainless-code/persist#extensibility-guide) and [`docs/architecture.md`](https://github.com/stainless-code/persist/blob/main/docs/architecture.md). Open an issue here first so we can agree on shape (entry point, optional peer, API) before a large PR.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What should persist support that the shipped seams don't cover today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Proposed scope
+      description: Which seam (backend / codec / source / framework hook), the optional peer dep, and the rough API shape.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: packaging
+    attributes:
+      label: Packaging preference
+      description: New subpath entries own their optional peer dep; framework hooks get their own entry (e.g. `./react`).
+      options:
+        - New subpath entry in this repo (owns its optional peer)
+        - Separate npm package (I can help maintain)
+        - Not sure yet
+    validations:
+      required: true
+
+  - type: textarea
+    id: api
+    attributes:
+      label: API sketch (optional)
+      description: If you have ideas for the factory / hook shape, outline it here.
+
+  - type: textarea
+    id: links
+    attributes:
+      label: Prior art
+      description: Links to similar adapters, store libraries, or example repos.

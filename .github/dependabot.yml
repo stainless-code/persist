@@ -1,0 +1,12 @@
+# Keep GitHub Actions versions current. npm deps are managed via changesets
+# and `bun run check-updates`; dependabot only watches the workflow toolchain.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "chore(ci): "
+    labels:
+      - dependencies
