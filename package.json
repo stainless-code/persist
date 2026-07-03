@@ -58,6 +58,7 @@
     "clean": "git clean -xdf -e .env",
     "docs:api": "typedoc",
     "fix": "bun run lint:fix && bun run format",
+    "fix:changes": "bun run lint:fix:changes && bun run format:changes",
     "format": "oxfmt --no-error-on-unmatched-pattern",
     "format:changes": "bun scripts/run-on-changed-files.ts format",
     "format:check": "oxfmt --check --no-error-on-unmatched-pattern",
