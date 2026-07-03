@@ -63,11 +63,26 @@ function relatedTests(filenames) {
   return `bun test ${tests.join(" ")}`;
 }
 
+/** Pick the test runner for staged `*.test.{ts,tsx}` by location:
+ * `src/**` → bun:test (no DOM); `tests-dom/**` → the `test:dom` suite (vitest
+ * via bun's runtime — invoking `vitest` directly makes lint-staged run it
+ * under node, which vitest 4 doesn't support). lint-staged passes the full
+ * array of matching files, so split by location and run both if needed. */
+function runStagedTest(filenames) {
+  const files = filenames.map(toPosixRel);
+  const dom = files.some((f) => f.startsWith("tests-dom/"));
+  const src = files.filter((f) => f.startsWith("src/"));
+  const tasks = [];
+  if (dom) tasks.push("bun run test:dom");
+  if (src.length) tasks.push(`bun test ${src.join(" ")}`);
+  return tasks.length > 0 ? tasks.join(" && ") : "true";
+}
+
 /** @type {import('lint-staged').Configuration} */
 export default {
   "*.{js,jsx,ts,tsx,mjs,mts,cjs,cts}": ["bun run format:check", "bun run lint"],
   "*.{css,json,md,mdc,html,yaml,yml}": "bun run format:check",
   "*.{ts,tsx}": [typecheckStagedFiles, relatedTests],
-  "*.test.ts": "bun test",
-  "*.test.tsx": "bun test",
+  "*.test.ts": runStagedTest,
+  "*.test.tsx": runStagedTest,
 };

@@ -24,11 +24,13 @@ Tracer-bullet slice, plan TODO, refactor, module/entry/hook change, bug fix, rev
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `src/**/*.ts` (non-test)              | `bun run lint <file>` · `bun run format:check <file>` · `bun run typecheck` · `bun test <paired test>` |
 | `src/**/*.test.ts`                    | `bun test <file>`                                                                                      |
+| `tests-dom/**/*.test.tsx`             | `bun run test:dom` (vitest) · `bun run lint <file>` · `bun run format:check <file>`                    |
+| `vitest.config.ts`                    | `bun run format:check <file>` · `bun run test:dom`                                                     |
 | `tsdown.config.ts` / `tsconfig*.json` | `bun run format:check <file>` · `bun run build` · `bun run typecheck`                                  |
 | `package.json`                        | `bun run format:check` · `bun install` (if deps changed) · `bun run check`                             |
 | `docs/**` / `*.md` / `.agents/**`     | `bun run format:check <file>`                                                                          |
 | `.github/**` / `*.yml`                | `bun run format:check <file>`                                                                          |
 
-Full gate before commit/push: `bun run typecheck && bun test ./src && bun run lint && bun run format:check` (and `bun run build` if entry points / build config changed).
+Full gate before commit/push: `bun run typecheck && bun test ./src && bun run test:dom && bun run lint && bun run format:check` (and `bun run build` if entry points / build config changed).
 
 Related: [`no-bypass-hooks`](./no-bypass-hooks.md) · [`tracer-bullets`](./tracer-bullets.md) · [`harden-pr`](../skills/harden-pr/SKILL.md).

@@ -10,14 +10,18 @@
 ```bash
 bun install            # runs `prepare` → Husky git hooks
 bun test ./src         # 99 bun:test unit tests
+bun run test:dom       # vitest + jsdom — React useHydrated reactivity (DOM) tests
 bun run typecheck      # tsgo --noEmit
 bun run lint           # oxlint
 bun run format         # oxfmt
 bun run build          # tsdown → dist/ (five subpath entries)
-bun run check          # build, then format:check + lint:ci + test + typecheck (in parallel)
+bun run docs:api       # TypeDoc → docs/api/ (git-ignored HTML site)
+bun run check          # build, then format:check + lint:ci + test + test:dom + typecheck (in parallel)
 bun run check-updates  # interactive dependency updates (`bun update -i --latest`)
 bun run clean          # remove untracked/ignored build artifacts (keeps .env)
 ```
+
+The test suite is split by what it needs: `bun:test` for `src/**/*.test.ts` (no DOM), and `vitest` + jsdom + @testing-library/react for `tests-dom/**/*.test.tsx` (the React `useHydrated` rerender path). See [`docs/architecture.md § Test matrix`](../docs/architecture.md#test-matrix).
 
 ### `main` and pull requests
 

@@ -92,6 +92,21 @@ jobs:
       - name: Run unit tests
         run: bun run test
 
+  test-dom:
+    name: 🌐 Test (DOM)
+    needs: skip-ci
+    if: needs['skip-ci'].outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Run React reactivity tests (vitest + jsdom)
+        run: bun run test:dom
+
   build:
     name: 🧰 Build
     needs: skip-ci
@@ -109,7 +124,7 @@ jobs:
 
   ci-complete:
     name: CI complete
-    needs: [skip-ci, format, lint, typecheck, test, build]
+    needs: [skip-ci, format, lint, typecheck, test, test-dom, build]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -120,6 +135,7 @@ jobs:
             needs.lint.result != 'success' ||
             needs.typecheck.result != 'success' ||
             needs.test.result != 'success' ||
+            needs['test-dom'].result != 'success' ||
             needs.build.result != 'success'
           )
         run: exit 1
