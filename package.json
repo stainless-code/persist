@@ -10,7 +10,8 @@
     "persistence",
     "state",
     "store",
-    "tanstack"
+    "tanstack",
+    "tanstack-intent"
   ],
   "homepage": "https://github.com/stainless-code/persist#readme",
   "bugs": {
@@ -22,7 +23,9 @@
     "url": "https://github.com/stainless-code/persist.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "skills",
+    "!skills/_artifacts"
   ],
   "type": "module",
   "sideEffects": false,
@@ -62,6 +65,8 @@
     "format": "oxfmt --no-error-on-unmatched-pattern",
     "format:changes": "bun scripts/run-on-changed-files.ts format",
     "format:check": "oxfmt --check --no-error-on-unmatched-pattern",
+    "intent:stale": "intent stale",
+    "intent:validate": "intent validate",
     "lint": "oxlint --no-error-on-unmatched-pattern",
     "lint-staged": "lint-staged",
     "lint:changes": "bun scripts/run-on-changed-files.ts lint",
@@ -69,7 +74,7 @@
     "lint:fix": "bun run lint --fix",
     "lint:fix:changes": "bun scripts/run-on-changed-files.ts lint:fix",
     "prepare": "husky || true",
-    "prepublishOnly": "bun run check",
+    "prepublishOnly": "bun run check && bun run intent:validate",
     "release": "changeset publish",
     "test": "bun test ./src",
     "test:dom": "vitest run",
@@ -79,6 +84,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "0.7.0",
     "@changesets/cli": "2.31.0",
+    "@tanstack/intent": "0.3.4",
     "@tanstack/store": "0.11.0",
     "@testing-library/dom": "10.4.1",
     "@testing-library/react": "16.3.2",
