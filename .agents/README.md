@@ -23,13 +23,13 @@ Source of truth for AI agent configuration. Cursor consumes via symlinks in `.cu
 
 ## Inventory (deliberate, slim)
 
-A small library needs a small governance surface. Chosen set — ~7 rules + ~4 skills:
+A small library needs a small governance surface. Chosen set — 7 rules + 7 skills:
 
 **Rules** — 6 Tier-1 (always-on): `agents-first-convention`, `tracer-bullets`, `no-bypass-hooks`, `verify-after-each-step`, `authoring-discipline`, `concise-reporting`; 1 Tier-2 (globs): `agents-tier-system`.
 
-**Skills** — `writing-great-skills` (user-invoked meta), `grilling` (intent), `docs-governance` (intent), `harden-pr` (intent).
+**Skills** — `writing-great-skills` (user-invoked meta), `grilling` (intent, design stress-test), `docs-governance` (intent, docs lifecycle), `harden-pr` (intent, branch-to-pristine), `diagnosing-bugs` (intent, hard-bug loop), `tdd` (intent, red-green-refactor), `pr-comment-fact-check` (intent, bot/reviewer triage).
 
-Deliberate omissions (would reference tooling this repo lacks): `codemap`, `figma-mcp`, `fallow`, `pr-default-reviewers`, `features-pattern`, `api-client`, `pr-comment-fact-check`, UI-component skills, `consumer-surfaces` (no served agent-content surface like codemap's). Add a rule/skill only when the repo gains the tooling it would govern — a rule referencing a nonexistent script is worse than no rule.
+Deliberate omissions (would reference tooling/structure this repo lacks, or duplicate what's already here): `codemap`, `figma-mcp`, `fallow`, `pr-default-reviewers`, `features-pattern`, `api-client`, UI-component skills (no UI), `consumer-surfaces` (no served agent-content surface); `docs-lifecycle-sweep` (depends on per-feature `docs/` subtrees this repo lacks — Tier B only here; add when the surface grows); `codebase-design` (seam/adapter vocabulary already encoded in `docs/architecture.md` for this settled lib; `harden-pr` Structure reviewer is concrete enough); `agents-tier-system` skill + `writing-agents-config` (the rule + `writing-great-skills` already cover tier authoring; would mostly duplicate). Add a rule/skill only when the repo gains the tooling it would govern — a rule referencing a nonexistent script is worse than no rule.
 
 ## Conventions
 

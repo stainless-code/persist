@@ -11,6 +11,6 @@ Canonical read order: [`.agents/README.md`](.agents/README.md) (START HERE).
 | Verify each step | [`.agents/rules/verify-after-each-step.md`](.agents/rules/verify-after-each-step.md)   |
 | Lessons          | [`.agents/lessons.md`](.agents/lessons.md)                                             |
 
-Intent (not always-on): `docs-governance`, `grilling`, `harden-pr`, `writing-great-skills` — see `.agents/README.md`.
+Intent (not always-on): `docs-governance`, `grilling`, `harden-pr`, `diagnosing-bugs`, `tdd`, `pr-comment-fact-check`, `writing-great-skills` — see `.agents/README.md`.
 
 Human Day-1: [README](README.md) Getting Started · [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md).

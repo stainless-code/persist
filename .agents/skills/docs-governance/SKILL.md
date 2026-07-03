@@ -18,5 +18,5 @@ Repo-wide Tier B surface (cross-cutting reference + lifecycle substrate). This i
 
 ## Reference
 
-- [`docs-lifecycle-sweep`](#) — not shipped for this repo (no accumulated docs to sweep yet). Add when the surface grows.
+- `docs-lifecycle-sweep` — not shipped for this repo (no accumulated docs to sweep yet). Add when the surface grows.
 - [`authoring-discipline`](../../rules/authoring-discipline.md) — prose density.
