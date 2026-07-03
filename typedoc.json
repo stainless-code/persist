@@ -1,0 +1,33 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/index.ts",
+    "src/persist-seroval.ts",
+    "src/persist-idb.ts",
+    "src/persist-tanstack.ts",
+    "src/use-hydrated.ts"
+  ],
+  "out": "docs/api",
+  "name": "@stainless-code/persist",
+  "includeVersion": true,
+  "readme": "none",
+  "entryPointStrategy": "resolve",
+  "categorizeByGroup": false,
+  "sort": ["source-order"],
+  "visibilityFilters": {},
+  "intentionallyNotExported": [],
+  "treatWarningsAsErrors": true,
+  "treatValidationWarningsAsErrors": true,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "invalidPath": true,
+    "rewrittenLink": true
+  },
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "disableSources": false,
+  "sourceLinkTemplate": "https://github.com/stainless-code/persist/blob/{gitRevision}/{path}#L{line}",
+  "gitRevision": "main",
+  "logLevel": "Info"
+}

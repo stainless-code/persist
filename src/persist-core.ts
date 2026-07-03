@@ -332,9 +332,9 @@ export interface PersistApi<TState, TPersistedState = TState> {
   /** `false` while a (re)hydrate is in flight; subscribe-writes are gated on it. */
   hasHydrated: () => boolean;
   /** Listen for hydration START (per (re)hydrate). Returns an unsubscribe fn. */
-  onHydrate: (fn: PersistListener<TState>) => () => void;
+  onHydrate: (fn: (state: TState) => void) => () => void;
   /** Listen for hydration END — success or failure. Returns an unsubscribe fn. */
-  onFinishHydration: (fn: PersistListener<TState>) => () => void;
+  onFinishHydration: (fn: (state: TState) => void) => () => void;
   getOptions: () => PersistOptions<TState, TPersistedState>;
   /**
    * Full teardown: detach the source subscription, remove the cross-tab

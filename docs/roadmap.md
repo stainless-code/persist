@@ -7,8 +7,9 @@ Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [READM
 ## Next
 
 - **Framework-matrix tests** — the React `useHydrated` reactivity path needs a DOM + `useSyncExternalStore` harness that `bun:test` can't provide. Add a vitest + jsdom + @testing-library/react suite scoped to a separate test pattern (`src/**/*.browser.test.tsx`) so `bun test ./src` and vitest never both pick up the same files; wire a `test:dom` script into `check` and CI. See [`plans/framework-matrix-tests.md`](./plans/framework-matrix-tests.md).
-- **Publish-time JSDoc** — `@internal` on non-public exports + `stripInternal` in the dts build, and a TypeDoc site (`docs:api` script, output git-ignored under `docs/api/`) covering the five entry points. Verify `{@link}` targets resolve across entries and `@default` / `@example` tags survive into the shipped `.d.mts`. See [`plans/publish-time-jsdoc.md`](./plans/publish-time-jsdoc.md).
 - **Upstream TanStack Persist collaboration** — pitch the `persistSource` middleware model (structural `PersistableSource` + first-class hydration lifecycle) to the TanStack Persist maintainers as a merge target, after the stainless-code publish stabilises. Draft: [`plans/upstream-tanstack-pitch.md`](./plans/upstream-tanstack-pitch.md).
+
+> **Shipped** — publish-time JSDoc tooling landed: `stripInternal` guard, TypeDoc site (`bun run docs:api`), `{@link}` resolution gated. See [architecture.md § Publishing & API docs](./architecture.md).
 
 ---
 
