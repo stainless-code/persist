@@ -1,0 +1,46 @@
+# [Changesets](https://github.com/changesets/changesets): open a "Version packages" PR when
+# `.changeset/*.md` files land on `main`, then publish to npm when that PR merges (requires `NPM_TOKEN`).
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun and install
+        uses: ./.github/actions/setup
+
+      # Opens/updates the Version PR when `.changeset/*.md` exist. When there are none, the action
+      # can still run `publish` (see changesets/action) so a just-merged Version PR can ship.
+      # `changeset publish` should exit 0 when there is nothing new to publish. If this job fails,
+      # read the step log: common causes are missing/invalid NPM_TOKEN, registry/network errors, or
+      # a real publish failure — not assumed from the runner alone.
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          # Runs `changeset version` then oxfmt on CHANGELOG.md so `format:check` passes.
+          version: bun run version
+          publish: bun run release
+          title: "chore: version packages"
+          commit: "chore: version packages"
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
