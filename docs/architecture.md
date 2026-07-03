@@ -1,0 +1,45 @@
+# Architecture
+
+Brief maintainer reference for the seam model and entry-point layout. The full API contract lives in the **JSDoc of each module** (hovers + published typings); the consumer-facing guide is the root [`README.md`](../README.md) § Extensibility guide. This file points at it, not a restatement.
+
+## Three seams
+
+Persistence is bound to a structural `PersistableSource` (`getState` / `setState` / `subscribe`) rather than a specific store, so the same middleware persists TanStack Store, zustand, Redux, or a hand-rolled atom. Three seams make every backend × codec cell a one-line composition:
+
+| Seam        | Type                             | Role                                                                                                                       |
+| ----------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Backend** | `StateStorage<TRaw = string>`    | `getItem` / `setItem` / `removeItem` — sync or Promise-returning, string-wire by default, generic for structured backends. |
+| **Codec**   | `StorageCodec<S, TRaw = string>` | Pure `encode` / `decode` between the persisted envelope (`StorageValue`) and the backend's wire type.                      |
+| **Source**  | `PersistableSource<TState>`      | The reactive store to persist — structural, store-agnostic.                                                                |
+
+`createStorage(backend, codec, options)` composes a `PersistStorage`; `persistSource(source, options)` wires it to a store. **Factory policy:** codec factories take the backend as an argument; a backend earns its own factory only when it needs real adaptation (IndexedDB). Everything else composes — no factory-per-combination.
+
+## Entry points (one subpath = one optional peer)
+
+| Entry                                    | Module                       | Optional peer                                 |
+| ---------------------------------------- | ---------------------------- | --------------------------------------------- |
+| `@stainless-code/persist`                | `persist-core` + `hydration` | none (zero-dep core, enforced by a gate test) |
+| `@stainless-code/persist/seroval`        | `persist-seroval`            | `seroval`                                     |
+| `@stainless-code/persist/idb`            | `persist-idb`                | `idb-keyval`                                  |
+| `@stainless-code/persist/tanstack-store` | `persist-tanstack`           | `@tanstack/store` (types only)                |
+| `@stainless-code/persist/react`          | `use-hydrated`               | `react`                                       |
+
+No barrel — importing a subpath is the dependency opt-in. Each subpath entry owns its peer dep, which stays external in the build (`tsdown.config.ts` `neverBundle`) so consumers tree-shake cleanly.
+
+## Hydration lifecycle
+
+`persistSource` hydrates on create (skip with `skipHydration`; `rehydrate()` is awaitable), subscribe-writes on every `setState` (gated until hydrated; optional trailing `throttleMs`), and tears down via `destroy()`. The hydration signal (`HydrationSignal` from `hydration`) is observed from outside the store — framework adapters mount it into their external-store mechanism (React `useSyncExternalStore` via `useHydrated`, Svelte `createSubscriber`, Solid `from`, Vue `shallowRef` + watch) without coupling to the store's read path. SSR policy: render `hydrated = true` on the server; `null` signal = no persistence = hydrated.
+
+## Sync vs async
+
+One API. Sync backends (localStorage) settle hydration before first paint; async backends (IndexedDB) ride the same `getItem` Promise branch — `getItem` returning a native `Promise` switches the read path to async (deliberately `instanceof Promise`, not thenable duck-typing, so a stored value carrying a `then` property is never mistaken for a pending read). Gate UI on `useHydrated` for async backends.
+
+## Beyond Query-persister parity
+
+`buster` / `maxAge` / `throttleMs` / `retryWrite` ship alongside versioned `migrate`, cross-tab sync (`crossTab` + `onCrossTabRemove`), the hydration signal, and the codec seam — beyond what TanStack Query's `persistQueryClient` offers. **Deliberate `maxAge` default divergence:** prefs shouldn't silently expire, so `maxAge` is opt-in rather than default-on.
+
+## Reference
+
+- Root [`README.md`](../README.md) — install, quick start, recipes, framework-adapter guide.
+- [`roadmap.md`](./roadmap.md) — forward-looking work.
+- `.agents/skills/docs-governance` — docs lifecycle for this folder.
