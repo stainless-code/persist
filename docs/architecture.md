@@ -59,5 +59,6 @@ The split is structural — `tests-dom/` is a top-level directory outside `bun t
 ## Reference
 
 - Root [`README.md`](../README.md) — install, quick start, recipes, framework-adapter guide.
+- [`glossary.md`](./glossary.md) — ubiquitous language (backend, codec, source, envelope, hydration signal, generation guard, entry).
 - [`roadmap.md`](./roadmap.md) — forward-looking work.
 - `.agents/skills/docs-governance` — docs lifecycle for this folder.

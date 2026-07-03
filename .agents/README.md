@@ -4,14 +4,15 @@ Source of truth for AI agent configuration. Cursor consumes via symlinks in `.cu
 
 ## Start here
 
-| Question                          | Read                                                                 |
-| --------------------------------- | -------------------------------------------------------------------- |
-| Repo-root stub (tools / humans)   | [`AGENTS.md`](../AGENTS.md) → this README                            |
-| Where files live, symlinks        | [rules/agents-first-convention.md](rules/agents-first-convention.md) |
-| Tier 1 / 2 / 3 attachment modes   | [rules/agents-tier-system.md](rules/agents-tier-system.md)           |
-| Authoring new rules/skills (meta) | [`writing-great-skills`](skills/writing-great-skills/SKILL.md)       |
-| Past corrections                  | [`lessons.md`](lessons.md)                                           |
-| What exists on disk right now     | `ls .agents/rules` · `ls .agents/skills`                             |
+| Question                          | Read                                                                  |
+| --------------------------------- | --------------------------------------------------------------------- |
+| Repo-root stub (tools / humans)   | [`AGENTS.md`](../AGENTS.md) → this README                             |
+| Where files live, symlinks        | [rules/agents-first-convention.md](rules/agents-first-convention.md)  |
+| Tier 1 / 2 / 3 attachment modes   | [rules/agents-tier-system.md](rules/agents-tier-system.md)            |
+| Persist tier/pairing deltas       | [skills/writing-agents-config](skills/writing-agents-config/SKILL.md) |
+| Authoring new rules/skills (meta) | [`writing-great-skills`](skills/writing-great-skills/SKILL.md)        |
+| Past corrections                  | [`lessons.md`](lessons.md)                                            |
+| What exists on disk right now     | `ls .agents/rules` · `ls .agents/skills`                              |
 
 ## Tier legend (summary)
 
@@ -21,21 +22,33 @@ Source of truth for AI agent configuration. Cursor consumes via symlinks in `.cu
 | **2** | `globs:`              | When matching files in scope   |
 | **3** | `description:` intent | When user/agent intent matches |
 
-## Inventory (deliberate, slim)
+## Inventory
 
-A small library needs a small governance surface. Chosen set — 7 rules + 7 skills:
+9 rules + 18 skills. Discover on disk via `ls` + the frontmatter audit in [`agents-tier-system`](rules/agents-tier-system.md) — no hardcoded name lists.
 
-**Rules** — 6 Tier-1 (always-on): `agents-first-convention`, `tracer-bullets`, `no-bypass-hooks`, `verify-after-each-step`, `authoring-discipline`, `concise-reporting`; 1 Tier-2 (globs): `agents-tier-system`.
+**Rules** — 7 Tier-1 (always-on): `agents-first-convention`, `tracer-bullets`, `no-bypass-hooks`, `verify-after-each-step`, `authoring-discipline`, `concise-reporting`, `architecture-priming`; plus `lessons.md`. 2 Tier-2 (globs): `agents-tier-system`, `docs-governance-priming`.
 
-**Skills** — `writing-great-skills` (user-invoked meta), `grilling` (intent, design stress-test), `docs-governance` (intent, docs lifecycle), `harden-pr` (intent, branch-to-pristine), `diagnosing-bugs` (intent, hard-bug loop), `tdd` (intent, red-green-refactor), `pr-comment-fact-check` (intent, bot/reviewer triage).
+**Skills** — `writing-great-skills` (meta vocabulary), `grilling` + `grill-me` + `grill-with-docs` (design stress-test), `teach` (multi-session learning), `ask-agents` (user-only router), `improve-codebase-architecture` (seam/boundary plans), `domain-modeling` (ubiquitous language), `docs-governance` + `docs-lifecycle-sweep` (docs lifecycle), `agents-tier-system` (tier assignments), `authoring-discipline` (prose depth), `verify-after-each-step` (per-file checks), `writing-agents-config` (persist deltas), `harden-pr` (branch-to-pristine), `diagnosing-bugs` (hard-bug loop), `tdd` (red-green-refactor), `pr-comment-fact-check` (reviewer/bot triage).
 
-Deliberate omissions (would reference tooling/structure this repo lacks, or duplicate what's already here): `codemap`, `figma-mcp`, `fallow`, `pr-default-reviewers`, `features-pattern`, `api-client`, UI-component skills (no UI), `consumer-surfaces` (no served agent-content surface); `docs-lifecycle-sweep` (depends on per-feature `docs/` subtrees this repo lacks — Tier B only here; add when the surface grows); `codebase-design` (seam/adapter vocabulary already encoded in `docs/architecture.md` for this settled lib; `harden-pr` Structure reviewer is concrete enough); `agents-tier-system` skill + `writing-agents-config` (the rule + `writing-great-skills` already cover tier authoring; would mostly duplicate). Add a rule/skill only when the repo gains the tooling it would govern — a rule referencing a nonexistent script is worse than no rule.
+## Deliberate omissions
+
+Genuinely inapplicable to this repo (would govern tooling/structure it lacks):
+
+- **UI-component skills** (`button`, `modal`, `tooltip`, `switcher`, `react-aria`, `react-best-practices`, `no-use-effect`, `design-engineer`) — no UI surface.
+- **`api-client` / `dayjs-guidelines` / `snowflake-data-period` / `tanstack-form` / `tanstack-store` / `zod-parsing`** — no API client, no Snowflake, no form/store-app layer (the _library_ adapts to TanStack Store, but the repo isn't a TanStack Store app).
+- **`features-pattern` / `audit-pr-architecture`** — no per-feature folder structure; one `src/` surface.
+- **`codebase-design`** — seam/adapter vocabulary is already inlined in `improve-codebase-architecture/LANGUAGE.md` for this settled lib.
+- **Code-index / dead-code-dupe-CRAP / AST-codemod skills** — no SQLite code index, no dead-code/dupe audit tool, no AST codemod toolchain wired here.
+- **Design-handoff MCP skill** — no design handoff.
+- **Reviewer-routing / permission-guard / UI-string / route-tree / number-format / design-token skills** — no CODEOWNERS reviewer routing, no permission guards, no UI strings, no route tree, no number formatting, no design tokens.
+
+Add a rule/skill only when the repo gains the tooling it would govern — a rule referencing a nonexistent script is worse than no rule.
 
 ## Conventions
 
-- **`-priming` suffix** when a Tier-2 rule filename ≠ skill folder name. Not currently used (no priming rules).
-- **No `AGENTS.md` in skill folders** — use `FULL-GUIDE.md` or topic siblings for bulk reference. Repo root `AGENTS.md` is a thin stub only.
-- **Thin rules** (~10–30 lines); depth in `SKILL.md` or siblings.
+- **`-priming` suffix** when a Tier-2 rule filename ≠ skill folder name (`docs-governance-priming` ↔ `docs-governance` + `docs-lifecycle-sweep`; `architecture-priming` ↔ `improve-codebase-architecture`).
+- **No `AGENTS.md` in skill folders** — use `FULL-GUIDE.md` or topic siblings (`WORKFLOW.md`, `REFERENCE.md`, `LANGUAGE.md`, `PROSE.md`) for bulk reference. Repo root `AGENTS.md` is a thin stub only.
+- **Thin rules** (~10–40 lines); depth in `SKILL.md` or siblings.
 
 ## Layout
 

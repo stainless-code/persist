@@ -5,6 +5,7 @@ Repo-wide documentation hub for `@stainless-code/persist`. The package landing p
 ## Reference
 
 - [`architecture.md`](./architecture.md) — the three-seam model (backend × codec × source) and entry-point layout. Brief; the full API contract lives in the JSDoc of each module.
+- [`glossary.md`](./glossary.md) — ubiquitous language for the persistence domain (backend, codec, source, envelope, hydration signal, generation guard, entry).
 - [`roadmap.md`](./roadmap.md) — forward-looking work only, not a mirror of `src/`.
 
 ## Lifecycle folders

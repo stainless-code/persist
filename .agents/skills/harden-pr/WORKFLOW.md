@@ -59,6 +59,14 @@ Subagents over-report. After merge + dedupe:
 
 **Anti-pattern:** applying a fix without re-reading the cited location.
 
+## Reconcile mode
+
+Run-to-completion like other modes:
+
+1. Read [LEDGER.md § Deferred](./LEDGER.md#deferred). Re-vet each row (same vet step). Fix in-bounds items; remove fixed lines.
+2. Run **full** harden on `origin/main...HEAD`.
+3. On cap: append still-deferred items to **§ Deferred** in [LEDGER.md](./LEDGER.md). Report what was reconciled vs still open.
+
 ## In-bounds vs out-of-bounds
 
 **Fix:** bugs, missing tests, docs/changeset drift, lint/type/format, error-handling gaps, edge cases, behavior-preserving refactors in touched files, in-scope nits (naming, comment hygiene).

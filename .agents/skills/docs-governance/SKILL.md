@@ -18,5 +18,6 @@ Repo-wide Tier B surface (cross-cutting reference + lifecycle substrate). This i
 
 ## Reference
 
-- `docs-lifecycle-sweep` — not shipped for this repo (no accumulated docs to sweep yet). Add when the surface grows.
+- [`docs-lifecycle-sweep`](../docs-lifecycle-sweep/SKILL.md) — the doc janitor; walks `docs/` and produces a per-file action plan.
+- [`docs-governance-priming`](../../rules/docs-governance-priming.md) — Tier 2 priming on doc edits.
 - [`authoring-discipline`](../../rules/authoring-discipline.md) — prose density.

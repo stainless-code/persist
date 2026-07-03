@@ -1,25 +1,25 @@
 ---
-description: Authoring discipline for code comments and committed prose — preserve existing comments, keep new prose concise.
+description: Authoring discipline for code comments, docs, and committed prose — preserve existing comments, keep new prose concise, never embed brittle anchors in commits.
 alwaysApply: true
 ---
 
-# Authoring discipline
+# Authoring discipline (STOP)
 
-**Doc lifecycle:** [`docs-governance`](../skills/docs-governance/SKILL.md).
+**Prose depth:** [`authoring-discipline/PROSE.md`](../skills/authoring-discipline/PROSE.md). **Doc lifecycle:** [`docs-governance`](../skills/docs-governance/SKILL.md).
 
 ## Preserve existing source comments (non-negotiable)
 
 1. **Never remove comments** — preserve when editing; update if outdated, don't delete.
-2. **Never remove TODO / FIXME / HACK** — ask the user before removing completed TODOs.
+2. **Never remove TODO / FIXME / HACK** — ask user before removing completed TODOs.
 3. **Never remove commented-out code** — ask before removal.
 4. **StrReplace** — copy comments into `new_string`; move comments when restructuring.
 
 User-requested **doc audits** may slim redundant markdown; preservation above applies to **source** comments only.
 
-## New prose (defaults)
+## New prose + anchors (defaults)
 
-- **Decision test:** could a teammate re-derive this from the code in 30 seconds? → cut it.
-- **Keep the _why_** — design intent, trade-offs, the rejected alternative, non-obvious constraints (storage quirks, race conditions, ordering), sentinels/magic values, cross-references that save grep time.
-- **Cut the _what_** — restating the function/variable name, restating the next line, generic library practice, section headers in short files, author/date stamps.
-- **JSDoc** — `@param` / `@returns` / `@default` / `@example` carry the meaning; types stay, narrating them does not. The shipped `.d.mts` should read well in hovers.
-- **End-of-turn:** re-read the comments **you** authored this turn and cut the no-ops before reporting.
+- **Decision test:** re-derivable in 30s? → cut it (details in [`PROSE.md`](../skills/authoring-discipline/PROSE.md)).
+- **No brittle anchors** in commits — plain-English decisions; no design-tool node IDs / handoff URLs in source, JSDoc, or tests.
+- **End-of-turn:** cut duplicate tables/narration; after doc slim → [`docs-governance`](../skills/docs-governance/SKILL.md) slimming audit.
+
+Related: [`concise-reporting`](./concise-reporting.md) · [`docs-lifecycle-sweep`](../skills/docs-lifecycle-sweep/SKILL.md).
