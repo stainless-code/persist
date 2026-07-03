@@ -54,6 +54,8 @@
   "scripts": {
     "build": "tsdown",
     "check": "bun run build && bun run --parallel format:check lint:ci test typecheck",
+    "check-updates": "bun update -i --latest",
+    "clean": "git clean -xdf -e .env",
     "fix": "bun run lint:fix && bun run format",
     "format": "oxfmt",
     "format:check": "oxfmt --check --no-error-on-unmatched-pattern",
