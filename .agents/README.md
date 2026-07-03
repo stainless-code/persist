@@ -30,20 +30,6 @@ Source of truth for AI agent configuration. Cursor consumes via symlinks in `.cu
 
 **Skills** — `writing-great-skills` (meta vocabulary), `grilling` + `grill-me` + `grill-with-docs` (design stress-test), `teach` (multi-session learning), `ask-agents` (user-only router), `improve-codebase-architecture` (seam/boundary plans), `domain-modeling` (ubiquitous language), `docs-governance` + `docs-lifecycle-sweep` (docs lifecycle), `agents-tier-system` (tier assignments), `authoring-discipline` (prose depth), `verify-after-each-step` (per-file checks), `writing-agents-config` (persist deltas), `harden-pr` (branch-to-pristine), `diagnosing-bugs` (hard-bug loop), `tdd` (red-green-refactor), `pr-comment-fact-check` (reviewer/bot triage).
 
-## Deliberate omissions
-
-Genuinely inapplicable to this repo (would govern tooling/structure it lacks):
-
-- **UI-component skills** (`button`, `modal`, `tooltip`, `switcher`, `react-aria`, `react-best-practices`, `no-use-effect`, `design-engineer`) — no UI surface.
-- **`api-client` / `dayjs-guidelines` / `snowflake-data-period` / `tanstack-form` / `tanstack-store` / `zod-parsing`** — no API client, no Snowflake, no form/store-app layer (the _library_ adapts to TanStack Store, but the repo isn't a TanStack Store app).
-- **`features-pattern` / `audit-pr-architecture`** — no per-feature folder structure; one `src/` surface.
-- **`codebase-design`** — seam/adapter vocabulary is already inlined in `improve-codebase-architecture/LANGUAGE.md` for this settled lib.
-- **Code-index / dead-code-dupe-CRAP / AST-codemod skills** — no SQLite code index, no dead-code/dupe audit tool, no AST codemod toolchain wired here.
-- **Design-handoff MCP skill** — no design handoff.
-- **Reviewer-routing / permission-guard / UI-string / route-tree / number-format / design-token skills** — no CODEOWNERS reviewer routing, no permission guards, no UI strings, no route tree, no number formatting, no design tokens.
-
-Add a rule/skill only when the repo gains the tooling it would govern — a rule referencing a nonexistent script is worse than no rule.
-
 ## Conventions
 
 - **`-priming` suffix** when a Tier-2 rule filename ≠ skill folder name (`docs-governance-priming` ↔ `docs-governance` + `docs-lifecycle-sweep`; `architecture-priming` ↔ `improve-codebase-architecture`).
