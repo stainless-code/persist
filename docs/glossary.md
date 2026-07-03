@@ -39,15 +39,15 @@
 
 ## Options (non-exhaustive — see JSDoc)
 
-| Term            | Definition                                                              |
-| --------------- | ----------------------------------------------------------------------- |
-| **skipHydrate** | Skip the on-create hydration read (consumer rehydrates manually).       |
-| **throttleMs**  | Trailing write throttle window.                                         |
-| **maxAge**      | Opt-in expiry (deliberate divergence: prefs shouldn't silently expire). |
-| **buster**      | Cache-busting key mixed into the storage key.                           |
-| **migrate**     | Versioned migration of a persisted envelope on read.                    |
-| **crossTab**    | Cross-tab sync via storage events; rehydrate on remote write.           |
-| **retryWrite**  | Retry loop for failed writes, guarded by the generation guard.          |
+| Term              | Definition                                                              |
+| ----------------- | ----------------------------------------------------------------------- |
+| **skipHydration** | Skip the on-create hydration read (consumer rehydrates manually).       |
+| **throttleMs**    | Trailing write throttle window.                                         |
+| **maxAge**        | Opt-in expiry (deliberate divergence: prefs shouldn't silently expire). |
+| **buster**        | Cache-busting key mixed into the storage key.                           |
+| **migrate**       | Versioned migration of a persisted envelope on read.                    |
+| **crossTab**      | Cross-tab sync via storage events; rehydrate on remote write.           |
+| **retryWrite**    | Retry loop for failed writes, guarded by the generation guard.          |
 
 ## Flagged ambiguities
 
