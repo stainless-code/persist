@@ -1,7 +1,4 @@
-// expo-secure-store entry — owns the `expo-secure-store` dependency so the
-// core stays zero-dep. Ships as its own subpath entry with that peer optional.
-// No barrel re-exports this module: importing it directly IS the dependency
-// opt-in (enforced by an isolation test).
+// expo-secure-store backend — peer `expo-secure-store` >=12.0.0. ~2KB/key limit — for small secrets.
 import * as SecureStore from "expo-secure-store";
 
 import type { StateStorage } from "../../core/persist-core";

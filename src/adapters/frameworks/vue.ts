@@ -1,29 +1,20 @@
-// Vue hydration entry — owns the `vue` peer dep so the core stays zero-dep.
-// Ships as its own subpath entry with vue as an optional peer; no barrel
-// re-exports it (importing it IS the dep opt-in, enforced by an isolation
-// test).
+// Vue hydration adapter — peer `vue` >=3.3.0.
 import { onScopeDispose, shallowRef } from "vue";
 import type { Ref } from "vue";
 
 import type { HydrationSignal } from "../../core/hydration";
 
 /**
- * Mount a `HydrationSignal` into Vue's reactivity. Returns a `Ref<boolean>`
- * — read it in a template or `effect`/`computed` to track the hydration gate.
- * Null/undefined signal → a ref that stays `true` (store stays the same with
- * or without persistence). The subscription is cleaned up via
- * `onScopeDispose`, so call this inside `setup()` or an `effectScope()` —
- * the scope owns the teardown, no manual `destroy()` needed.
- *
- * The signal is always-hydrated on the server (no storage → no-op
- * `PersistApi`), so this ref renders `true` during SSR without
- * special-casing — matching the `HydrationSignal` adapter contract.
+ * Mount a `HydrationSignal` into Vue's reactivity. Returns a `Ref<boolean>`;
+ * call inside `setup()` or an `effectScope()` — the subscription is cleaned up
+ * via `onScopeDispose` (the scope owns teardown). Null/undefined signal → a
+ * ref that stays `true`. Renders `true` on the server.
  *
  * @example
  * ```ts
  * // inside setup() — onScopeDispose is active
  * const hydrated = useHydrated(prefsHydration);
- * // template: <Skeleton v-if="!hydrated" /><PrefsPanel v-else />
+ * // <Skeleton v-if="!hydrated" /><PrefsPanel v-else />
  * ```
  */
 export function useHydrated(

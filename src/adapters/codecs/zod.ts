@@ -1,5 +1,4 @@
-// Zod codec entry — owns the `zod` dependency so the core stays
-// zero-dep. Ships as its own subpath entry with zod as an optional peer.
+// zod-validated codec — peer `zod` >=3.20.0.
 import { ZodType } from "zod";
 
 import type {

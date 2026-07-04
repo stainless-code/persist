@@ -1,7 +1,4 @@
-// Solid hydration entry — owns the `solid-js` peer dep so the core stays
-// zero-dep. Ships as its own subpath entry with solid-js as an optional peer;
-// no barrel re-exports it (importing it IS the dep opt-in, enforced by an
-// isolation test).
+// Solid hydration adapter — peer `solid-js` >=1.6.0.
 import { from } from "solid-js";
 import type { Accessor } from "solid-js";
 
@@ -10,16 +7,10 @@ import type { HydrationSignal } from "../../core/hydration";
 const alwaysTrue: Accessor<boolean> = () => true;
 
 /**
- * Mount a `HydrationSignal` into Solid's reactivity via `from`. Returns a
- * Solid `Accessor<boolean>` — read it inside a reactive scope (`createEffect`,
- * a component, JSX) to track the hydration gate. Null/undefined signal →
- * always `true` (store stays the same with or without persistence). The
- * subscription is owned by the reactive scope that creates the accessor and
- * is cleaned up automatically on scope dispose — no manual teardown.
- *
- * The signal is always-hydrated on the server (no storage → no-op
- * `PersistApi`), so this accessor renders `true` during SSR without
- * special-casing — matching the `HydrationSignal` adapter contract.
+ * Mount a `HydrationSignal` into Solid's reactivity via `from`. Returns an
+ * `Accessor<boolean>` — read it in a reactive scope (`createEffect`/component/JSX).
+ * Null/undefined signal → always `true`; the subscription is owned by the
+ * reactive scope and cleaned up on scope dispose. Renders `true` on the server.
  *
  * @example
  * ```ts

@@ -1,7 +1,4 @@
-// BroadcastChannel cross-tab entry — owns NO peer dep (`BroadcastChannel` is a
-// web global, available in browsers + Node 18+). Ships as its own subpath so
-// consumers not using cross-tab don't pull it. For async backends that fire no
-// `storage` events (IndexedDB).
+// BroadcastChannel cross-tab bridge — no peer dep (web global, browsers + Node 18+). For backends that fire no `storage` events (IndexedDB).
 import type {
   CrossTabEventTarget,
   CrossTabStorageEvent,

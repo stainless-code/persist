@@ -1,6 +1,4 @@
-// `@tanstack/store` adapters — the only module that references the store
-// package (types only; `PersistableSource` is structural). Ships as a
-// store-adapter subpath entry with `@tanstack/store` as a peer dep.
+// `@tanstack/store` source adapter — peer `@tanstack/store` (types only; `PersistableSource` is structural).
 import type { Atom, Store, StoreActionMap } from "@tanstack/store";
 
 import type { PersistApi, PersistOptions } from "../../core/persist-core";

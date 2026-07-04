@@ -1,8 +1,4 @@
-// Compressed storage entry — owns NO peer dep (`CompressionStream` /
-// `DecompressionStream` are web globals, available in browsers + Node 18+). Ships
-// as its own subpath so consumers not compressing don't pull it. For
-// string-wire backends (localStorage, AsyncStorage, etc.); output is
-// base64-encoded so it stays string-wire.
+// Compressed storage wrapper — no peer dep (`CompressionStream`/`DecompressionStream` are web globals, browsers + Node 18+). String-wire backends; output is base64.
 import type { StateStorage } from "../../core/persist-core";
 
 export type CompressionFormat = "gzip" | "deflate" | "deflate-raw";
@@ -13,18 +9,14 @@ export interface CreateCompressedStorageOptions {
 }
 
 /**
- * Wrap a string-wire `StateStorage` with native `CompressionStream` /
- * `DecompressionStream` compression. Supported formats: `gzip`, `deflate`,
- * `deflate-raw`. Output is base64-encoded so it stays string-wire.
+ * Native `CompressionStream`/`DecompressionStream` compression over a
+ * string-wire `StateStorage`. Formats: `gzip` (default), `deflate`,
+ * `deflate-raw`; output is base64 so it stays string-wire.
  *
- * Compression is a backend wrapper, **not** a sync `StorageCodec`, because
- * the stream APIs are async — the `StorageCodec` seam is sync. Compose with
- * `createStorage(backend, codec)`: the codec serializes the envelope (sync),
- * this wrapper compresses the serialized string (async).
- *
- * Returns `undefined` when the stream APIs are unavailable so `createStorage`
- * collapses to the no-op `PersistApi`. Stacks with `createEncryptedStorage`
- * (compress-then-encrypt is the standard order).
+ * A backend **wrapper**, not a sync `StorageCodec`, because the stream APIs
+ * are async. Compose: `createStorage(() => createCompressedStorage(backend), codec)`.
+ * Returns `undefined` when the stream APIs are unavailable. Stacks with
+ * `createEncryptedStorage` (compress-then-encrypt is the standard order).
  *
  * @example
  * ```ts

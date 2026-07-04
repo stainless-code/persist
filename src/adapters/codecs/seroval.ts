@@ -1,5 +1,4 @@
-// Seroval codec entry — owns the `seroval` dependency so the core stays
-// zero-dep. Ships as its own subpath entry with seroval as an optional peer.
+// seroval codec — peer `seroval` >=1.0.0.
 import { fromJSON, toJSON } from "seroval";
 
 import type {

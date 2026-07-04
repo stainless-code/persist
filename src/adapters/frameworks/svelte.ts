@@ -1,8 +1,4 @@
-// Svelte 5 (runes) hydration entry — owns the `svelte` peer dep (>=5.0.0) so
-// the core stays zero-dep. Ships as its own subpath entry with svelte as an
-// optional peer; no barrel re-exports it (importing it IS the dep opt-in,
-// enforced by an isolation test). For Svelte 4 (pre-runes) use
-// `./frameworks/svelte-store`.
+// Svelte 5 (runes) hydration adapter — peer `svelte` >=5.0.0. Svelte 4 (pre-runes): `./frameworks/svelte-store`.
 import { createSubscriber } from "svelte/reactivity";
 
 import type { HydrationSignal } from "../../core/hydration";
@@ -14,24 +10,18 @@ const alwaysTrue: { readonly current: boolean } = {
 };
 
 /**
- * Mount a `HydrationSignal` into Svelte 5 reactivity via `createSubscriber`.
- * Returns an object with a `current` getter — read it inside a reactive
- * context (`$derived`, `$effect`, a component, `{#if}`) to track the gate.
- * Null/undefined signal → `current` is always `true` (store stays the same
- * with or without persistence). The subscription is owned by the reactive
- * context that reads `current` and cleaned up on context dispose — no manual
- * teardown.
+ * Mount a `HydrationSignal` into Svelte 5 reactivity (`createSubscriber`).
+ * Read `current` inside a reactive context (`$derived`/`$effect`/`{#if}`) to
+ * track the gate. Null/undefined signal → `current` is always `true`; the
+ * subscription is owned by the reactive context (cleaned up on dispose).
+ * Renders `true` on the server (no-op `PersistApi`).
  *
- * The signal is always-hydrated on the server (no storage → no-op
- * `PersistApi`), so `current` renders `true` during SSR — matching the
- * `HydrationSignal` adapter contract.
- *
- * Svelte 4 (pre-runes) users: use `./frameworks/svelte-store` (`hydratedStore`).
+ * Svelte 4 (pre-runes): `./frameworks/svelte-store` (`hydratedStore`).
  *
  * @example
  * ```ts
  * const hydrated = hydratedRune(prefsHydration);
- * // in a component: {#if hydrated.current}<Skeleton />{:else}<Prefs />{/if}
+ * // {#if hydrated.current}<Skeleton />{:else}<Prefs />{/if}
  * ```
  */
 export function hydratedRune(signal: HydrationSignal | null | undefined): {

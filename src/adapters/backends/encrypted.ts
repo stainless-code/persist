@@ -1,7 +1,4 @@
-// Encrypted storage entry — owns NO peer dep (`crypto.subtle` is a web global,
-// available in browsers + Node 20+). Ships as its own subpath so consumers
-// not encrypting don't pull it. For string-wire backends (localStorage,
-// AsyncStorage, etc.).
+// AES-GCM encrypted storage wrapper — no peer dep (`crypto.subtle` is a web global, browsers + Node 20+). String-wire backends.
 import type { StateStorage } from "../../core/persist-core";
 
 export interface CreateEncryptedStorageOptions {
@@ -10,20 +7,16 @@ export interface CreateEncryptedStorageOptions {
 }
 
 /**
- * Wrap a string-wire `StateStorage` with AES-GCM encryption via WebCrypto.
- * Each stored value is `base64(iv).base64(ciphertext)` — the 12-byte IV is
- * prepended to the ciphertext, both base64-encoded. AES-GCM's auth tag means
- * a wrong key or tampered ciphertext throws on decrypt; persist-core's
- * corrupt-payload path returns `null` (or `clearCorruptOnFailure` removes the
- * key).
+ * AES-GCM encryption over a string-wire `StateStorage` (WebCrypto). Each
+ * stored value is `base64(iv).base64(ciphertext)` (12-byte IV prepended); the
+ * auth tag means a wrong key or tampered ciphertext throws on decrypt →
+ * persist-core's corrupt-payload path returns `null` (or `clearCorruptOnFailure`
+ * removes the key).
  *
- * Encryption is a backend wrapper, **not** a sync `StorageCodec`, because
- * `crypto.subtle` is async — the `StorageCodec` seam is sync. Compose with
- * `createStorage(backend, codec)`: the codec serializes the envelope (sync),
- * this wrapper encrypts the serialized string (async).
- *
- * Returns `undefined` when `crypto.subtle` is unavailable so `createStorage`
- * collapses to the no-op `PersistApi`.
+ * A backend **wrapper**, not a sync `StorageCodec`, because `crypto.subtle`
+ * is async — the codec serializes (sync), this encrypts the string (async).
+ * Compose: `createStorage(() => createEncryptedStorage(backend, { key }), codec)`.
+ * Returns `undefined` when `crypto.subtle` is unavailable.
  *
  * @example
  * ```ts

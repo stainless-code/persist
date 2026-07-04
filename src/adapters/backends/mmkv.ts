@@ -1,7 +1,4 @@
-// React Native MMKV entry — owns the `react-native-mmkv` dependency so the
-// core stays zero-dep. Ships as its own subpath entry with that peer optional.
-// No barrel re-exports this module: importing it directly IS the dependency
-// opt-in (enforced by an isolation test).
+// React Native MMKV backend — peer `react-native-mmkv` >=4.0.0. Synchronous (no hydration gate needed).
 import { createMMKV } from "react-native-mmkv";
 import type { MMKV } from "react-native-mmkv";
 

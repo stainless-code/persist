@@ -1,7 +1,4 @@
-// IndexedDB entry — owns the `idb-keyval` dependency so the core stays
-// zero-dep. Ships as its own subpath entry with idb-keyval as an optional
-// peer. No barrel re-exports this module: importing it directly IS the
-// dependency opt-in (enforced by an isolation test).
+// IndexedDB backend — peer `idb-keyval` >=4.0.0.
 import type { UseStore } from "idb-keyval";
 import { del, get, set } from "idb-keyval";
 
