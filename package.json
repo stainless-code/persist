@@ -79,7 +79,7 @@
     "test": "bun test ./src",
     "test:dom": "vitest run",
     "typecheck": "tsgo --noEmit",
-    "version": "changeset version && bun run format CHANGELOG.md"
+    "version": "changeset version && bun scripts/sync-skill-versions.ts && bun run format CHANGELOG.md"
   },
   "devDependencies": {
     "@changesets/changelog-github": "0.7.0",
