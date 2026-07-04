@@ -294,7 +294,7 @@ export interface PersistOptions<TState, TPersistedState = TState> {
    * retryWrite: ({ state, errorCount }) => {
    *   if (errorCount === 1) return { ...state, history: state.history.slice(-20) };
    *   if (errorCount === 2) return { ...state, history: [] };
-   *   return undefined; // give up — last error goes to onError
+   *   return; // give up — last error goes to onError
    * },
    * ```
    * @default undefined (no retry — first write error is reported)
@@ -450,7 +450,7 @@ export function createStorage<S, TRaw = string>(
   try {
     storage = getStorage();
   } catch {
-    return undefined;
+    return;
   }
 
   // Node 22+ exposes a `localStorage` global whose methods are `undefined`
@@ -462,7 +462,7 @@ export function createStorage<S, TRaw = string>(
     typeof storage?.setItem !== "function" ||
     typeof storage?.removeItem !== "function"
   ) {
-    return undefined;
+    return;
   }
 
   const parseStored = (
@@ -571,7 +571,7 @@ function resolveDefaultStorage<TState, TPersistedState>(
   options: PersistOptions<TState, TPersistedState>,
 ): PersistStorage<TPersistedState> | undefined {
   if (options.storage) return options.storage;
-  if (typeof localStorage === "undefined") return undefined;
+  if (typeof localStorage === "undefined") return;
   // JSON default keeps the core zero-dep — a seroval default would drag a
   // runtime dependency into every consumer. `Set`/`Map`/`Date` users opt in
   // by passing `createSerovalStorage` from `./persist-seroval` explicitly.

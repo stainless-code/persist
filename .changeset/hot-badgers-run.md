@@ -2,4 +2,4 @@
 "@stainless-code/persist": patch
 ---
 
-Treat a defined-but-broken storage backend (e.g. Node 22+ `localStorage` without a valid `--localstorage-file` path, where the global exists as an object but `getItem`/`setItem`/`removeItem` are `undefined`) as unavailable. `createStorage` now shape-checks the backend and returns `undefined`, so `persistSource`/`persistStore`/`persistAtom` collapse to the no-op `PersistApi` instead of throwing `storage.getItem is not a function` during SSR hydration.
+`createStorage` now shape-checks the resolved backend and treats one missing `getItem`/`setItem`/`removeItem` as unavailable. Fixes the Node 22+ SSR crash where `localStorage` exists as an object (so the availability lookup doesn't throw) but its methods are `undefined` without a valid `--localstorage-file` path — previously this passed availability and threw `storage.getItem is not a function` inside `hydrate`; now `persistSource`/`persistStore`/`persistAtom` collapse to the no-op `PersistApi`.

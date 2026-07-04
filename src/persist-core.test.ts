@@ -1526,7 +1526,7 @@ describe("persistSource throttleMs", () => {
       throttleMs: 60_000,
       retryWrite: () => {
         retryCalls++;
-        return undefined;
+        return;
       },
       onError: (error, context) =>
         errors.push({
