@@ -2,6 +2,21 @@
 
 Hydration-aware persistence middleware for any reactive store — storage × codec seams, TanStack Store adapters, and a React hydration hook. Store-agnostic via a structural `PersistableSource`; every "can it do X?" is a one-line composition instead of a feature request.
 
+Jump to what you need —
+
+- [Install](#install)
+- [Quick start](#quick-start)
+- [What does "hydration-aware" mean?](#what-does-hydration-aware-mean)
+- [IndexedDB + React, end to end](#indexeddb--react-end-to-end)
+- [Relationship to TanStack Persist / zustand persist](#relationship-to-tanstack-persist--zustand-persist)
+- Extensibility guide
+  - [Entry points (one subpath = one optional peer)](#entry-points-one-subpath--one-optional-peer)
+  - [The three seams](#the-three-seams)
+  - [Recipes](#recipes)
+  - [Writing a framework adapter](#writing-a-framework-adapter)
+  - [Lifecycle in one paragraph](#lifecycle-in-one-paragraph)
+- [API reference](#api-reference)
+
 ## Install
 
 ```bash
@@ -23,6 +38,14 @@ Each subpath owns its dependency as an **optional peer** — import only the ent
 bun add seroval idb-keyval @tanstack/store react
 ```
 
+Any package manager works — engines require Node ≥20.19 (or Bun ≥1).
+
+```bash
+npm install @stainless-code/persist   # pnpm add / yarn add — same pattern
+# optional peers, only for subpaths you import:
+npm install seroval idb-keyval @tanstack/store react
+```
+
 ## Quick start
 
 ```ts
@@ -42,6 +65,78 @@ export const prefsHydration = toHydrationSignal(persist);
 // in a component:
 const { hydrated } = useHydrated(prefsHydration);
 ```
+
+## What does "hydration-aware" mean?
+
+**Hydration-aware** means the library tracks whether persisted state has **finished loading from storage** — not React SSR hydration, not rehydrating the DOM from HTML. It answers one question: _has the stored snapshot landed in the store yet?_
+
+That gap matters on async backends. IndexedDB reads are Promise-backed; they cannot settle before first paint. Between mount and the read completing, the store still holds its constructor default — theme `"light"` when storage says `"dark"`, filters `[]` when storage has three. Render persisted-dependent UI in that window and you get a **hydrate flash**: wrong state, then a snap to the real one. `useHydrated` gates on that lifecycle; it does not change how you read state.
+
+Sync backends (`localStorage`, `sessionStorage`) settle before first render when the store is created at module load — `hydrated` is `true` immediately, no gate required. IndexedDB makes the gate mandatory rather than optional.
+
+```tsx
+const { hydrated } = useHydrated(prefsHydration);
+if (!hydrated) return <Skeleton />;
+// persisted-dependent UI below
+```
+
+## IndexedDB + React, end to end
+
+The headline path: async storage, TanStack Store, hydration gate. npm/pnpm/yarn work too.
+
+```bash
+bun add @stainless-code/persist @tanstack/store react idb-keyval
+```
+
+**Store module** — `createIdbStorage` runs structured-clone mode: `Set` / `Map` / `Date` round-trip natively, no codec. The persist + hydration signal live at module scope for an app-lifetime singleton store.
+
+```ts
+// prefs-store.ts
+import { Store } from "@tanstack/store";
+import { toHydrationSignal } from "@stainless-code/persist";
+import { createIdbStorage } from "@stainless-code/persist/idb";
+import { persistStore } from "@stainless-code/persist/tanstack-store";
+
+export type Prefs = { theme: "light" | "dark"; recent: string[] };
+
+export const prefsStore = new Store<Prefs>({ theme: "light", recent: [] });
+
+const persist = persistStore(prefsStore, {
+  name: "app:prefs:v1",
+  storage: createIdbStorage<Prefs>(),
+});
+export const prefsHydration = toHydrationSignal(persist);
+```
+
+**React component** — `useHydrated` returns only `{ hydrated }`; state reads stay on `useSelector`. Server snapshot is always `true` (nothing to gate server-side).
+
+```tsx
+// PrefsPanel.tsx
+import { useSelector } from "@tanstack/store";
+import { useHydrated } from "@stainless-code/persist/react";
+import { prefsStore, prefsHydration } from "./prefs-store";
+
+export function PrefsPanel() {
+  const { hydrated } = useHydrated(prefsHydration);
+  const theme = useSelector(prefsStore, (s) => s.theme);
+  if (!hydrated) return <Skeleton />;
+  return <ThemeToggle theme={theme} />;
+}
+```
+
+**Non-singleton stores** (a per-route filter store, a per-instance draft editor) must create the persist in `useEffect` and tear it down on unmount — `destroy()` detaches the source subscription, removes the cross-tab listener, unregisters from any registry, and flushes any pending throttled write:
+
+```tsx
+useEffect(() => {
+  const persist = persistStore(filtersStore, {
+    name: `app:filters:${id}`,
+    storage: createIdbStorage<Filters>(),
+  });
+  return () => persist.destroy();
+}, [id]);
+```
+
+IndexedDB fires no `storage` events — `crossTab: true` alone does nothing on this backend. Cross-tab sync needs a `BroadcastChannel` bridge wired through `crossTabEventTarget` (see Recipes).
 
 ## Relationship to TanStack Persist / zustand persist
 
@@ -149,6 +244,107 @@ persistStore(store, {
 // Cross-tab over IDB: no storage events — bridge a BroadcastChannel via crossTabEventTarget
 ```
 
+### Clear-all on logout
+
+```ts
+import { createPersistRegistry } from "@stainless-code/persist";
+import { createSerovalStorage } from "@stainless-code/persist/seroval";
+import { persistStore } from "@stainless-code/persist/tanstack-store";
+
+// One registry for every persisted store — clearAll() at logout wipes all keys
+// (allSettled; first rejection rethrows; destroy() unregisters each store)
+const registry = createPersistRegistry();
+const storage = createSerovalStorage(() => localStorage);
+
+persistStore(prefsStore, { name: "app:prefs", storage, registry });
+persistStore(cartStore, { name: "app:cart", storage, registry });
+persistStore(sessionStore, { name: "app:session", storage, registry });
+
+async function logout() {
+  await registry.clearAll();
+}
+```
+
+### Partialize
+
+```ts
+// Persist only prefs — ephemeral fields (scroll, modal) changing alone never write
+persistStore(store, {
+  name: "app:state",
+  storage,
+  partialize: (state) => state.prefs,
+});
+```
+
+### Merge
+
+```ts
+// Deep-merge nested settings on hydrate — default is shallow spread (persisted over current)
+persistStore(store, {
+  name: "app:settings",
+  storage,
+  merge: (persisted, current) => ({
+    ...current,
+    settings: {
+      ...current.settings,
+      ...(persisted as typeof current).settings,
+    },
+  }),
+});
+```
+
+### retryWrite — shrink-or-give-up on quota
+
+```ts
+// Quota exceeded: shrink state to retry, return undefined to give up.
+// errorCount is the aggressiveness dial; stale retries never clobber newer state.
+persistStore(store, {
+  name: "app:history",
+  storage,
+  retryWrite: ({ state, errorCount }) => {
+    if (errorCount === 1)
+      return { ...state, history: state.history.slice(-50) };
+    if (errorCount === 2) return { ...state, history: [] };
+    return; // give up — last error goes to onError
+  },
+});
+```
+
+### throttleMs — trailing throttle
+
+```ts
+// Coalesce a write burst into one trailing write with flush-time state; destroy() flushes pending
+persistStore(store, {
+  name: "app:canvas",
+  storage,
+  throttleMs: 250,
+});
+```
+
+### maxAge — payload expiry
+
+```ts
+// Discard payloads older than 7 days (by timestamp); missing timestamp = expired; key removed before migrate runs
+const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+
+persistStore(store, {
+  name: "app:draft",
+  storage,
+  maxAge: SEVEN_DAYS,
+});
+```
+
+### buster — cache-busting
+
+```ts
+// Format changed completely — bust stale keys instead of migrating wrong values (checked before migrate)
+persistStore(store, {
+  name: "app:layout",
+  storage,
+  buster: "grid-v2",
+});
+```
+
 Caveats that matter per backend: async backends (IDB) can't settle hydration before first paint → gate UI on `useHydrated` (`@stainless-code/persist/react`); `sessionStorage` is per-tab (crossTab is meaningless); `identityCodec` never with string-only backends.
 
 ## Writing a framework adapter
@@ -181,3 +377,7 @@ export function hydratedRune(signal: HydrationSignal | null) {
 ## Lifecycle in one paragraph
 
 `persistSource` hydrates on create (skip with `skipHydration`; `rehydrate()` is awaitable), subscribe-writes on every `setState` (gated until hydrated; optional trailing `throttleMs`), and tears down completely via `destroy()` — required for non-singleton stores. Failures route to `onError` with a phase (`write`/`hydrate`/`migrate`/`crossTab`); the console fallback is dev-only. Payloads carry `version` (→ `migrate`), `timestamp` (→ `maxAge`), and `buster`; `retryWrite` implements shrink-or-give-up on quota errors with a write-generation guard so stale retries never clobber newer state.
+
+## API reference
+
+Full type-level reference is generated by TypeDoc — not hosted yet; build locally: `bun run docs:api`, then open `docs/api/index.html`. The authoritative contract for each entry is its JSDoc (hover in your editor).
