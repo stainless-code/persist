@@ -8,9 +8,11 @@ Companion to always-on [`.agents/rules/authoring-discipline.md`](../../rules/aut
 
 **Keep:** why (not what), non-obvious constraints, cross-cutting context, pointers when a relationship isn't obvious, sentinels/magic values, the rejected alternative, storage/runtime quirks (sync-vs-async read path, `instanceof Promise` gating, cross-tab identity compare).
 
-**Cut:** file inventories, pasted signatures, restating the next line, generic library practice, duplicate facts across README/architecture/glossary.
+**Cut:** file inventories, pasted signatures, restating the next line, generic library practice, duplicate facts across README/architecture/glossary, tallied counts of re-derivable items ("16 subpaths", "158 tests") — the number goes stale the moment it changes and turns into errored info; the items (a table, a folder) carry the story, the number doesn't.
 
-**Comments/JSDoc:** 0 lines when self-explanatory; 1 line default; 2–3 only for irreducible gotchas; `>3 lines` → lift to `docs/` with one-line pointer. The shipped `.d.mts` should read well in hovers — `@param` / `@returns` / `@default` / `@example` carry the meaning; types stay, narrating them does not.
+**Comments/JSDoc:** 0 lines when self-explanatory; 1 line default; 2–3 only for irreducible gotchas; `>3 lines` → lift to `docs/` with one-line pointer. The shipped `.d.mts` should read well in hovers — `@param` / `@returns` / `@default` / `@example` (with real, resolving imports) carry the meaning when usage isn't obvious; types stay, narrating them does not.
+
+**Historical traces** in committed prose — "hydrated on …", "following up on …", changelog-edit residue, stale rosters — earn no ROI once the moment passes; write as if fresh, cut the trace. Source comments: the rule's "update if outdated" covers them.
 
 **Doc slimming:** full checklists in [`docs-governance`](../docs-governance/SKILL.md) (anchor preservation, existence test, anti-bloat).
 
