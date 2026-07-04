@@ -103,36 +103,36 @@ Docs site (VitePress/Starlight) · Getting Started · Adapters catalog · Storag
 
 ## ROI-ordered action items
 
-Ordered by ROI = impact ÷ effort. **Effort:** S / M / L.
+Ordered by ROI = impact ÷ effort. **Effort:** S / M / L. **Status as of 2026-07-04:** ✅ = shipped on the `audit/docs-adapters-roi` branch.
 
 ### Tier 1 — Ship first (high impact, low effort)
 
-| #   | Action                                                                                                                                                                                                                               | Effort |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ |
-| 1   | Define "hydration-aware" in the README — one paragraph + a "what flashes without it" diagram. Fixes the single biggest tone gap.                                                                                                     | S      |
-| 2   | Add a complete IDB + React + `useHydrated` + `destroy()` walkthrough to the README. Closes the gap that justifies the library's existence.                                                                                           | S      |
-| 3   | Link the generated `docs/api/` site from the README + publish to GitHub Pages (`.nojekyll` already present).                                                                                                                         | S      |
-| 4   | Document `createPersistRegistry` + clear-all-on-logout with a recipe.                                                                                                                                                                | S      |
-| 5   | Add recipes for `partialize`, `merge`, `retryWrite`, `throttleMs`, `maxAge`, `buster` — six hidden powers, one short block each.                                                                                                     | S      |
-| 6   | BroadcastChannel → `CrossTabEventTarget` bridge adapter for IDB cross-tab. Seam exists (`persist-core.ts:113`); IDB fires no `storage` events so `crossTab` is silently broken on IDB without it (`persist-idb.ts:62`, `skill:116`). | S      |
-| 7   | `expo-secure-store` / `react-native-mmkv` / `AsyncStorage` storage adapters (one subpath each). Unlocks an entire platform.                                                                                                          | S each |
-| 8   | `zod`-validated codec adapter — decode runs in existing corrupt-payload try/catch (`persist-core.ts:473`); validation errors map cleanly to `clearCorruptOnFailure`.                                                                 | S      |
-| 9   | Solid + Vue framework hydration adapters — `HydrationSignal` JSDoc names both as targets (`hydration.ts:9-10`); each is a one-liner.                                                                                                 | S each |
+| #    | Action                                                                                                                                                                                                                               | Effort |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ |
+| ✅ 1 | Define "hydration-aware" in the README — one paragraph + a "what flashes without it" diagram. Fixes the single biggest tone gap.                                                                                                     | S      |
+| ✅ 2 | Add a complete IDB + React + `useHydrated` + `destroy()` walkthrough to the README. Closes the gap that justifies the library's existence.                                                                                           | S      |
+| ✅ 3 | Link the generated `docs/api/` site from the README + publish to GitHub Pages (`.nojekyll` already present).                                                                                                                         | S      |
+| ✅ 4 | Document `createPersistRegistry` + clear-all-on-logout with a recipe.                                                                                                                                                                | S      |
+| ✅ 5 | Add recipes for `partialize`, `merge`, `retryWrite`, `throttleMs`, `maxAge`, `buster` — six hidden powers, one short block each.                                                                                                     | S      |
+| ✅ 6 | BroadcastChannel → `CrossTabEventTarget` bridge adapter for IDB cross-tab. Seam exists (`persist-core.ts:113`); IDB fires no `storage` events so `crossTab` is silently broken on IDB without it (`persist-idb.ts:62`, `skill:116`). | S      |
+| ✅ 7 | `expo-secure-store` / `react-native-mmkv` / `AsyncStorage` storage adapters (one subpath each). Unlocks an entire platform.                                                                                                          | S each |
+| ✅ 8 | `zod`-validated codec adapter — decode runs in existing corrupt-payload try/catch (`persist-core.ts:473`); validation errors map cleanly to `clearCorruptOnFailure`.                                                                 | S      |
+| ✅ 9 | Solid + Vue framework hydration adapters — `HydrationSignal` JSDoc names both as targets (`hydration.ts:9-10`); each is a one-liner.                                                                                                 | S each |
 
 ### Tier 2 — Build out the surface (high impact, medium effort)
 
-| #   | Action                                                                                                                                                                    | Effort |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| 10  | Encryption-at-rest codec (WebCrypto + codec). Headline "custom codec" example in JSDoc (`persist-core.ts:69`, `persist-idb.ts:52`, `skill:155`) with no shipped impl.     | M      |
-| 11  | `examples/` monorepo workspace — runnable `tanstack-idb-react`, `tanstack-localstorage-react`, `nextjs-ssr`, `react-native-mmkv`. No runnable demo today.                 | M      |
-| 12  | Docs site (VitePress / Astro Starlight) — split wall-of-text README into Getting Started → Adapters → Recipes → Adapter authoring → Reference; host `docs/api/` under it. | M      |
-| 13  | TanStack Query persister bridge (`persistQueryClient`-shaped). JSDoc cites Query as reference design (`persist-core.ts:12,263`). Flagship integration.                    | M      |
-| 14  | Migration/porting guide — option mapping + conceptual diff vs zustand-persist / redux-persist / query-persist-client / pinia-persist.                                     | S      |
-| 15  | Comparison table across the 4 incumbents. README paragraph → table.                                                                                                       | S      |
-| 16  | Storage & codec decision matrices — lift + expand the skill's 4-row version to consumer docs.                                                                             | S      |
-| 17  | `CompressionStream` codec — native API, ~S now; pairs with binary `TRaw`.                                                                                                 | M      |
-| 18  | Node `fs` storage adapter — trivial `StateStorage`; unblocks server/SSR/CLI.                                                                                              | S      |
-| 19  | Pack-validation + semver gate in CI — `attw --pack` + `knip` + `publint`. Prevents shipping a broken `exports` map.                                                       | S      |
+| #     | Action                                                                                                                                                                    | Effort |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| ✅ 10 | Encryption-at-rest codec (WebCrypto + codec). Headline "custom codec" example in JSDoc (`persist-core.ts:69`, `persist-idb.ts:52`, `skill:155`) with no shipped impl.     | M      |
+| 11    | `examples/` monorepo workspace — runnable `tanstack-idb-react`, `tanstack-localstorage-react`, `nextjs-ssr`, `react-native-mmkv`. No runnable demo today.                 | M      |
+| 12    | Docs site (VitePress / Astro Starlight) — split wall-of-text README into Getting Started → Adapters → Recipes → Adapter authoring → Reference; host `docs/api/` under it. | M      |
+| 13    | TanStack Query persister bridge (`persistQueryClient`-shaped). JSDoc cites Query as reference design (`persist-core.ts:12,263`). Flagship integration.                    | M      |
+| ✅ 14 | Migration/porting guide — option mapping + conceptual diff vs zustand-persist / redux-persist / query-persist-client / pinia-persist.                                     | S      |
+| ✅ 15 | Comparison table across the 4 incumbents. README paragraph → table.                                                                                                       | S      |
+| 16    | Storage & codec decision matrices — lift + expand the skill's 4-row version to consumer docs.                                                                             | S      |
+| ✅ 17 | `CompressionStream` codec — native API, ~S now; pairs with binary `TRaw`.                                                                                                 | M      |
+| 18    | Node `fs` storage adapter — trivial `StateStorage`; unblocks server/SSR/CLI.                                                                                              | S      |
+| 19    | Pack-validation + semver gate in CI — `attw --pack` + `knip` + `publint`. Prevents shipping a broken `exports` map.                                                       | S      |
 
 ### Tier 3 — Maturity & polish (medium impact, medium effort)
 
@@ -149,13 +149,13 @@ Ordered by ROI = impact ÷ effort. **Effort:** S / M / L.
 
 ### Tier 4 — Strategic bets (high impact, high effort)
 
-| #   | Action                                                                                                                                                                           | Effort  |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| 28  | React ergonomics layer — `<PersistProvider>` + context + `usePersisted(store)` selector binding + auto-`destroy()`. `use-hydrated.ts:22` signals this is intentionally deferred. | M-L     |
-| 29  | StackBlitz / CodeSandbox playground embedded in docs site.                                                                                                                       | M       |
-| 30  | OPFS + SQLite-WASM + Cloudflare KV/Durable Objects storage adapters.                                                                                                             | M-L     |
-| 31  | Migration-chain helper — `createMigrationChain({...})`; today `migrate` is a single callback, v0→v1→v2 chaining is user-written.                                                 | M       |
-| 32  | Continue the TanStack upstream pitch (`docs/plans/upstream-tanstack-pitch.md`) — adapter breadth (#13, #9) + docs polish (#1, #2, #12) are the leverage. Ongoing.                | ongoing |
+| #     | Action                                                                                                                                                                           | Effort  |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| 28    | React ergonomics layer — `<PersistProvider>` + context + `usePersisted(store)` selector binding + auto-`destroy()`. `use-hydrated.ts:22` signals this is intentionally deferred. | M-L     |
+| 29    | StackBlitz / CodeSandbox playground embedded in docs site.                                                                                                                       | M       |
+| 30    | OPFS + SQLite-WASM + Cloudflare KV/Durable Objects storage adapters.                                                                                                             | M-L     |
+| 31    | Migration-chain helper — `createMigrationChain({...})`; today `migrate` is a single callback, v0→v1→v2 chaining is user-written.                                                 | M       |
+| ✅ 32 | Continue the TanStack upstream pitch (`docs/plans/upstream-tanstack-pitch.md`) — adapter breadth (#13, #9) + docs polish (#1, #2, #12) are the leverage. Ongoing.                | ongoing |
 
 ---
 
