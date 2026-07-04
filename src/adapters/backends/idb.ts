@@ -10,8 +10,8 @@ import type {
   PersistStorage,
   StateStorage,
   StorageValue,
-} from "./persist-core";
-import { createStorage, identityCodec } from "./persist-core";
+} from "../../core/persist-core";
+import { createStorage, identityCodec } from "../../core/persist-core";
 
 export interface IdbStorageOptions extends CreateStorageOptions {
   /**
@@ -66,7 +66,7 @@ export function idbStateStorage<TRaw = string>(
  *
  * @example
  * ```ts
- * import { createIdbStorage } from "./persist-idb";
+ * import { createIdbStorage } from "@stainless-code/persist/idb";
  *
  * const storage = createIdbStorage<Prefs>(); // Set/Map/Date just work
  * ```

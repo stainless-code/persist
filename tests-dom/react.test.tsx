@@ -2,11 +2,11 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import * as React from "react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { toHydrationSignal } from "../src/hydration";
-import type { HydrationSource } from "../src/hydration";
-import { createJSONStorage, persistSource } from "../src/persist-core";
-import type { PersistableSource, StateStorage } from "../src/persist-core";
-import { useHydrated } from "../src/use-hydrated";
+import { useHydrated } from "../src/adapters/frameworks/react";
+import { toHydrationSignal } from "../src/core/hydration";
+import type { HydrationSource } from "../src/core/hydration";
+import { createJSONStorage, persistSource } from "../src/core/persist-core";
+import type { PersistableSource, StateStorage } from "../src/core/persist-core";
 
 /**
  * Framework-matrix tests for the React `useHydrated` reactivity path — the

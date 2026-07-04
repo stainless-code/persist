@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it } from "bun:test";
 
 import { z } from "zod";
 
-import { createStorage, persistSource } from "./persist-core";
-import type { PersistableSource, StateStorage } from "./persist-core";
-import { createZodStorage, zodCodec } from "./persist-zod";
+import { createStorage, persistSource } from "../../core/persist-core";
+import type { PersistableSource, StateStorage } from "../../core/persist-core";
+import { createZodStorage, zodCodec } from "./zod";
 
 class MemoryStorage implements StateStorage {
   private store = new Map<string, string>();
@@ -156,28 +156,14 @@ describe("zodCodec direct seam", () => {
   });
 });
 
-describe("persist-zod dependency isolation", () => {
-  it("no sibling entry IMPORTS persist-zod (dependency isolation)", async () => {
-    // Each entry owns its dependency; importing persist-zod is the zod
-    // opt-in. Core/seroval/idb/tanstack/hydration must never pull it in (doc
-    // comments may mention it — only import lines count).
-    for (const sibling of [
-      "persist-core.ts",
-      "persist-seroval.ts",
-      "persist-idb.ts",
-      "persist-crosstab.ts",
-      "persist-tanstack.ts",
-      "hydration.ts",
-      "use-hydrated.ts",
-      "index.ts",
-    ]) {
-      const source = await Bun.file(
-        new URL(`./${sibling}`, import.meta.url),
-      ).text();
-      const offendingImports = source.match(
-        /(?:from\s+|import\s*\(\s*)["']\.\/persist-zod["']/g,
-      );
-      expect(offendingImports).toBeNull();
+describe("zod dependency isolation", () => {
+  it("imports only from core (no cross-adapter coupling)", async () => {
+    const source = await Bun.file(new URL("./zod.ts", import.meta.url)).text();
+    const relativeImports = [
+      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
+    ].map((match) => match[1]);
+    for (const importPath of relativeImports) {
+      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
     }
   });
 });

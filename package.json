@@ -35,48 +35,48 @@
       "import": "./dist/index.mjs"
     },
     "./seroval": {
-      "types": "./dist/persist-seroval.d.mts",
-      "import": "./dist/persist-seroval.mjs"
+      "types": "./dist/seroval.d.mts",
+      "import": "./dist/seroval.mjs"
     },
     "./idb": {
-      "types": "./dist/persist-idb.d.mts",
-      "import": "./dist/persist-idb.mjs"
+      "types": "./dist/idb.d.mts",
+      "import": "./dist/idb.mjs"
     },
     "./tanstack-store": {
-      "types": "./dist/persist-tanstack.d.mts",
-      "import": "./dist/persist-tanstack.mjs"
+      "types": "./dist/tanstack-store.d.mts",
+      "import": "./dist/tanstack-store.mjs"
     },
     "./react": {
-      "types": "./dist/use-hydrated.d.mts",
-      "import": "./dist/use-hydrated.mjs"
+      "types": "./dist/react.d.mts",
+      "import": "./dist/react.mjs"
     },
     "./crosstab": {
-      "types": "./dist/persist-crosstab.d.mts",
-      "import": "./dist/persist-crosstab.mjs"
+      "types": "./dist/crosstab.d.mts",
+      "import": "./dist/crosstab.mjs"
     },
     "./zod": {
-      "types": "./dist/persist-zod.d.mts",
-      "import": "./dist/persist-zod.mjs"
+      "types": "./dist/zod.d.mts",
+      "import": "./dist/zod.mjs"
     },
     "./solid": {
-      "types": "./dist/persist-solid.d.mts",
-      "import": "./dist/persist-solid.mjs"
+      "types": "./dist/solid.d.mts",
+      "import": "./dist/solid.mjs"
     },
     "./vue": {
-      "types": "./dist/persist-vue.d.mts",
-      "import": "./dist/persist-vue.mjs"
+      "types": "./dist/vue.d.mts",
+      "import": "./dist/vue.mjs"
     },
     "./async-storage": {
-      "types": "./dist/persist-asyncstorage.d.mts",
-      "import": "./dist/persist-asyncstorage.mjs"
+      "types": "./dist/async-storage.d.mts",
+      "import": "./dist/async-storage.mjs"
     },
     "./mmkv": {
-      "types": "./dist/persist-mmkv.d.mts",
-      "import": "./dist/persist-mmkv.mjs"
+      "types": "./dist/mmkv.d.mts",
+      "import": "./dist/mmkv.mjs"
     },
     "./secure-store": {
-      "types": "./dist/persist-securestore.d.mts",
-      "import": "./dist/persist-securestore.mjs"
+      "types": "./dist/secure-store.d.mts",
+      "import": "./dist/secure-store.mjs"
     }
   },
   "publishConfig": {

@@ -2,24 +2,26 @@ import { defineConfig } from "tsdown";
 
 const outDir = "dist";
 
-// Five subpath entries — each maps 1:1 to an `exports` entry. The core
-// (`index`) re-exports `persist-core` + `hydration`; the others own their
-// optional peer deps, which stay external so consumers tree-shake cleanly.
+// Twelve subpath entries — each maps 1:1 to an `exports` entry. The core
+// (`index`) re-exports `persist-core` + `hydration`; the adapters under
+// `adapters/<seam>/` own their optional peer deps, which stay external so
+// consumers tree-shake cleanly. The record form flattens dist output to
+// `dist/<name>.mjs` regardless of the src folder depth.
 export default defineConfig({
-  entry: [
-    "src/index.ts",
-    "src/persist-seroval.ts",
-    "src/persist-idb.ts",
-    "src/persist-crosstab.ts",
-    "src/persist-zod.ts",
-    "src/persist-solid.ts",
-    "src/persist-vue.ts",
-    "src/persist-asyncstorage.ts",
-    "src/persist-mmkv.ts",
-    "src/persist-securestore.ts",
-    "src/persist-tanstack.ts",
-    "src/use-hydrated.ts",
-  ],
+  entry: {
+    index: "src/core/index.ts",
+    seroval: "src/adapters/codecs/seroval.ts",
+    zod: "src/adapters/codecs/zod.ts",
+    idb: "src/adapters/backends/idb.ts",
+    "async-storage": "src/adapters/backends/async-storage.ts",
+    mmkv: "src/adapters/backends/mmkv.ts",
+    "secure-store": "src/adapters/backends/secure-store.ts",
+    crosstab: "src/adapters/transport/crosstab.ts",
+    "tanstack-store": "src/adapters/sources/tanstack-store.ts",
+    react: "src/adapters/frameworks/react.ts",
+    solid: "src/adapters/frameworks/solid.ts",
+    vue: "src/adapters/frameworks/vue.ts",
+  },
   outDir,
   format: "esm",
   dts: true,

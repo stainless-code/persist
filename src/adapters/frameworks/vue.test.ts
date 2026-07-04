@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { effect, effectScope } from "vue";
 
-import { useHydrated } from "./persist-vue";
+import { useHydrated } from "./vue";
 
 function createFakeSignal() {
   let hydrated = false;
@@ -61,34 +61,13 @@ describe("useHydrated (vue)", () => {
     expect(hydratedRef!.value).toBe(lastValue);
   });
 
-  it("no sibling entry IMPORTS persist-vue (dependency isolation)", async () => {
-    // Each entry owns its dependency; importing persist-vue is the vue opt-in.
-    // Core/seroval/tanstack/hydration must never pull it in (doc comments may
-    // mention it — only import lines count).
-    for (const sibling of [
-      "persist-core.ts",
-      "persist-seroval.ts",
-      "persist-idb.ts",
-      "persist-crosstab.ts",
-      "persist-zod.ts",
-      "persist-tanstack.ts",
-      "persist-solid.ts",
-      "hydration.ts",
-      "use-hydrated.ts",
-      "index.ts",
-    ]) {
-      const url = new URL(`./${sibling}`, import.meta.url);
-      if (!(await Bun.file(url).exists())) continue;
-      const source = await Bun.file(url).text();
-      // Declaration-level matching (not per-line): a formatter can wrap an
-      // import across lines, which a `^import` line filter would miss. Any
-      // `from "./persist-vue"` clause or dynamic `import("./persist-vue")`
-      // is an import regardless of layout; doc-comment mentions never carry
-      // the from/import() syntax.
-      const offendingImports = source.match(
-        /(?:from\s+|import\s*\(\s*)["']\.\/persist-vue["']/g,
-      );
-      expect(offendingImports).toBeNull();
+  it("imports only from core (no cross-adapter coupling)", async () => {
+    const source = await Bun.file(new URL("./vue.ts", import.meta.url)).text();
+    const relativeImports = [
+      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
+    ].map((match) => match[1]);
+    for (const importPath of relativeImports) {
+      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
     }
   });
 });

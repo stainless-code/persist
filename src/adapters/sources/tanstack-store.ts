@@ -3,8 +3,8 @@
 // store-adapter subpath entry with `@tanstack/store` as a peer dep.
 import type { Atom, Store, StoreActionMap } from "@tanstack/store";
 
-import type { PersistApi, PersistOptions } from "./persist-core";
-import { persistSource } from "./persist-core";
+import type { PersistApi, PersistOptions } from "../../core/persist-core";
+import { persistSource } from "../../core/persist-core";
 
 /**
  * Persist a `@tanstack/store` `Store` (action-bearing stores included).

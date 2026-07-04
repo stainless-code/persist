@@ -5,8 +5,8 @@
 import { createMMKV } from "react-native-mmkv";
 import type { MMKV } from "react-native-mmkv";
 
-import type { StateStorage } from "./persist-core";
-import { createJSONStorage } from "./persist-core";
+import type { StateStorage } from "../../core/persist-core";
+import { createJSONStorage } from "../../core/persist-core";
 
 /**
  * `StateStorage` over a `react-native-mmkv` `MMKV` instance — synchronous,

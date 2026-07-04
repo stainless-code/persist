@@ -5,7 +5,7 @@
 import { onScopeDispose, shallowRef } from "vue";
 import type { Ref } from "vue";
 
-import type { HydrationSignal } from "./hydration";
+import type { HydrationSignal } from "../../core/hydration";
 
 /**
  * Mount a `HydrationSignal` into Vue's reactivity. Returns a `Ref<boolean>`

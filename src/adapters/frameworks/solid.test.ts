@@ -10,11 +10,11 @@ mock.module(
 
 let createEffect: typeof import("solid-js").createEffect;
 let createRoot: typeof import("solid-js").createRoot;
-let useHydrated: typeof import("./persist-solid").useHydrated;
+let useHydrated: typeof import("./solid").useHydrated;
 
 beforeAll(async () => {
   ({ createEffect, createRoot } = await import("solid-js"));
-  ({ useHydrated } = await import("./persist-solid"));
+  ({ useHydrated } = await import("./solid"));
 });
 
 function createFakeSignal() {
@@ -89,27 +89,16 @@ describe("useHydrated", () => {
   });
 });
 
-describe("persist-solid entry isolation", () => {
-  it("no sibling entry IMPORTS persist-solid (dependency isolation)", async () => {
-    for (const sibling of [
-      "persist-core.ts",
-      "persist-seroval.ts",
-      "persist-idb.ts",
-      "persist-crosstab.ts",
-      "persist-zod.ts",
-      "persist-tanstack.ts",
-      "persist-vue.ts",
-      "hydration.ts",
-      "use-hydrated.ts",
-      "index.ts",
-    ]) {
-      const url = new URL(`./${sibling}`, import.meta.url);
-      if (!(await Bun.file(url).exists())) continue;
-      const source = await Bun.file(url).text();
-      const offendingImports = source.match(
-        /(?:from\s+|import\s*\(\s*)["']\.\/persist-solid["']/g,
-      );
-      expect(offendingImports).toBeNull();
+describe("solid dependency isolation", () => {
+  it("imports only from core (no cross-adapter coupling)", async () => {
+    const source = await Bun.file(
+      new URL("./solid.ts", import.meta.url),
+    ).text();
+    const relativeImports = [
+      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
+    ].map((match) => match[1]);
+    for (const importPath of relativeImports) {
+      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
     }
   });
 });

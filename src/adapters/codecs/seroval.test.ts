@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 
-import { createStorage, persistSource } from "./persist-core";
-import type { PersistableSource, StateStorage } from "./persist-core";
-import { createSerovalStorage, serovalCodec } from "./persist-seroval";
+import { createStorage, persistSource } from "../../core/persist-core";
+import type { PersistableSource, StateStorage } from "../../core/persist-core";
+import { createSerovalStorage, serovalCodec } from "./seroval";
 
 class MemoryStorage implements StateStorage {
   private store = new Map<string, string>();
@@ -176,5 +176,19 @@ describe("serovalCodec direct seam", () => {
     const stored = await storage.getItem("direct-seroval");
     expect(stored?.state.tags instanceof Set).toBe(true);
     expect(stored?.state.tags.has("a")).toBe(true);
+  });
+});
+
+describe("seroval dependency isolation", () => {
+  it("imports only from core (no cross-adapter coupling)", async () => {
+    const source = await Bun.file(
+      new URL("./seroval.ts", import.meta.url),
+    ).text();
+    const relativeImports = [
+      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
+    ].map((match) => match[1]);
+    for (const importPath of relativeImports) {
+      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
+    }
   });
 });

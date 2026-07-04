@@ -32,9 +32,10 @@ mock.module("idb-keyval", () => ({
   },
 }));
 
-const { createIdbStorage, idbStateStorage } = await import("./persist-idb");
-const { createStorage, persistSource } = await import("./persist-core");
-const { serovalCodec } = await import("./persist-seroval");
+const { createIdbStorage, idbStateStorage } = await import("./idb");
+const { createStorage, persistSource } =
+  await import("../../core/persist-core");
+const { serovalCodec } = await import("../codecs/seroval");
 
 function createMockSource<T>(initial: T) {
   let state = initial;
@@ -172,29 +173,13 @@ describe("persist-idb", () => {
     expect(defaultStore.has("shared-key")).toBe(false);
   });
 
-  it("no sibling entry IMPORTS persist-idb (dependency isolation)", async () => {
-    // Each entry owns its dependency; importing persist-idb is the idb-keyval
-    // opt-in. Core/seroval/tanstack/hydration must never pull it in (doc
-    // comments may mention it — only import lines count).
-    for (const sibling of [
-      "persist-core.ts",
-      "persist-seroval.ts",
-      "persist-tanstack.ts",
-      "hydration.ts",
-      "use-hydrated.ts",
-    ]) {
-      const source = await Bun.file(
-        new URL(`./${sibling}`, import.meta.url),
-      ).text();
-      // Declaration-level matching (not per-line): a formatter can wrap an
-      // import across lines, which a `^import` line filter would miss. Any
-      // `from "./persist-idb"` clause or dynamic `import("./persist-idb")`
-      // is an import regardless of layout; doc-comment mentions never carry
-      // the from/import() syntax.
-      const offendingImports = source.match(
-        /(?:from\s+|import\s*\(\s*)["']\.\/persist-idb["']/g,
-      );
-      expect(offendingImports).toBeNull();
+  it("imports only from core (no cross-adapter coupling)", async () => {
+    const source = await Bun.file(new URL("./idb.ts", import.meta.url)).text();
+    const relativeImports = [
+      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
+    ].map((match) => match[1]);
+    for (const importPath of relativeImports) {
+      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
     }
   });
 });

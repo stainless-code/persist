@@ -29,9 +29,9 @@ describe("persist-core zero-dep gate", () => {
     expect(valueImports).toEqual([]);
   });
 
-  it("persist-tanstack.ts imports @tanstack/store as types only", async () => {
+  it("tanstack-store.ts imports @tanstack/store as types only", async () => {
     const source = await Bun.file(
-      new URL("./persist-tanstack.ts", import.meta.url),
+      new URL("../adapters/sources/tanstack-store.ts", import.meta.url),
     ).text();
     const storeValueImports = source
       .split("\n")

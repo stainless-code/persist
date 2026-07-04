@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-import type { HydrationSignal } from "./hydration";
+import type { HydrationSignal } from "../../core/hydration";
 
 export interface UseHydratedResult {
   /**

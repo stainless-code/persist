@@ -4,8 +4,8 @@
 // opt-in (enforced by an isolation test).
 import * as SecureStore from "expo-secure-store";
 
-import type { StateStorage } from "./persist-core";
-import { createJSONStorage } from "./persist-core";
+import type { StateStorage } from "../../core/persist-core";
+import { createJSONStorage } from "../../core/persist-core";
 
 /**
  * `StateStorage` over `expo-secure-store` — fully async, string-wire, backed

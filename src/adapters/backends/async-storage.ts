@@ -6,8 +6,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AsyncStorage as AsyncStorageInstance } from "@react-native-async-storage/async-storage";
 
-import type { StateStorage } from "./persist-core";
-import { createJSONStorage } from "./persist-core";
+import type { StateStorage } from "../../core/persist-core";
+import { createJSONStorage } from "../../core/persist-core";
 
 /**
  * `StateStorage` over React Native `AsyncStorage` — fully async, string-wire.

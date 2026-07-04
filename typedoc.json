@@ -1,11 +1,18 @@
 {
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": [
-    "src/index.ts",
-    "src/persist-seroval.ts",
-    "src/persist-idb.ts",
-    "src/persist-tanstack.ts",
-    "src/use-hydrated.ts"
+    "src/core/index.ts",
+    "src/adapters/codecs/seroval.ts",
+    "src/adapters/codecs/zod.ts",
+    "src/adapters/backends/idb.ts",
+    "src/adapters/backends/async-storage.ts",
+    "src/adapters/backends/mmkv.ts",
+    "src/adapters/backends/secure-store.ts",
+    "src/adapters/transport/crosstab.ts",
+    "src/adapters/sources/tanstack-store.ts",
+    "src/adapters/frameworks/react.ts",
+    "src/adapters/frameworks/solid.ts",
+    "src/adapters/frameworks/vue.ts"
   ],
   "out": "docs/api",
   "name": "@stainless-code/persist",

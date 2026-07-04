@@ -20,8 +20,8 @@ mock.module("@react-native-async-storage/async-storage", () => ({
 }));
 
 const { asyncStorageStateStorage, createAsyncStorage } =
-  await import("./persist-asyncstorage");
-const { persistSource } = await import("./persist-core");
+  await import("./async-storage");
+const { persistSource } = await import("../../core/persist-core");
 
 function createMockSource<T>(initial: T) {
   let state = initial;
@@ -98,28 +98,15 @@ describe("persist-asyncstorage", () => {
     persist2.destroy();
   });
 
-  it("no sibling entry IMPORTS persist-asyncstorage (dependency isolation)", async () => {
-    for (const sibling of [
-      "persist-core.ts",
-      "persist-seroval.ts",
-      "persist-idb.ts",
-      "persist-crosstab.ts",
-      "persist-zod.ts",
-      "persist-tanstack.ts",
-      "persist-solid.ts",
-      "persist-vue.ts",
-      "hydration.ts",
-      "use-hydrated.ts",
-      "index.ts",
-    ]) {
-      const url = new URL(`./${sibling}`, import.meta.url);
-      if (!(await Bun.file(url).exists())) continue;
-
-      const source = await Bun.file(url).text();
-      const offendingImports = source.match(
-        /(?:from\s+|import\s*\(\s*)["']\.\/persist-asyncstorage["']/g,
-      );
-      expect(offendingImports).toBeNull();
+  it("imports only from core (no cross-adapter coupling)", async () => {
+    const source = await Bun.file(
+      new URL("./async-storage.ts", import.meta.url),
+    ).text();
+    const relativeImports = [
+      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
+    ].map((match) => match[1]);
+    for (const importPath of relativeImports) {
+      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
     }
   });
 });

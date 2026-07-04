@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
 
-import { persistSource } from "./persist-core";
+import { persistSource } from "../../core/persist-core";
 import type {
   PersistableSource,
   PersistStorage,
   StorageValue,
-} from "./persist-core";
-import { createBroadcastCrossTab } from "./persist-crosstab";
+} from "../../core/persist-core";
+import { createBroadcastCrossTab } from "./crosstab";
 
 function createSharedAsyncStorage<S>(
   shared: Map<string, StorageValue<S>>,
@@ -187,23 +187,15 @@ describe("createBroadcastCrossTab", () => {
     expect(fired).toBe(false);
   });
 
-  it("no sibling entry IMPORTS persist-crosstab (dependency isolation)", async () => {
-    for (const sibling of [
-      "persist-core.ts",
-      "persist-seroval.ts",
-      "persist-idb.ts",
-      "persist-tanstack.ts",
-      "hydration.ts",
-      "use-hydrated.ts",
-      "index.ts",
-    ]) {
-      const source = await Bun.file(
-        new URL(`./${sibling}`, import.meta.url),
-      ).text();
-      const offendingImports = source.match(
-        /(?:from\s+|import\s*\(\s*)["']\.\/persist-crosstab["']/g,
-      );
-      expect(offendingImports).toBeNull();
+  it("imports only from core (no cross-adapter coupling)", async () => {
+    const source = await Bun.file(
+      new URL("./crosstab.ts", import.meta.url),
+    ).text();
+    const relativeImports = [
+      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
+    ].map((match) => match[1]);
+    for (const importPath of relativeImports) {
+      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
     }
   });
 });

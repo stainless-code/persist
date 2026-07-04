@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it } from "bun:test";
 import { createAtom, Store } from "@tanstack/store";
 import type { Atom } from "@tanstack/store";
 
-import { createJSONStorage } from "./persist-core";
-import type { StateStorage } from "./persist-core";
-import { persistAtom, persistStore } from "./persist-tanstack";
+import { createJSONStorage } from "../../core/persist-core";
+import type { StateStorage } from "../../core/persist-core";
+import { persistAtom, persistStore } from "./tanstack-store";
 
 class MemoryStorage implements StateStorage {
   private store = new Map<string, string>();
@@ -114,5 +114,19 @@ describe("persistAtom", () => {
         storage: createJSONStorage(() => memory)!,
       }),
     ).toThrow("[persistAtom] Cannot persist a readonly atom.");
+  });
+});
+
+describe("tanstack-store dependency isolation", () => {
+  it("imports only from core (no cross-adapter coupling)", async () => {
+    const source = await Bun.file(
+      new URL("./tanstack-store.ts", import.meta.url),
+    ).text();
+    const relativeImports = [
+      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
+    ].map((match) => match[1]);
+    for (const importPath of relativeImports) {
+      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
+    }
   });
 });

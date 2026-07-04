@@ -5,7 +5,7 @@
 import { from } from "solid-js";
 import type { Accessor } from "solid-js";
 
-import type { HydrationSignal } from "./hydration";
+import type { HydrationSignal } from "../../core/hydration";
 
 const alwaysTrue: Accessor<boolean> = () => true;
 

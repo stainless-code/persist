@@ -3,10 +3,10 @@ import { describe, expect, it } from "bun:test";
 import * as React from "react";
 import { renderToString } from "react-dom/server";
 
-import { alwaysHydratedSignal, toHydrationSignal } from "./hydration";
-import { createJSONStorage, persistSource } from "./persist-core";
-import type { PersistableSource, StateStorage } from "./persist-core";
-import { useHydrated } from "./use-hydrated";
+import { alwaysHydratedSignal, toHydrationSignal } from "../../core/hydration";
+import { createJSONStorage, persistSource } from "../../core/persist-core";
+import type { PersistableSource, StateStorage } from "../../core/persist-core";
+import { useHydrated } from "./react";
 
 /**
  * `bun test` has no DOM, so we can't drive `useSyncExternalStore` reactivity
@@ -166,6 +166,20 @@ describe("useHydrated", () => {
       } else {
         globalThis.localStorage = savedLocalStorage;
       }
+    }
+  });
+});
+
+describe("react dependency isolation", () => {
+  it("imports only from core (no cross-adapter coupling)", async () => {
+    const source = await Bun.file(
+      new URL("./react.ts", import.meta.url),
+    ).text();
+    const relativeImports = [
+      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
+    ].map((match) => match[1]);
+    for (const importPath of relativeImports) {
+      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
     }
   });
 });

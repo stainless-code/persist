@@ -6,7 +6,7 @@ import type {
   CrossTabEventTarget,
   CrossTabStorageEvent,
   PersistStorage,
-} from "./persist-core";
+} from "../../core/persist-core";
 
 export interface CreateBroadcastCrossTabOptions {
   /** BroadcastChannel name — all tabs sharing this name sync. */

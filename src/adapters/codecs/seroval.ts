@@ -8,8 +8,8 @@ import type {
   StateStorage,
   StorageCodec,
   StorageValue,
-} from "./persist-core";
-import { createStorage } from "./persist-core";
+} from "../../core/persist-core";
+import { createStorage } from "../../core/persist-core";
 
 /** Same options as `createStorage` (`clearCorruptOnFailure`). */
 export type SerovalStorageOptions = CreateStorageOptions;
