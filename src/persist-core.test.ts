@@ -148,6 +148,37 @@ describe("createJSONStorage codec seam", () => {
     ).toBeUndefined();
   });
 
+  it("createStorage returns undefined for a defined-but-broken backend (Node 22+ localStorage without --localstorage-file)", () => {
+    // Node 22+ exposes `localStorage` as an object whose methods are undefined
+    // when no valid --localstorage-file path is configured. The lookup doesn't
+    // throw, so the shape check — not the try/catch — must catch it.
+    const brokenBackend = {
+      getItem: undefined,
+      setItem: undefined,
+      removeItem: undefined,
+    } as unknown as StateStorage;
+    expect(
+      createStorage<{ count: number }>(
+        () => brokenBackend,
+        jsonCodec<{ count: number }>(),
+      ),
+    ).toBeUndefined();
+  });
+
+  it("createStorage returns undefined when the backend is missing one method", () => {
+    const partialBackend = {
+      getItem: () => null,
+      setItem: () => {},
+      // removeItem missing
+    } as unknown as StateStorage;
+    expect(
+      createStorage<{ count: number }>(
+        () => partialBackend,
+        jsonCodec<{ count: number }>(),
+      ),
+    ).toBeUndefined();
+  });
+
   it("generic wire type: identityCodec over an object-valued backend round-trips with no serialization", async () => {
     // Pins the StateStorage<TRaw> seam (pre-freeze seam decision 1): a
     // structured-clone-style backend stores the envelope object natively.
@@ -473,6 +504,43 @@ describe("persistSource", () => {
       expect(errors[0].message).toContain("storage unavailable");
     } finally {
       if (savedLocalStorage !== undefined) {
+        globalThis.localStorage = savedLocalStorage;
+      }
+    }
+  });
+
+  it("defined-but-broken localStorage (Node 22+ without --localstorage-file) collapses to the no-op path, not a hydrate crash", () => {
+    // Reproduces the SSR crash: `typeof localStorage === "undefined"` is
+    // false for Node 22+'s half-built global, so without the `createStorage`
+    // shape check the default JSON storage passes availability and `hydrate`
+    // throws `storage.getItem is not a function`. Assert the no-op path.
+    const errors: Array<{ phase: string; message: string }> = [];
+    const savedLocalStorage = globalThis.localStorage;
+    // Object present, methods absent; cast through `unknown` — the shape
+    // check guards this at runtime.
+    globalThis.localStorage = {
+      getItem: undefined,
+      setItem: undefined,
+      removeItem: undefined,
+    } as unknown as typeof globalThis.localStorage;
+    try {
+      const source = createMockSource({ count: 0 });
+      const persist = persistSource(source, {
+        name: "broken-backend",
+        onError: (error, context) =>
+          errors.push({
+            phase: context.phase,
+            message: (error as Error).message,
+          }),
+      });
+      expect(persist.hasHydrated()).toBe(true);
+      expect(errors.length).toBe(1);
+      expect(errors[0].message).toContain("storage unavailable");
+    } finally {
+      if (savedLocalStorage === undefined) {
+        // @ts-expect-error restore the undefined global
+        delete globalThis.localStorage;
+      } else {
         globalThis.localStorage = savedLocalStorage;
       }
     }
@@ -1458,7 +1526,7 @@ describe("persistSource throttleMs", () => {
       throttleMs: 60_000,
       retryWrite: () => {
         retryCalls++;
-        return undefined;
+        return;
       },
       onError: (error, context) =>
         errors.push({
