@@ -34,6 +34,8 @@ Each subpath owns its dependency as an **optional peer** — import only the ent
 | `@stainless-code/persist/backends/async-storage`  | `@react-native-async-storage/async-storage` |
 | `@stainless-code/persist/backends/mmkv`           | `react-native-mmkv`                         |
 | `@stainless-code/persist/backends/secure-store`   | `expo-secure-store`                         |
+| `@stainless-code/persist/backends/encrypted`      | none (web global)                           |
+| `@stainless-code/persist/backends/compressed`     | none (web global)                           |
 | `@stainless-code/persist/transport/crosstab`      | none (web global)                           |
 | `@stainless-code/persist/sources/tanstack-store`  | `@tanstack/store`                           |
 | `@stainless-code/persist/frameworks/react`        | `react`                                     |
@@ -151,6 +153,224 @@ IndexedDB fires no `storage` events — `crossTab: true` alone does nothing on t
 
 Both TanStack Persist and zustand persist wire a single store library to a single storage with a flat options bag. `@stainless-code/persist` is a **middleware model with a first-class hydration lifecycle**: persistence is bound to a structural `PersistableSource` (`getState`/`setState`/`subscribe`) rather than a specific store, so the same middleware persists TanStack Store, zustand, Redux, or a hand-rolled atom. Three seams — backend (`StateStorage`), codec (`StorageCodec`), source (`PersistableSource`) — make every backend × codec cell a one-line composition. The hydration lifecycle (`onHydrate` / `onFinishHydration` / `hasHydrated`, surfaced via `HydrationSignal` and `useHydrated`) gates UI flash without coupling to the store's read path, versioned `migrate` handles schema evolution, `crossTab` + `onCrossTabRemove` syncs tabs, and `retryWrite` shrinks-or-gives-up on quota errors with a write-generation guard so stale retries never clobber newer state.
 
+## Comparison with other persist libraries
+
+Every row is a seam or lifecycle concern — not a roadmap item. `@stainless-code/persist` treats each as composable; incumbents bake most of them into framework-specific middleware.
+
+| Capability                                            | `@stainless-code/persist` | zustand-persist | redux-persist | `@tanstack/query-persist-client` | pinia-persist |
+| ----------------------------------------------------- | :-----------------------: | :-------------: | :-----------: | :------------------------------: | :-----------: |
+| Store-agnostic (structural source)                    |             ✓             |        ✗        |       ~       |                ~                 |       ✗       |
+| Codec seam (swap serialization)                       |             ✓             |        ~        |       ~       |                ✗                 |       ~       |
+| Storage seam (swap backend)                           |             ✓             |        ✓        |       ✓       |                ✓                 |       ✓       |
+| Hydration signal (gate UI flash)                      |             ✓             |        ~        |       ~       |                ✗                 |       ✗       |
+| Cross-tab sync                                        |             ✓             |        ✗        |       ✗       |                ✗                 |       ✗       |
+| `migrate` (versioned)                                 |             ✓             |        ✓        |       ✓       |                ~                 |       ~       |
+| `retryWrite` (quota shrink-or-give-up)                |             ✓             |        ✗        |       ✗       |                ~                 |       ✗       |
+| `throttleMs`                                          |             ✓             |        ✗        |       ✗       |                ✗                 |       ✗       |
+| `maxAge` / `buster` expiry                            |             ✓             |        ✗        |       ✗       |                ✓                 |       ✗       |
+| Schema validation (codec)                             |             ✓             |        ✗        |       ✗       |                ✗                 |       ✗       |
+| Framework hydration adapters (React/Solid/Vue/Svelte) |             ✓             |        ✗        |       ✗       |                ✗                 |       ✗       |
+
+**Differentiator:** `@stainless-code/persist` is the only library here with a first-class hydration signal **and** a codec seam **and** a storage seam — so every backend×codec cell is a one-line composition, not a feature request.
+
+## Migrating from …
+
+Same mental model everywhere: pick a source (`PersistableSource`), wire storage, gate UI with `HydrationSignal`. Option names map 1:1 where noted; gaps are explicit.
+
+### Migrating from zustand-persist
+
+Near 1:1 — this API is modeled on zustand persist, plus store-agnostic sources, a first-class `HydrationSignal`, and a codec seam.
+
+| zustand-persist                 | `@stainless-code/persist`                                                          |
+| ------------------------------- | ---------------------------------------------------------------------------------- |
+| `name`                          | `name`                                                                             |
+| `storage` / `createJSONStorage` | `storage` / `createJSONStorage` (core)                                             |
+| `partialize`                    | `partialize`                                                                       |
+| `version`                       | `version`                                                                          |
+| `migrate`                       | `migrate`                                                                          |
+| `merge`                         | `merge`                                                                            |
+| `onRehydrateStorage`            | `onRehydrateStorage`                                                               |
+| `skipHydration`                 | `skipHydration`                                                                    |
+| `persist` middleware            | `persistStore(store, opts)` or `persistSource(source, opts)`                       |
+| —                               | `toHydrationSignal(persist)` + `useHydrated` (no zustand equivalent)               |
+| —                               | `crossTab`, `maxAge`, `buster`, `throttleMs`, `retryWrite` (no zustand equivalent) |
+
+```ts
+// zustand-persist
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+
+export const usePrefs = create(
+  persist(() => ({ theme: "light" }), {
+    name: "app:prefs:v1",
+    storage: createJSONStorage(() => localStorage),
+  }),
+);
+
+// @stainless-code/persist
+import { Store } from "@tanstack/store";
+import { createJSONStorage, toHydrationSignal } from "@stainless-code/persist";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+import { useHydrated } from "@stainless-code/persist/frameworks/react";
+
+export const prefsStore = new Store({ theme: "light" });
+const persist = persistStore(prefsStore, {
+  name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+export const prefsHydration = toHydrationSignal(persist);
+// const { hydrated } = useHydrated(prefsHydration);
+```
+
+### Migrating from redux-persist
+
+redux-persist reconciles whole reducer trees implicitly; here `merge` is explicit and a hydration signal gates UI until the snapshot lands. redux stores have `getState`/`subscribe`/`dispatch` (no `setState`), so wrap the store in a `PersistableSource` whose `setState` dispatches an action your reducer recognizes to replace state.
+
+| redux-persist                     | `@stainless-code/persist`                                                  |
+| --------------------------------- | -------------------------------------------------------------------------- |
+| `key`                             | `name`                                                                     |
+| `storage`                         | `storage`                                                                  |
+| `version`                         | `version`                                                                  |
+| `migrate`                         | `migrate`                                                                  |
+| `whitelist` / `blacklist`         | `partialize` (project the slice)                                           |
+| `transforms`                      | `merge` or custom `StorageCodec` via `createStorage`                       |
+| `stateReconciler`                 | `merge` (default shallow-spread; customize)                                |
+| `persistReducer` / `persistStore` | `persistSource(reduxSource, opts)`                                         |
+| —                                 | `toHydrationSignal` + framework adapter (no redux-persist equivalent)      |
+| —                                 | `crossTab`, `maxAge`, `buster`, `throttleMs`, `retryWrite` (no equivalent) |
+
+```ts
+// redux-persist
+import { persistReducer, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+
+const persistedReducer = persistReducer({ key: "root", storage }, rootReducer);
+export const store = createStore(persistedReducer);
+persistStore(store);
+
+// @stainless-code/persist — wrap the redux store (dispatch ↔ setState)
+import {
+  createJSONStorage,
+  persistSource,
+  toHydrationSignal,
+} from "@stainless-code/persist";
+
+const reduxSource = {
+  getState: () => store.getState(),
+  setState: (updater) =>
+    store.dispatch({ type: "PERSIST_SET", payload: updater(store.getState()) }),
+  subscribe: (listener) => store.subscribe(listener),
+};
+const persist = persistSource(reduxSource, {
+  name: "root",
+  storage: createJSONStorage(() => localStorage),
+});
+export const rootHydration = toHydrationSignal(persist);
+```
+
+### Migrating from @tanstack/query-persist-client
+
+query-persist-client owns the query cache lifecycle; here the seam is any `PersistableSource` — supply a cache-shaped source and compose storage like any other store.
+
+| query-persist-client                | `@stainless-code/persist`                                                                |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| `persister` (`Persister` interface) | `storage` (`PersistStorage` — `getItem`/`setItem`/`removeItem`, or wrap `createStorage`) |
+| `maxAge`                            | `maxAge`                                                                                 |
+| `buster`                            | `buster`                                                                                 |
+| `retry`                             | `retryWrite`                                                                             |
+| `dehydrate` / `hydrate`             | `partialize` / `merge`                                                                   |
+| `persistQueryClient`                | `persistSource(queryCacheSource, opts)`                                                  |
+| —                                   | `toHydrationSignal` + framework adapter (no equivalent)                                  |
+| —                                   | codec seam via `createStorage(backend, codec)` (no equivalent)                           |
+
+```ts
+// @tanstack/query-persist-client
+import { persistQueryClient } from "@tanstack/query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+
+persistQueryClient({
+  queryClient,
+  persister: createSyncStoragePersister({ storage: window.localStorage }),
+  maxAge: 1000 * 60 * 60 * 24,
+  buster: BUILD_ID,
+});
+
+// @stainless-code/persist — supply a cache-shaped source
+import {
+  createJSONStorage,
+  persistSource,
+  toHydrationSignal,
+} from "@stainless-code/persist";
+
+const queryCacheSource = {
+  getState: () => queryClient.getQueryCache().getAll(),
+  setState: (entries) =>
+    entries.forEach(({ queryKey, state }) =>
+      queryClient.setQueryData(queryKey, state.data),
+    ),
+  subscribe: (cb) => queryClient.getQueryCache().subscribe(cb),
+};
+const persist = persistSource(queryCacheSource, {
+  name: "query-cache",
+  storage: createJSONStorage(() => localStorage),
+  maxAge: 1000 * 60 * 60 * 24,
+  buster: BUILD_ID,
+});
+export const queryHydration = toHydrationSignal(persist);
+```
+
+### Migrating from pinia-persist
+
+pinia-persist is a Pinia plugin; here persistence is a middleware call on any reactive source — same storage, explicit partialization, optional codec. Wrap the Pinia store's `$state` + `$subscribe` in a `PersistableSource`.
+
+| pinia-persist                    | `@stainless-code/persist`                                                             |
+| -------------------------------- | ------------------------------------------------------------------------------------- |
+| `key`                            | `name`                                                                                |
+| `storage`                        | `storage`                                                                             |
+| `paths`                          | `partialize` (pick paths)                                                             |
+| `serializer`                     | custom `StorageCodec` or default `jsonCodec` via `createStorage`                      |
+| `beforeRestore` / `afterRestore` | `onRehydrateStorage`                                                                  |
+| `debug`                          | `onError`                                                                             |
+| `pinia.use(plugin)`              | `persistSource(piniaSource, opts)`                                                    |
+| —                                | `toHydrationSignal` + framework adapter (no equivalent)                               |
+| —                                | `crossTab`, `migrate`, `maxAge`, `buster`, `throttleMs`, `retryWrite` (no equivalent) |
+
+```ts
+// pinia-persist
+import { createPinia } from "pinia";
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+
+const pinia = createPinia();
+pinia.use(
+  piniaPluginPersistedstate({
+    key: "prefs",
+    storage: localStorage,
+    paths: ["theme"],
+  }),
+);
+
+// @stainless-code/persist — wrap $state / $subscribe
+import {
+  createJSONStorage,
+  persistSource,
+  toHydrationSignal,
+} from "@stainless-code/persist";
+
+const piniaSource = {
+  getState: () => piniaStore.$state,
+  setState: (updater) => {
+    piniaStore.$state = updater(piniaStore.$state);
+  },
+  subscribe: (listener) => piniaStore.$subscribe(() => listener()),
+};
+const persist = persistSource(piniaSource, {
+  name: "prefs",
+  storage: createJSONStorage(() => localStorage),
+  partialize: (s) => ({ theme: s.theme }),
+});
+export const prefsHydration = toHydrationSignal(persist);
+```
+
 ---
 
 # Extensibility guide
@@ -168,6 +388,8 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 | `@stainless-code/persist/backends/async-storage`  | `asyncStorageStateStorage`, `createAsyncStorage`                                                                        | `@react-native-async-storage/async-storage` |
 | `@stainless-code/persist/backends/mmkv`           | `mmkvStateStorage`, `createMmkvStorage`                                                                                 | `react-native-mmkv`                         |
 | `@stainless-code/persist/backends/secure-store`   | `secureStoreStateStorage`, `createSecureStoreStorage`                                                                   | `expo-secure-store`                         |
+| `@stainless-code/persist/backends/encrypted`      | `createEncryptedStorage` (AES-GCM WebCrypto)                                                                            | none (web global)                           |
+| `@stainless-code/persist/backends/compressed`     | `createCompressedStorage` (gzip/deflate/deflate-raw)                                                                    | none (web global)                           |
 | `@stainless-code/persist/transport/crosstab`      | `createBroadcastCrossTab`                                                                                               | none (web global)                           |
 | `@stainless-code/persist/sources/tanstack-store`  | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only)              |
 | `@stainless-code/persist/frameworks/react`        | `useHydrated` React hook                                                                                                | `react`                                     |
@@ -221,7 +443,7 @@ const superjsonCodec = { encode: superjson.stringify, decode: superjson.parse };
 const encryptedCodec = {
   encode: (v) => encrypt(JSON.stringify(v)),
   decode: (raw) => JSON.parse(decrypt(raw)),
-};
+}; // sync cipher — for WebCrypto (async) use ./backends/encrypted
 ```
 
 **3. Store source (`PersistableSource`)** — structural, so the middleware persists anything reactive:
@@ -248,13 +470,36 @@ import {
   idbStateStorage,
   createIdbStorage,
 } from "@stainless-code/persist/backends/idb";
+import { createEncryptedStorage } from "@stainless-code/persist/backends/encrypted";
+import { createCompressedStorage } from "@stainless-code/persist/backends/compressed";
 import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
 import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
 
-// Encryption at rest over IndexedDB
-createStorage(() => idbStateStorage(), encryptedCodec, {
-  clearCorruptOnFailure: true,
-});
+// Encryption at rest (AES-GCM WebCrypto) over IndexedDB. Encryption is a
+// backend wrapper (crypto.subtle is async, the StorageCodec seam is sync),
+// not a sync codec; idbStateStorage() in string-wire mode holds the encrypted base64.
+const key = await crypto.subtle.generateKey(
+  { name: "AES-GCM", length: 256 },
+  true,
+  ["encrypt", "decrypt"],
+);
+createStorage(
+  () => createEncryptedStorage(() => idbStateStorage(), { key })!,
+  serovalCodec(),
+  {
+    clearCorruptOnFailure: true,
+  },
+);
+
+// Compress-then-encrypt (standard order) — the two wrappers stack
+createStorage(
+  () =>
+    createEncryptedStorage(
+      () => createCompressedStorage(() => idbStateStorage())!,
+      { key },
+    )!,
+  serovalCodec(),
+);
 
 // Legacy string payloads in IDB (written by an older version)
 createStorage(() => idbStateStorage(), serovalCodec());

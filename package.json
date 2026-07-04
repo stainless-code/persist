@@ -58,6 +58,14 @@
       "types": "./dist/backends/secure-store.d.mts",
       "import": "./dist/backends/secure-store.mjs"
     },
+    "./backends/encrypted": {
+      "types": "./dist/backends/encrypted.d.mts",
+      "import": "./dist/backends/encrypted.mjs"
+    },
+    "./backends/compressed": {
+      "types": "./dist/backends/compressed.d.mts",
+      "import": "./dist/backends/compressed.mjs"
+    },
     "./transport/crosstab": {
       "types": "./dist/transport/crosstab.d.mts",
       "import": "./dist/transport/crosstab.mjs"
