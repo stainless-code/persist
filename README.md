@@ -25,20 +25,20 @@ bun add @stainless-code/persist
 
 Each subpath owns its dependency as an **optional peer** — import only the entries you use, install the matching peer only when you do:
 
-| Subpath                                  | Optional peer                               |
-| ---------------------------------------- | ------------------------------------------- |
-| `@stainless-code/persist`                | none (zero-dep core)                        |
-| `@stainless-code/persist/seroval`        | `seroval`                                   |
-| `@stainless-code/persist/idb`            | `idb-keyval`                                |
-| `@stainless-code/persist/tanstack-store` | `@tanstack/store`                           |
-| `@stainless-code/persist/react`          | `react`                                     |
-| `@stainless-code/persist/crosstab`       | none (web global)                           |
-| `@stainless-code/persist/zod`            | `zod`                                       |
-| `@stainless-code/persist/solid`          | `solid-js`                                  |
-| `@stainless-code/persist/vue`            | `vue`                                       |
-| `@stainless-code/persist/async-storage`  | `@react-native-async-storage/async-storage` |
-| `@stainless-code/persist/mmkv`           | `react-native-mmkv`                         |
-| `@stainless-code/persist/secure-store`   | `expo-secure-store`                         |
+| Subpath                                          | Optional peer                               |
+| ------------------------------------------------ | ------------------------------------------- |
+| `@stainless-code/persist`                        | none (zero-dep core)                        |
+| `@stainless-code/persist/codecs/seroval`         | `seroval`                                   |
+| `@stainless-code/persist/backends/idb`           | `idb-keyval`                                |
+| `@stainless-code/persist/sources/tanstack-store` | `@tanstack/store`                           |
+| `@stainless-code/persist/frameworks/react`       | `react`                                     |
+| `@stainless-code/persist/transport/crosstab`     | none (web global)                           |
+| `@stainless-code/persist/codecs/zod`             | `zod`                                       |
+| `@stainless-code/persist/frameworks/solid`       | `solid-js`                                  |
+| `@stainless-code/persist/frameworks/vue`         | `vue`                                       |
+| `@stainless-code/persist/backends/async-storage` | `@react-native-async-storage/async-storage` |
+| `@stainless-code/persist/backends/mmkv`          | `react-native-mmkv`                         |
+| `@stainless-code/persist/backends/secure-store`  | `expo-secure-store`                         |
 
 ```bash
 # only when you use the matching entry
@@ -57,10 +57,10 @@ npm install seroval idb-keyval @tanstack/store react
 
 ```ts
 import { Store } from "@tanstack/store";
-import { createSerovalStorage } from "@stainless-code/persist/seroval";
-import { persistStore } from "@stainless-code/persist/tanstack-store";
+import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
 import { toHydrationSignal } from "@stainless-code/persist";
-import { useHydrated } from "@stainless-code/persist/react";
+import { useHydrated } from "@stainless-code/persist/frameworks/react";
 
 const store = new Store({ theme: "light" });
 const persist = persistStore(store, {
@@ -101,8 +101,8 @@ bun add @stainless-code/persist @tanstack/store react idb-keyval
 // prefs-store.ts
 import { Store } from "@tanstack/store";
 import { toHydrationSignal } from "@stainless-code/persist";
-import { createIdbStorage } from "@stainless-code/persist/idb";
-import { persistStore } from "@stainless-code/persist/tanstack-store";
+import { createIdbStorage } from "@stainless-code/persist/backends/idb";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
 
 export type Prefs = { theme: "light" | "dark"; recent: string[] };
 
@@ -120,7 +120,7 @@ export const prefsHydration = toHydrationSignal(persist);
 ```tsx
 // PrefsPanel.tsx
 import { useSelector } from "@tanstack/store";
-import { useHydrated } from "@stainless-code/persist/react";
+import { useHydrated } from "@stainless-code/persist/frameworks/react";
 import { prefsStore, prefsHydration } from "./prefs-store";
 
 export function PrefsPanel() {
@@ -157,20 +157,20 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 
 ## Entry points (one subpath = one optional peer)
 
-| Subpath                                  | Symbols                                                                                                                 | Optional peer                               |
-| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| `@stainless-code/persist`                | `persistSource`, `PersistApi`, `createStorage`, `jsonCodec`, `identityCodec`, registry, `HydrationSignal` (`hydration`) | none                                        |
-| `@stainless-code/persist/seroval`        | `serovalCodec`, `createSerovalStorage`                                                                                  | `seroval`                                   |
-| `@stainless-code/persist/idb`            | `idbStateStorage`, `createIdbStorage` (structured-clone mode)                                                           | `idb-keyval`                                |
-| `@stainless-code/persist/tanstack-store` | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only)              |
-| `@stainless-code/persist/react`          | `useHydrated` React hook                                                                                                | `react`                                     |
-| `@stainless-code/persist/crosstab`       | `createBroadcastCrossTab`                                                                                               | none (web global)                           |
-| `@stainless-code/persist/zod`            | `zodCodec`, `createZodStorage`                                                                                          | `zod`                                       |
-| `@stainless-code/persist/solid`          | `useHydrated` (Solid `Accessor<boolean>`)                                                                               | `solid-js`                                  |
-| `@stainless-code/persist/vue`            | `useHydrated` (Vue `Ref<boolean>`)                                                                                      | `vue`                                       |
-| `@stainless-code/persist/async-storage`  | `asyncStorageStateStorage`, `createAsyncStorage`                                                                        | `@react-native-async-storage/async-storage` |
-| `@stainless-code/persist/mmkv`           | `mmkvStateStorage`, `createMmkvStorage`                                                                                 | `react-native-mmkv`                         |
-| `@stainless-code/persist/secure-store`   | `secureStoreStateStorage`, `createSecureStoreStorage`                                                                   | `expo-secure-store`                         |
+| Subpath                                          | Symbols                                                                                                                 | Optional peer                               |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `@stainless-code/persist`                        | `persistSource`, `PersistApi`, `createStorage`, `jsonCodec`, `identityCodec`, registry, `HydrationSignal` (`hydration`) | none                                        |
+| `@stainless-code/persist/codecs/seroval`         | `serovalCodec`, `createSerovalStorage`                                                                                  | `seroval`                                   |
+| `@stainless-code/persist/backends/idb`           | `idbStateStorage`, `createIdbStorage` (structured-clone mode)                                                           | `idb-keyval`                                |
+| `@stainless-code/persist/sources/tanstack-store` | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only)              |
+| `@stainless-code/persist/frameworks/react`       | `useHydrated` React hook                                                                                                | `react`                                     |
+| `@stainless-code/persist/transport/crosstab`     | `createBroadcastCrossTab`                                                                                               | none (web global)                           |
+| `@stainless-code/persist/codecs/zod`             | `zodCodec`, `createZodStorage`                                                                                          | `zod`                                       |
+| `@stainless-code/persist/frameworks/solid`       | `useHydrated` (Solid `Accessor<boolean>`)                                                                               | `solid-js`                                  |
+| `@stainless-code/persist/frameworks/vue`         | `useHydrated` (Vue `Ref<boolean>`)                                                                                      | `vue`                                       |
+| `@stainless-code/persist/backends/async-storage` | `asyncStorageStateStorage`, `createAsyncStorage`                                                                        | `@react-native-async-storage/async-storage` |
+| `@stainless-code/persist/backends/mmkv`          | `mmkvStateStorage`, `createMmkvStorage`                                                                                 | `react-native-mmkv`                         |
+| `@stainless-code/persist/backends/secure-store`  | `secureStoreStateStorage`, `createSecureStoreStorage`                                                                   | `expo-secure-store`                         |
 
 No barrel — importing a subpath is the dependency opt-in.
 
@@ -179,14 +179,14 @@ No barrel — importing a subpath is the dependency opt-in.
 **1. Backend (`StateStorage<TRaw = string>`)** — anything with `getItem`/`setItem`/`removeItem`, sync or Promise-returning, string-wire by default, generic for structured backends.
 
 ```ts
-import { createSerovalStorage } from "@stainless-code/persist/seroval";
-import { createIdbStorage } from "@stainless-code/persist/idb";
+import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
+import { createIdbStorage } from "@stainless-code/persist/backends/idb";
 import { createJSONStorage } from "@stainless-code/persist";
 
 createSerovalStorage(() => localStorage); // durable prefs
 createSerovalStorage(() => sessionStorage); // per-visit state (dies with the tab)
 createIdbStorage(); // IndexedDB, structured-clone mode
-createJSONStorage(() => AsyncStorage); // React Native — or use ./async-storage for the typed adapter
+createJSONStorage(() => AsyncStorage); // React Native — or use ./backends/async-storage for the typed adapter
 createAsyncStorage(); // React Native AsyncStorage — async, useHydrated gating
 createMmkvStorage({ id: "app-prefs" }); // React Native MMKV — sync, no gate needed
 createSecureStoreStorage(); // expo-secure-store — OS keychain, ~2KB/key, for secrets
@@ -201,9 +201,9 @@ import {
   identityCodec,
   createStorage,
 } from "@stainless-code/persist";
-import { serovalCodec } from "@stainless-code/persist/seroval";
-import { zodCodec } from "@stainless-code/persist/zod";
-import { idbStateStorage } from "@stainless-code/persist/idb";
+import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
+import { zodCodec } from "@stainless-code/persist/codecs/zod";
+import { idbStateStorage } from "@stainless-code/persist/backends/idb";
 import { z } from "zod";
 
 const PrefsSchema = z.object({ theme: z.enum(["light", "dark"]) });
@@ -226,7 +226,7 @@ const encryptedCodec = {
 import {
   persistStore,
   persistAtom,
-} from "@stainless-code/persist/tanstack-store";
+} from "@stainless-code/persist/sources/tanstack-store";
 import { persistSource } from "@stainless-code/persist";
 
 persistStore(store, opts); // @tanstack/store Store
@@ -240,9 +240,12 @@ Compose freely: `createStorage(backend, codec, options)` covers every backend ×
 
 ```ts
 import { createStorage } from "@stainless-code/persist";
-import { idbStateStorage, createIdbStorage } from "@stainless-code/persist/idb";
-import { serovalCodec } from "@stainless-code/persist/seroval";
-import { persistStore } from "@stainless-code/persist/tanstack-store";
+import {
+  idbStateStorage,
+  createIdbStorage,
+} from "@stainless-code/persist/backends/idb";
+import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
 
 // Encryption at rest over IndexedDB
 createStorage(() => idbStateStorage(), encryptedCodec, {
@@ -270,8 +273,8 @@ persistStore(store, {
 
 ```ts
 import { createPersistRegistry } from "@stainless-code/persist";
-import { createSerovalStorage } from "@stainless-code/persist/seroval";
-import { persistStore } from "@stainless-code/persist/tanstack-store";
+import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
 
 // One registry for every persisted store — clearAll() at logout wipes all keys
 // (allSettled; first rejection rethrows; destroy() unregisters each store)
@@ -370,8 +373,8 @@ persistStore(store, {
 ### Cross-tab over IndexedDB
 
 ```ts
-import { createBroadcastCrossTab } from "@stainless-code/persist/crosstab";
-import { createIdbStorage } from "@stainless-code/persist/idb";
+import { createBroadcastCrossTab } from "@stainless-code/persist/transport/crosstab";
+import { createIdbStorage } from "@stainless-code/persist/backends/idb";
 
 // IDB fires no storage events — bridge a BroadcastChannel as the transport.
 // storageArea: null in every posted event → key-only matching in every tab.
@@ -385,11 +388,11 @@ persistStore(store, {
 // teardown: persist.destroy(); bridge.close();
 ```
 
-Caveats that matter per backend: async backends (IDB) can't settle hydration before first paint → gate UI on `useHydrated` (`@stainless-code/persist/react`); `sessionStorage` is per-tab (crossTab is meaningless); `identityCodec` never with string-only backends.
+Caveats that matter per backend: async backends (IDB) can't settle hydration before first paint → gate UI on `useHydrated` (`@stainless-code/persist/frameworks/react`); `sessionStorage` is per-tab (crossTab is meaningless); `identityCodec` never with string-only backends.
 
 ## Writing a framework adapter
 
-The React hook (`@stainless-code/persist/react`) is ~20 lines over `HydrationSignal` — every adapter is the same shape. Solid (`@stainless-code/persist/solid`, `Accessor<boolean>` via `from`) and Vue (`@stainless-code/persist/vue`, `Ref<boolean>` via `shallowRef` + `onScopeDispose`) ship the same way. The contract (full version on `HydrationSignal`'s JSDoc): subscribe returns an idempotent unsubscribe; each subscribe call is an independent subscription; **no initial notification and no payload** — pull `isHydrated()` after attach and on every notification; transitions while detached aren't replayed (the snapshot re-read recovers); **render `hydrated: true` on the server** (no storage server-side); `null` signal = no persistence = hydrated.
+The React hook (`@stainless-code/persist/frameworks/react`) is ~20 lines over `HydrationSignal` — every adapter is the same shape. Solid (`@stainless-code/persist/frameworks/solid`, `Accessor<boolean>` via `from`) and Vue (`@stainless-code/persist/frameworks/vue`, `Ref<boolean>` via `shallowRef` + `onScopeDispose`) ship the same way. The contract (full version on `HydrationSignal`'s JSDoc): subscribe returns an idempotent unsubscribe; each subscribe call is an independent subscription; **no initial notification and no payload** — pull `isHydrated()` after attach and on every notification; transitions while detached aren't replayed (the snapshot re-read recovers); **render `hydrated: true` on the server** (no storage server-side); `null` signal = no persistence = hydrated.
 
 ```ts
 import type { HydrationSignal } from "@stainless-code/persist";

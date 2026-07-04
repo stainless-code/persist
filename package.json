@@ -34,49 +34,49 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     },
-    "./seroval": {
+    "./codecs/seroval": {
       "types": "./dist/seroval.d.mts",
       "import": "./dist/seroval.mjs"
     },
-    "./idb": {
-      "types": "./dist/idb.d.mts",
-      "import": "./dist/idb.mjs"
-    },
-    "./tanstack-store": {
-      "types": "./dist/tanstack-store.d.mts",
-      "import": "./dist/tanstack-store.mjs"
-    },
-    "./react": {
-      "types": "./dist/react.d.mts",
-      "import": "./dist/react.mjs"
-    },
-    "./crosstab": {
-      "types": "./dist/crosstab.d.mts",
-      "import": "./dist/crosstab.mjs"
-    },
-    "./zod": {
+    "./codecs/zod": {
       "types": "./dist/zod.d.mts",
       "import": "./dist/zod.mjs"
     },
-    "./solid": {
-      "types": "./dist/solid.d.mts",
-      "import": "./dist/solid.mjs"
+    "./backends/idb": {
+      "types": "./dist/idb.d.mts",
+      "import": "./dist/idb.mjs"
     },
-    "./vue": {
-      "types": "./dist/vue.d.mts",
-      "import": "./dist/vue.mjs"
-    },
-    "./async-storage": {
+    "./backends/async-storage": {
       "types": "./dist/async-storage.d.mts",
       "import": "./dist/async-storage.mjs"
     },
-    "./mmkv": {
+    "./backends/mmkv": {
       "types": "./dist/mmkv.d.mts",
       "import": "./dist/mmkv.mjs"
     },
-    "./secure-store": {
+    "./backends/secure-store": {
       "types": "./dist/secure-store.d.mts",
       "import": "./dist/secure-store.mjs"
+    },
+    "./transport/crosstab": {
+      "types": "./dist/crosstab.d.mts",
+      "import": "./dist/crosstab.mjs"
+    },
+    "./sources/tanstack-store": {
+      "types": "./dist/tanstack-store.d.mts",
+      "import": "./dist/tanstack-store.mjs"
+    },
+    "./frameworks/react": {
+      "types": "./dist/react.d.mts",
+      "import": "./dist/react.mjs"
+    },
+    "./frameworks/solid": {
+      "types": "./dist/solid.d.mts",
+      "import": "./dist/solid.mjs"
+    },
+    "./frameworks/vue": {
+      "types": "./dist/vue.d.mts",
+      "import": "./dist/vue.mjs"
     }
   },
   "publishConfig": {

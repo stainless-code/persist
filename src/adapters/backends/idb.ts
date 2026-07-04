@@ -66,7 +66,7 @@ export function idbStateStorage<TRaw = string>(
  *
  * @example
  * ```ts
- * import { createIdbStorage } from "@stainless-code/persist/idb";
+ * import { createIdbStorage } from "@stainless-code/persist/backends/idb";
  *
  * const storage = createIdbStorage<Prefs>(); // Set/Map/Date just work
  * ```

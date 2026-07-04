@@ -13,7 +13,7 @@ sources:
 
 # Persisting TanStack Store
 
-`@stainless-code/persist/tanstack-store` ships two adapters over the store-agnostic `persistSource` core: `persistStore(store, options)` for `@tanstack/store`'s `Store` (action-bearing stores included), and `persistAtom(atom, options)` for a writable `Atom`. The middleware owns the lifecycle so the store stays a plain store; the adapters are thin wrappers that supply the `PersistableSource` shape.
+`@stainless-code/persist/sources/tanstack-store` ships two adapters over the store-agnostic `persistSource` core: `persistStore(store, options)` for `@tanstack/store`'s `Store` (action-bearing stores included), and `persistAtom(atom, options)` for a writable `Atom`. The middleware owns the lifecycle so the store stays a plain store; the adapters are thin wrappers that supply the `PersistableSource` shape.
 
 ## When to use this skill
 
@@ -31,14 +31,14 @@ bun add @stainless-code/persist @tanstack/store
 bun add seroval
 ```
 
-`@tanstack/store` is an optional peer of the `/tanstack-store` subpath — importing the subpath is the dep opt-in.
+`@tanstack/store` is an optional peer of the `/sources/tanstack-store` subpath — importing the subpath is the dep opt-in.
 
 ## Minimal wiring
 
 ```ts
 import { Store } from "@tanstack/store";
-import { createSerovalStorage } from "@stainless-code/persist/seroval";
-import { persistStore } from "@stainless-code/persist/tanstack-store";
+import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
 
 const store = new Store({ theme: "light" });
 const persist = persistStore(store, {
@@ -58,7 +58,7 @@ The middleware hydrates on create, subscribes to `setState`, and writes through.
 
 ```ts
 import { createAtom } from "@tanstack/store";
-import { persistAtom } from "@stainless-code/persist/tanstack-store";
+import { persistAtom } from "@stainless-code/persist/sources/tanstack-store";
 
 const theme = createAtom<"light" | "dark">("light");
 const persist = persistAtom(theme, { name: "app:theme:v1" });
@@ -70,11 +70,11 @@ const persist = persistAtom(theme, { name: "app:theme:v1" });
 Writes are **gated until hydration settles** — a `setState` fired before the stored state is loaded will not clobber stored state with the constructor default. This is why you don't need to manually defer your first write.
 
 - **Sync backend (localStorage):** hydration settles before first paint for stores created at module load. Caveat: `hydrate` is async and `await`s the (sync) `getItem` return, so the flag flips in a **microtask**, not synchronously — `hasHydrated()` is `false` for a brief window right after `persistStore()` returns. Module-load creation settles before React's first render; creation inside a component mount may not. No flash, no `Suspense`; `useHydrated` is still the safe way to read it.
-- **Async backend (IndexedDB):** hydration settles after first paint. Gate the UI on `useHydrated` (`@stainless-code/persist/react`) or read `persist.hasHydrated()` before rendering persisted-dependent UI.
+- **Async backend (IndexedDB):** hydration settles after first paint. Gate the UI on `useHydrated` (`@stainless-code/persist/frameworks/react`) or read `persist.hasHydrated()` before rendering persisted-dependent UI.
 
 ```ts
 import { toHydrationSignal } from "@stainless-code/persist";
-import { useHydrated } from "@stainless-code/persist/react";
+import { useHydrated } from "@stainless-code/persist/frameworks/react";
 
 export const prefsHydration = toHydrationSignal(persist);
 // in a component:
