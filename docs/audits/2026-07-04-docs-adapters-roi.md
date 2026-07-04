@@ -129,10 +129,10 @@ Ordered by ROI = impact ÷ effort. **Effort:** S / M / L. **Status as of 2026-07
 | 13    | TanStack Query persister bridge (`persistQueryClient`-shaped). JSDoc cites Query as reference design (`persist-core.ts:12,263`). Flagship integration.                    | M      |
 | ✅ 14 | Migration/porting guide — option mapping + conceptual diff vs zustand-persist / redux-persist / query-persist-client / pinia-persist.                                     | S      |
 | ✅ 15 | Comparison table across the 4 incumbents. README paragraph → table.                                                                                                       | S      |
-| 16    | Storage & codec decision matrices — lift + expand the skill's 4-row version to consumer docs.                                                                             | S      |
+| ✅ 16 | Storage & codec decision matrices — lift + expand the skill's 4-row version to consumer docs.                                                                             | S      |
 | ✅ 17 | `CompressionStream` codec — native API, ~S now; pairs with binary `TRaw`.                                                                                                 | M      |
-| 18    | Node `fs` storage adapter — trivial `StateStorage`; unblocks server/SSR/CLI.                                                                                              | S      |
-| 19    | Pack-validation + semver gate in CI — `attw --pack` + `knip` + `publint`. Prevents shipping a broken `exports` map.                                                       | S      |
+| ✅ 18 | Node `fs` storage adapter — trivial `StateStorage`; unblocks server/SSR/CLI.                                                                                              | S      |
+| ✅ 19 | Pack-validation + semver gate in CI — `attw --pack` + `knip` + `publint`. Prevents shipping a broken `exports` map.                                                       | S      |
 
 ### Tier 3 — Maturity & polish (medium impact, medium effort)
 
