@@ -11,6 +11,7 @@ export default defineConfig({
     "src/persist-seroval.ts",
     "src/persist-idb.ts",
     "src/persist-crosstab.ts",
+    "src/persist-zod.ts",
     "src/persist-tanstack.ts",
     "src/use-hydrated.ts",
   ],
@@ -19,7 +20,7 @@ export default defineConfig({
   dts: true,
   // Each subpath owns its peer dep — never bundle them into dist.
   deps: {
-    neverBundle: ["seroval", "idb-keyval", "@tanstack/store", "react"],
+    neverBundle: ["seroval", "idb-keyval", "@tanstack/store", "react", "zod"],
   },
   clean: true,
 });

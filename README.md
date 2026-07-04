@@ -33,6 +33,7 @@ Each subpath owns its dependency as an **optional peer** — import only the ent
 | `@stainless-code/persist/tanstack-store` | `@tanstack/store`    |
 | `@stainless-code/persist/react`          | `react`              |
 | `@stainless-code/persist/crosstab`       | none (web global)    |
+| `@stainless-code/persist/zod`            | `zod`                |
 
 ```bash
 # only when you use the matching entry
@@ -159,6 +160,7 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 | `@stainless-code/persist/tanstack-store` | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only) |
 | `@stainless-code/persist/react`          | `useHydrated` React hook                                                                                                | `react`                        |
 | `@stainless-code/persist/crosstab`       | `createBroadcastCrossTab`                                                                                               | none (web global)              |
+| `@stainless-code/persist/zod`            | `zodCodec`, `createZodStorage`                                                                                          | `zod`                          |
 
 No barrel — importing a subpath is the dependency opt-in.
 
@@ -187,10 +189,15 @@ import {
   createStorage,
 } from "@stainless-code/persist";
 import { serovalCodec } from "@stainless-code/persist/seroval";
+import { zodCodec } from "@stainless-code/persist/zod";
 import { idbStateStorage } from "@stainless-code/persist/idb";
+import { z } from "zod";
+
+const PrefsSchema = z.object({ theme: z.enum(["light", "dark"]) });
 
 jsonCodec(); // core default — plain JSON
 serovalCodec(); // Set / Map / Date / cycles, inert JSON-shaped output
+zodCodec(PrefsSchema); // schema-gated persistence — invalid state never writes; corrupt reads discard
 identityCodec(); // structured-clone backends only — zero serialization
 // custom — any pair of pure functions:
 const superjsonCodec = { encode: superjson.stringify, decode: superjson.parse }; // class instances via registerCustom
