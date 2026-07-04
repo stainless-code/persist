@@ -145,10 +145,11 @@
     "lint:fix": "bun run lint --fix",
     "lint:fix:changes": "bun scripts/run-on-changed-files.ts lint:fix",
     "prepare": "husky || true",
-    "prepublishOnly": "bun run check && bun run intent:validate && bun run check:pack && bun run size",
+    "prepublishOnly": "bun run check && bun run intent:validate && bun run check:pack && bun run size && bun run test:coverage",
     "release": "changeset publish",
     "size": "size-limit",
     "test": "bun test ./src",
+    "test:coverage": "bun test ./src --coverage --coverage-threshold=0.90",
     "test:dom": "vitest run",
     "typecheck": "tsgo --noEmit",
     "version": "changeset version && bun scripts/sync-skill-versions.ts && bun run format CHANGELOG.md"

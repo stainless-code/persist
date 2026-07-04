@@ -89,8 +89,8 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
-      - name: Run unit tests
-        run: bun run test
+      - name: Run unit tests with coverage gate
+        run: bun run test:coverage
 
   test-dom:
     name: 🌐 Test (DOM)

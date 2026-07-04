@@ -142,7 +142,7 @@ Ordered by ROI = impact ÷ effort. **Effort:** S / M / L. **Status as of 2026-07
 | ----- | ------------------------------------------------------------------------------------------------------------------------------- | ------ |
 | 20    | npm provenance + signing in `release.yml` (`id-token: write` + `--provenance`).                                                 | S      |
 | 21    | Test matrix — real browser (Playwright) + Safari + SSR-framework (Next.js hydration). Today jsdom only.                         | M      |
-| 22    | Coverage gate. Suite is excellent but unmeasured.                                                                               | S      |
+| ✅ 22 | Coverage gate. Suite is excellent but unmeasured.                                                                               | S      |
 | ✅ 23 | Bundle-size badge + `size-limit` gate; advertise zero-dep core.                                                                 | S      |
 | ✅ 24 | `packageManager` pin + TS consumer range + Node/React/TanStack compat table.                                                    | S      |
 | 25    | `zustand`/`jotai`/`valtio`/`mobx`/signals source adapters — decide ship-as-subpath vs recipe first.                             | S each |
