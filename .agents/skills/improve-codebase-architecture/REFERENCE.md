@@ -64,7 +64,7 @@ This repo runs **oxlint only** (no ESLint, no `eslint-plugin-boundaries`). Archi
 oxlint resolves the **nearest** `.oxlintrc.json` for each file and **does not auto-merge with parents**. That has three concrete consequences:
 
 1. **Always set `extends`.** Every nested config must extend a parent config that ultimately reaches the repo-root `.oxlintrc.json`, otherwise baseline plugins/rules silently disappear for the files it owns.
-2. **The `!` negation in `files` does not work** in oxlint. A `files: ["**", "!persist-idb/**"]` override matches `persist-idb` files too, which silently shadows any `persist-idb`-specific rule defined in another override.
+2. **The `!` negation in `files` does not work** in oxlint. A `files: ["**", "!backends/idb/**"]` override matches `backends/idb` files too, which silently shadows any `backends/idb`-specific rule defined in another override.
 3. **Same rule key in two `overrides[]` matching the same file → later replaces earlier.** Patterns do not merge across overrides. Combine all applicable patterns into a single `no-restricted-imports` rule per scope.
 
 Because of (2) and (3), the cleanest pattern is **one config file per scope** — the repo-root config plus a deeper config for any `src/` subfolder that needs different rules. Each leaf `extends` its parent and re-declares any rules it wants to carry alongside its own.

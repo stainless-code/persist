@@ -77,9 +77,9 @@ Output a triage table grouped by verdict, not by file:
 
 ## ❌ Incorrect / hallucinated (N) — push back
 
-| #   | File:line              | Claim                            | Why wrong                                                    |
-| --- | ---------------------- | -------------------------------- | ------------------------------------------------------------ |
-| 2   | persist-tanstack.ts:13 | "useEffect should depend on key" | key is stable from persistSource options; no useEffect here. |
+| #   | File:line                                 | Claim                            | Why wrong                                                    |
+| --- | ----------------------------------------- | -------------------------------- | ------------------------------------------------------------ |
+| 2   | src/adapters/sources/tanstack-store.ts:13 | "useEffect should depend on key" | key is stable from persistSource options; no useEffect here. |
 
 ## ⚠️ Partially correct (N)
 
@@ -118,7 +118,7 @@ If the repo's branch protection requires **all conversations resolved to merge**
 2. Wait one review-cycle for the reviewer to escalate or concede. For bot reviewers, "one cycle" is one push that triggers a re-review; for humans, give it ≥1 working day unless the merge is time-sensitive.
 3. **Resolve the thread regardless** — the rebuttal lives in the thread body for the next reviewer pass; the merge gate cannot be held hostage to a bot's silence. Reviewer-pushback evidence is preserved (`gh api repos/{owner}/{repo}/pulls/{number}/comments` returns the full thread including resolved ones).
 
-Counterbalance the "evidence-in-the-body" trade-off (future reviewers won't see resolved threads by default): drop a one-line summary of contested rebuttals into the **PR description** (e.g. `## Pushed back on (resolved): #2 persist-tanstack.ts:13 — no useEffect here; #5 PersistStorage.raw typing — deliberate unknown`).
+Counterbalance the "evidence-in-the-body" trade-off (future reviewers won't see resolved threads by default): drop a one-line summary of contested rebuttals into the **PR description** (e.g. `## Pushed back on (resolved): #2 src/adapters/sources/tanstack-store.ts:13 — no useEffect here; #5 PersistStorage.raw typing — deliberate unknown`).
 
 The exception applies to `❌ hallucinated` and `⚠️ partial — needs a call` rows. The other rows already resolve by default.
 

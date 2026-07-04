@@ -11,7 +11,7 @@ import type { PersistableSource, StateStorage } from "../src/core/persist-core";
 /**
  * Framework-matrix tests for the React `useHydrated` reactivity path — the
  * `useSyncExternalStore` rerender + cleanup wiring that `bun:test` can't
- * exercise (no DOM, no client renderer). The bun suite (`src/use-hydrated.test.ts`)
+ * exercise (no DOM, no client renderer). The bun suite (`src/adapters/frameworks/react.test.ts`)
  * pins SSR safety + snapshot values; this suite pins that a real client
  * renderer actually rerenders on the hydration flip and detaches on unmount.
  */

@@ -1,6 +1,6 @@
 # Roadmap
 
-Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [README.md](./README.md). **Design / seams:** [architecture.md](./architecture.md). Shipped features (core, codecs, backends, TanStack adapters, React hook) live in `src/` and the root [README.md](../README.md) — not enumerated here.
+Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [README.md](./README.md). **Design / seams:** [architecture.md](./architecture.md). Shipped features (core, codecs, backends, TanStack adapters, React/Solid/Vue/Svelte hydration adapters) live in `src/` and the root [README.md](../README.md) — not enumerated here.
 
 ---
 
@@ -12,11 +12,11 @@ Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [READM
 
 ## Strategy
 
-| Layer                                   | Role                                                                                                                                                                          |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Core** (`persist-core` + `hydration`) | Zero-dep middleware: `persistSource`, `createStorage`, codecs, registry, hydration signal. No value imports (gate-test enforced).                                             |
-| **Codec / backend subpaths**            | Own their optional peer (`seroval`, `idb-keyval`); compose into `createStorage`.                                                                                              |
-| **Framework adapters**                  | One entry per framework (`./sources/tanstack-store`, `./frameworks/react`); each adapter is ~20 lines over `HydrationSignal` — the same shape scales to Svelte / Solid / Vue. |
+| Layer                                   | Role                                                                                                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Core** (`persist-core` + `hydration`) | Zero-dep middleware: `persistSource`, `createStorage`, codecs, registry, hydration signal. No value imports (gate-test enforced).                             |
+| **Codec / backend subpaths**            | Own their optional peer (`seroval`, `idb-keyval`); compose into `createStorage`.                                                                              |
+| **Framework adapters**                  | One entry per framework (`./sources/tanstack-store`, `./frameworks/react`); each adapter is ~20 lines over `HydrationSignal`. React/Solid/Vue/Svelte shipped. |
 
 ## Non-goals (v1)
 

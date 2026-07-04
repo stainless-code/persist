@@ -9,9 +9,13 @@ Jump to what you need —
 - [What does "hydration-aware" mean?](#what-does-hydration-aware-mean)
 - [IndexedDB + React, end to end](#indexeddb--react-end-to-end)
 - [Relationship to TanStack Persist / zustand persist](#relationship-to-tanstack-persist--zustand-persist)
+- [Comparison with other persist libraries](#comparison-with-other-persist-libraries)
+- [Migrating from …](#migrating-from-)
 - Extensibility guide
   - [Entry points (one subpath = one optional peer)](#entry-points-one-subpath--one-optional-peer)
   - [The three seams](#the-three-seams)
+  - [Choosing a storage](#choosing-a-storage)
+  - [Choosing a codec](#choosing-a-codec)
   - [Recipes](#recipes)
   - [Writing a framework adapter](#writing-a-framework-adapter)
   - [Lifecycle in one paragraph](#lifecycle-in-one-paragraph)
@@ -172,9 +176,7 @@ Every row is a seam or lifecycle concern — not a roadmap item. `@stainless-cod
 | Schema validation (codec)              |             ✓             |        ✗        |       ✗       |                ✗                 |       ✗       |
 | Framework hydration adapters           |             ✓             |        ✗        |       ✗       |                ✓                 |       ✗       |
 
-**Differentiator:** `@stainless-code/persist` is the only library here with built-in cross-tab sync, a schema-validation codec, and a fully store-agnostic source (`PersistableSource`) — and the only one that scores ✓ on every row. The closest peer, `@tanstack/query-persist-client`, matches on the hydration signal, `retryWrite` (shrink-or-give-up), `throttleMs`, `maxAge`/`buster`, and framework adapters — but is query-cache-bound (not store-agnostic), exposes no codec seam on its `Persister` interface, and ships no versioned `migrate`, cross-tab sync, or schema validation.
-
-_Cells verified against each library's source on 2026-07-04: `pmndrs/zustand`, `rt2zz/redux-persist`, `TanStack/query`, `prazdevs/pinia-plugin-persistedstate`._
+**Differentiator:** `@stainless-code/persist` is the only library here with built-in cross-tab sync, a schema-validation codec, and a fully store-agnostic source (`PersistableSource`). The closest peer, `@tanstack/query-persist-client`, matches on the hydration signal, `retryWrite` (shrink-or-give-up), `throttleMs`, `maxAge`/`buster`, and framework adapters — but is query-cache-bound (not store-agnostic), exposes no codec seam on its `Persister` interface, and ships no versioned `migrate`, cross-tab sync, or schema validation.
 
 ## Migrating from …
 

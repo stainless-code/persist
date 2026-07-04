@@ -12,7 +12,7 @@ alwaysApply: false
 
 Three attachment modes: **always-on** (`alwaysApply: true`), **auto-attached** (`globs:`), **intent** (`description:` only).
 
-**Tier 1 budget:** owner-set; currently 7 always-on rules + `lessons.md` (≤250 lines total). The frontmatter audit is the source of truth — **no hardcoded Tier 1 name lists** in rule, skill, or README. Audit:
+**Tier 1 budget:** owner-set; currently 8 always-on rules + `lessons.md` (≤250 lines total). The frontmatter audit is the source of truth — **no hardcoded Tier 1 name lists** in rule, skill, or README. Audit:
 
 ```bash
 for f in .agents/rules/*.md .agents/lessons.md; do
