@@ -17,7 +17,9 @@
     "src/adapters/frameworks/solid.ts",
     "src/adapters/frameworks/vue.ts",
     "src/adapters/frameworks/svelte.ts",
-    "src/adapters/frameworks/svelte-store.ts"
+    "src/adapters/frameworks/svelte-store.ts",
+    "src/adapters/frameworks/angular.ts",
+    "src/adapters/frameworks/preact.ts"
   ],
   "out": "docs/api",
   "name": "@stainless-code/persist",

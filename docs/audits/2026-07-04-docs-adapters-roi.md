@@ -133,8 +133,8 @@ Ordered by ROI = impact ÷ effort. **Effort:** S / M / L. **Status as of 2026-07
 | ✅ 17 | `CompressionStream` codec — native API, ~S now; pairs with binary `TRaw`.                                                                                                              | M      |
 | ✅ 18 | Node `fs` storage adapter — trivial `StateStorage`; unblocks server/SSR/CLI.                                                                                                           | S      |
 | ✅ 19 | Pack-validation + semver gate in CI — `attw --pack` + `knip` + `publint`. Prevents shipping a broken `exports` map.                                                                    | S      |
-| 33    | Angular-signals hydration adapter — `signal` + `effect`-based gate over `HydrationSignal`; peer `@angular/core`. Svelte/Solid/Vue shipped; Angular is the remaining framework adapter. | S      |
-| 34    | Preact hydration adapter — near-clone of `./frameworks/react` (`useSyncExternalStore`); peer `preact`.                                                                                 | S      |
+| ✅ 33 | Angular-signals hydration adapter — `signal` + `effect`-based gate over `HydrationSignal`; peer `@angular/core`. Svelte/Solid/Vue shipped; Angular is the remaining framework adapter. | S      |
+| ✅ 34 | Preact hydration adapter — near-clone of `./frameworks/react` (`useSyncExternalStore`); peer `preact`.                                                                                 | S      |
 
 ### Tier 3 — Maturity & polish (medium impact, medium effort)
 

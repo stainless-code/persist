@@ -35,6 +35,8 @@ Persistence is bound to a structural `PersistableSource` (`getState` / `setState
 | `@stainless-code/persist/frameworks/vue`          | `adapters/frameworks/vue`                   | `vue`                                         |
 | `@stainless-code/persist/frameworks/svelte`       | `adapters/frameworks/svelte`                | `svelte` (>=5 runes)                          |
 | `@stainless-code/persist/frameworks/svelte-store` | `adapters/frameworks/svelte-store`          | `svelte` (>=3 store)                          |
+| `@stainless-code/persist/frameworks/angular`      | `adapters/frameworks/angular`               | `@angular/core` (>=17)                        |
+| `@stainless-code/persist/frameworks/preact`       | `adapters/frameworks/preact`                | `preact` (>=10.19)                            |
 
 No barrel — importing a subpath is the dependency opt-in. Each subpath entry owns its peer dep, which stays external in the build (`tsdown.config.ts` `neverBundle`) so consumers tree-shake cleanly.
 
@@ -48,7 +50,7 @@ No barrel — importing a subpath is the dependency opt-in. Each subpath entry o
   - `backends/` — `StateStorage` adapters + wrappers (idb, async-storage, mmkv, secure-store, encrypted, compressed, node-fs)
   - `transport/` — `CrossTabEventTarget` adapters (crosstab — BroadcastChannel bridge)
   - `sources/` — `PersistableSource` adapters (tanstack-store)
-  - `frameworks/` — `HydrationSignal` framework adapters (react, solid, vue, svelte, svelte-store)
+  - `frameworks/` — `HydrationSignal` framework adapters (react, solid, vue, svelte, svelte-store, angular, preact)
 
 A per-entry self-check test pins the invariant: every adapter's relative imports resolve into `core/` (no cross-adapter coupling). `dist/` mirrors `src/` (`dist/<seam>/<name>.mjs` via tsdown's record-form `entry` keyed by `<seam>/<name>`) — src folder → tsdown key → dist path → subpath, all 1:1.
 

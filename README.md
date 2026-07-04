@@ -48,6 +48,8 @@ Each subpath owns its dependency as an **optional peer** — import only the ent
 | `@stainless-code/persist/frameworks/vue`          | `vue`                                       |
 | `@stainless-code/persist/frameworks/svelte`       | `svelte`                                    |
 | `@stainless-code/persist/frameworks/svelte-store` | `svelte`                                    |
+| `@stainless-code/persist/frameworks/angular`      | `@angular/core`                             |
+| `@stainless-code/persist/frameworks/preact`       | `preact`                                    |
 
 ```bash
 # only when you use the matching entry
@@ -407,6 +409,8 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 | `@stainless-code/persist/frameworks/vue`          | `useHydrated` (Vue `Ref<boolean>`)                                                                                      | `vue`                                       |
 | `@stainless-code/persist/frameworks/svelte`       | `hydratedRune` (Svelte 5 runes `current`)                                                                               | `svelte` (>=5)                              |
 | `@stainless-code/persist/frameworks/svelte-store` | `hydratedStore` (Svelte `Readable<boolean>`)                                                                            | `svelte` (>=3)                              |
+| `@stainless-code/persist/frameworks/angular`      | `useHydrated` (Angular `Signal<boolean>`)                                                                               | `@angular/core` (>=17)                      |
+| `@stainless-code/persist/frameworks/preact`       | `useHydrated` (Preact `{ hydrated: boolean }`)                                                                          | `preact` (>=10.19)                          |
 
 No barrel — importing a subpath is the dependency opt-in.
 

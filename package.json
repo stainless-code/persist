@@ -111,6 +111,14 @@
     "./frameworks/svelte-store": {
       "types": "./dist/frameworks/svelte-store.d.mts",
       "import": "./dist/frameworks/svelte-store.mjs"
+    },
+    "./frameworks/angular": {
+      "types": "./dist/frameworks/angular.d.mts",
+      "import": "./dist/frameworks/angular.mjs"
+    },
+    "./frameworks/preact": {
+      "types": "./dist/frameworks/preact.d.mts",
+      "import": "./dist/frameworks/preact.mjs"
     }
   },
   "publishConfig": {
@@ -145,6 +153,7 @@
     "version": "changeset version && bun scripts/sync-skill-versions.ts && bun run format CHANGELOG.md"
   },
   "devDependencies": {
+    "@angular/core": "22.0.5",
     "@arethetypeswrong/cli": "0.18.4",
     "@changesets/changelog-github": "0.7.0",
     "@changesets/cli": "2.31.0",
@@ -167,6 +176,7 @@
     "lint-staged": "17.0.8",
     "oxfmt": "0.56.0",
     "oxlint": "1.71.0",
+    "preact": "10.29.4",
     "publint": "0.3.21",
     "react": "19.2.7",
     "react-dom": "19.2.7",
@@ -182,10 +192,12 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
+    "@angular/core": ">=17.0.0",
     "@react-native-async-storage/async-storage": ">=1.0.0",
     "@tanstack/store": ">=0.10.0",
     "expo-secure-store": ">=12.0.0",
     "idb-keyval": ">=4.0.0",
+    "preact": ">=10.19.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-native-mmkv": ">=4.0.0",
     "seroval": ">=1.0.0",
@@ -211,6 +223,12 @@
       "optional": true
     },
     "svelte": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    },
+    "preact": {
       "optional": true
     },
     "vue": {
