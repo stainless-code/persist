@@ -25,20 +25,22 @@ bun add @stainless-code/persist
 
 Each subpath owns its dependency as an **optional peer** — import only the entries you use, install the matching peer only when you do:
 
-| Subpath                                          | Optional peer                               |
-| ------------------------------------------------ | ------------------------------------------- |
-| `@stainless-code/persist`                        | none (zero-dep core)                        |
-| `@stainless-code/persist/codecs/seroval`         | `seroval`                                   |
-| `@stainless-code/persist/backends/idb`           | `idb-keyval`                                |
-| `@stainless-code/persist/sources/tanstack-store` | `@tanstack/store`                           |
-| `@stainless-code/persist/frameworks/react`       | `react`                                     |
-| `@stainless-code/persist/transport/crosstab`     | none (web global)                           |
-| `@stainless-code/persist/codecs/zod`             | `zod`                                       |
-| `@stainless-code/persist/frameworks/solid`       | `solid-js`                                  |
-| `@stainless-code/persist/frameworks/vue`         | `vue`                                       |
-| `@stainless-code/persist/backends/async-storage` | `@react-native-async-storage/async-storage` |
-| `@stainless-code/persist/backends/mmkv`          | `react-native-mmkv`                         |
-| `@stainless-code/persist/backends/secure-store`  | `expo-secure-store`                         |
+| Subpath                                           | Optional peer                               |
+| ------------------------------------------------- | ------------------------------------------- |
+| `@stainless-code/persist`                         | none (zero-dep core)                        |
+| `@stainless-code/persist/codecs/seroval`          | `seroval`                                   |
+| `@stainless-code/persist/codecs/zod`              | `zod`                                       |
+| `@stainless-code/persist/backends/idb`            | `idb-keyval`                                |
+| `@stainless-code/persist/backends/async-storage`  | `@react-native-async-storage/async-storage` |
+| `@stainless-code/persist/backends/mmkv`           | `react-native-mmkv`                         |
+| `@stainless-code/persist/backends/secure-store`   | `expo-secure-store`                         |
+| `@stainless-code/persist/transport/crosstab`      | none (web global)                           |
+| `@stainless-code/persist/sources/tanstack-store`  | `@tanstack/store`                           |
+| `@stainless-code/persist/frameworks/react`        | `react`                                     |
+| `@stainless-code/persist/frameworks/solid`        | `solid-js`                                  |
+| `@stainless-code/persist/frameworks/vue`          | `vue`                                       |
+| `@stainless-code/persist/frameworks/svelte`       | `svelte`                                    |
+| `@stainless-code/persist/frameworks/svelte-store` | `svelte`                                    |
 
 ```bash
 # only when you use the matching entry
@@ -157,20 +159,22 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 
 ## Entry points (one subpath = one optional peer)
 
-| Subpath                                          | Symbols                                                                                                                 | Optional peer                               |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| `@stainless-code/persist`                        | `persistSource`, `PersistApi`, `createStorage`, `jsonCodec`, `identityCodec`, registry, `HydrationSignal` (`hydration`) | none                                        |
-| `@stainless-code/persist/codecs/seroval`         | `serovalCodec`, `createSerovalStorage`                                                                                  | `seroval`                                   |
-| `@stainless-code/persist/backends/idb`           | `idbStateStorage`, `createIdbStorage` (structured-clone mode)                                                           | `idb-keyval`                                |
-| `@stainless-code/persist/sources/tanstack-store` | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only)              |
-| `@stainless-code/persist/frameworks/react`       | `useHydrated` React hook                                                                                                | `react`                                     |
-| `@stainless-code/persist/transport/crosstab`     | `createBroadcastCrossTab`                                                                                               | none (web global)                           |
-| `@stainless-code/persist/codecs/zod`             | `zodCodec`, `createZodStorage`                                                                                          | `zod`                                       |
-| `@stainless-code/persist/frameworks/solid`       | `useHydrated` (Solid `Accessor<boolean>`)                                                                               | `solid-js`                                  |
-| `@stainless-code/persist/frameworks/vue`         | `useHydrated` (Vue `Ref<boolean>`)                                                                                      | `vue`                                       |
-| `@stainless-code/persist/backends/async-storage` | `asyncStorageStateStorage`, `createAsyncStorage`                                                                        | `@react-native-async-storage/async-storage` |
-| `@stainless-code/persist/backends/mmkv`          | `mmkvStateStorage`, `createMmkvStorage`                                                                                 | `react-native-mmkv`                         |
-| `@stainless-code/persist/backends/secure-store`  | `secureStoreStateStorage`, `createSecureStoreStorage`                                                                   | `expo-secure-store`                         |
+| Subpath                                           | Symbols                                                                                                                 | Optional peer                               |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `@stainless-code/persist`                         | `persistSource`, `PersistApi`, `createStorage`, `jsonCodec`, `identityCodec`, registry, `HydrationSignal` (`hydration`) | none                                        |
+| `@stainless-code/persist/codecs/seroval`          | `serovalCodec`, `createSerovalStorage`                                                                                  | `seroval`                                   |
+| `@stainless-code/persist/codecs/zod`              | `zodCodec`, `createZodStorage`                                                                                          | `zod`                                       |
+| `@stainless-code/persist/backends/idb`            | `idbStateStorage`, `createIdbStorage` (structured-clone mode)                                                           | `idb-keyval`                                |
+| `@stainless-code/persist/backends/async-storage`  | `asyncStorageStateStorage`, `createAsyncStorage`                                                                        | `@react-native-async-storage/async-storage` |
+| `@stainless-code/persist/backends/mmkv`           | `mmkvStateStorage`, `createMmkvStorage`                                                                                 | `react-native-mmkv`                         |
+| `@stainless-code/persist/backends/secure-store`   | `secureStoreStateStorage`, `createSecureStoreStorage`                                                                   | `expo-secure-store`                         |
+| `@stainless-code/persist/transport/crosstab`      | `createBroadcastCrossTab`                                                                                               | none (web global)                           |
+| `@stainless-code/persist/sources/tanstack-store`  | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only)              |
+| `@stainless-code/persist/frameworks/react`        | `useHydrated` React hook                                                                                                | `react`                                     |
+| `@stainless-code/persist/frameworks/solid`        | `useHydrated` (Solid `Accessor<boolean>`)                                                                               | `solid-js`                                  |
+| `@stainless-code/persist/frameworks/vue`          | `useHydrated` (Vue `Ref<boolean>`)                                                                                      | `vue`                                       |
+| `@stainless-code/persist/frameworks/svelte`       | `hydratedRune` (Svelte 5 runes `current`)                                                                               | `svelte` (>=5)                              |
+| `@stainless-code/persist/frameworks/svelte-store` | `hydratedStore` (Svelte `Readable<boolean>`)                                                                            | `svelte` (>=3)                              |
 
 No barrel — importing a subpath is the dependency opt-in.
 
@@ -392,12 +396,12 @@ Caveats that matter per backend: async backends (IDB) can't settle hydration bef
 
 ## Writing a framework adapter
 
-The React hook (`@stainless-code/persist/frameworks/react`) is ~20 lines over `HydrationSignal` — every adapter is the same shape. Solid (`@stainless-code/persist/frameworks/solid`, `Accessor<boolean>` via `from`) and Vue (`@stainless-code/persist/frameworks/vue`, `Ref<boolean>` via `shallowRef` + `onScopeDispose`) ship the same way. The contract (full version on `HydrationSignal`'s JSDoc): subscribe returns an idempotent unsubscribe; each subscribe call is an independent subscription; **no initial notification and no payload** — pull `isHydrated()` after attach and on every notification; transitions while detached aren't replayed (the snapshot re-read recovers); **render `hydrated: true` on the server** (no storage server-side); `null` signal = no persistence = hydrated.
+The React hook (`@stainless-code/persist/frameworks/react`) is ~20 lines over `HydrationSignal` — every adapter is the same shape. Solid (`@stainless-code/persist/frameworks/solid`, `Accessor<boolean>` via `from`), Vue (`@stainless-code/persist/frameworks/vue`, `Ref<boolean>` via `shallowRef` + `onScopeDispose`), and Svelte (`@stainless-code/persist/frameworks/svelte` runes `hydratedRune`; `@stainless-code/persist/frameworks/svelte-store` `hydratedStore` for Svelte 4 + Svelte 5 store users) ship the same way. The contract (full version on `HydrationSignal`'s JSDoc): subscribe returns an idempotent unsubscribe; each subscribe call is an independent subscription; **no initial notification and no payload** — pull `isHydrated()` after attach and on every notification; transitions while detached aren't replayed (the snapshot re-read recovers); **render `hydrated: true` on the server** (no storage server-side); `null` signal = no persistence = hydrated.
 
 ```ts
 import type { HydrationSignal } from "@stainless-code/persist";
 
-// Svelte 5 sketch
+// The shipped `./frameworks/svelte` adapter, in full — every adapter is this shape:
 export function hydratedRune(signal: HydrationSignal | null) {
   if (!signal)
     return {

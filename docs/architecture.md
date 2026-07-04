@@ -16,20 +16,22 @@ Persistence is bound to a structural `PersistableSource` (`getState` / `setState
 
 ## Entry points (one subpath = one optional peer)
 
-| Entry                                            | Module                                      | Optional peer                                 |
-| ------------------------------------------------ | ------------------------------------------- | --------------------------------------------- |
-| `@stainless-code/persist`                        | `core/index` (`persist-core` + `hydration`) | none (zero-dep core, enforced by a gate test) |
-| `@stainless-code/persist/codecs/seroval`         | `adapters/codecs/seroval`                   | `seroval`                                     |
-| `@stainless-code/persist/codecs/zod`             | `adapters/codecs/zod`                       | `zod`                                         |
-| `@stainless-code/persist/backends/idb`           | `adapters/backends/idb`                     | `idb-keyval`                                  |
-| `@stainless-code/persist/backends/async-storage` | `adapters/backends/async-storage`           | `@react-native-async-storage/async-storage`   |
-| `@stainless-code/persist/backends/mmkv`          | `adapters/backends/mmkv`                    | `react-native-mmkv`                           |
-| `@stainless-code/persist/backends/secure-store`  | `adapters/backends/secure-store`            | `expo-secure-store`                           |
-| `@stainless-code/persist/transport/crosstab`     | `adapters/transport/crosstab`               | none (web global)                             |
-| `@stainless-code/persist/sources/tanstack-store` | `adapters/sources/tanstack-store`           | `@tanstack/store` (types only)                |
-| `@stainless-code/persist/frameworks/react`       | `adapters/frameworks/react`                 | `react`                                       |
-| `@stainless-code/persist/frameworks/solid`       | `adapters/frameworks/solid`                 | `solid-js`                                    |
-| `@stainless-code/persist/frameworks/vue`         | `adapters/frameworks/vue`                   | `vue`                                         |
+| Entry                                             | Module                                      | Optional peer                                 |
+| ------------------------------------------------- | ------------------------------------------- | --------------------------------------------- |
+| `@stainless-code/persist`                         | `core/index` (`persist-core` + `hydration`) | none (zero-dep core, enforced by a gate test) |
+| `@stainless-code/persist/codecs/seroval`          | `adapters/codecs/seroval`                   | `seroval`                                     |
+| `@stainless-code/persist/codecs/zod`              | `adapters/codecs/zod`                       | `zod`                                         |
+| `@stainless-code/persist/backends/idb`            | `adapters/backends/idb`                     | `idb-keyval`                                  |
+| `@stainless-code/persist/backends/async-storage`  | `adapters/backends/async-storage`           | `@react-native-async-storage/async-storage`   |
+| `@stainless-code/persist/backends/mmkv`           | `adapters/backends/mmkv`                    | `react-native-mmkv`                           |
+| `@stainless-code/persist/backends/secure-store`   | `adapters/backends/secure-store`            | `expo-secure-store`                           |
+| `@stainless-code/persist/transport/crosstab`      | `adapters/transport/crosstab`               | none (web global)                             |
+| `@stainless-code/persist/sources/tanstack-store`  | `adapters/sources/tanstack-store`           | `@tanstack/store` (types only)                |
+| `@stainless-code/persist/frameworks/react`        | `adapters/frameworks/react`                 | `react`                                       |
+| `@stainless-code/persist/frameworks/solid`        | `adapters/frameworks/solid`                 | `solid-js`                                    |
+| `@stainless-code/persist/frameworks/vue`          | `adapters/frameworks/vue`                   | `vue`                                         |
+| `@stainless-code/persist/frameworks/svelte`       | `adapters/frameworks/svelte`                | `svelte` (>=5 runes)                          |
+| `@stainless-code/persist/frameworks/svelte-store` | `adapters/frameworks/svelte-store`          | `svelte` (>=3 store)                          |
 
 No barrel — importing a subpath is the dependency opt-in. Each subpath entry owns its peer dep, which stays external in the build (`tsdown.config.ts` `neverBundle`) so consumers tree-shake cleanly.
 
@@ -43,13 +45,13 @@ No barrel — importing a subpath is the dependency opt-in. Each subpath entry o
   - `backends/` — `StateStorage` adapters (idb, async-storage, mmkv, secure-store)
   - `transport/` — `CrossTabEventTarget` adapters (crosstab — BroadcastChannel bridge)
   - `sources/` — `PersistableSource` adapters (tanstack-store)
-  - `frameworks/` — `HydrationSignal` framework adapters (react, solid, vue)
+  - `frameworks/` — `HydrationSignal` framework adapters (react, solid, vue, svelte, svelte-store)
 
 A per-entry self-check test pins the invariant: every adapter's relative imports resolve into `core/` (no cross-adapter coupling). `dist/` is flat (`dist/<subpath>.mjs`) via tsdown's record-form `entry`, regardless of src depth.
 
 ## Hydration lifecycle
 
-`persistSource` hydrates on create (skip with `skipHydration`; `rehydrate()` is awaitable), subscribe-writes on every `setState` (gated until hydrated; optional trailing `throttleMs`), and tears down via `destroy()`. The hydration signal (`HydrationSignal` from `hydration`) is observed from outside the store — framework adapters mount it into their external-store mechanism (React `useSyncExternalStore` via `./frameworks/react`, Solid `from` via `./frameworks/solid`, Vue `shallowRef` + `onScopeDispose` via `./frameworks/vue`; a Svelte `createSubscriber` sketch is in the README) without coupling to the store's read path. SSR policy: render `hydrated = true` on the server; `null` signal = no persistence = hydrated.
+`persistSource` hydrates on create (skip with `skipHydration`; `rehydrate()` is awaitable), subscribe-writes on every `setState` (gated until hydrated; optional trailing `throttleMs`), and tears down via `destroy()`. The hydration signal (`HydrationSignal` from `hydration`) is observed from outside the store — framework adapters mount it into their external-store mechanism (React `useSyncExternalStore` via `./frameworks/react`, Solid `from` via `./frameworks/solid`, Vue `shallowRef` + `onScopeDispose` via `./frameworks/vue`, Svelte runes `createSubscriber` via `./frameworks/svelte` / stores `readable` via `./frameworks/svelte-store`) without coupling to the store's read path. SSR policy: render `hydrated = true` on the server; `null` signal = no persistence = hydrated.
 
 ## Sync vs async
 
