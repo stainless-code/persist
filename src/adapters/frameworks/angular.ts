@@ -7,14 +7,12 @@ import type { HydrationSignal } from "../../core/hydration";
 const alwaysTrue = signal(true);
 
 /**
- * Mount a `HydrationSignal` into Angular signals. Returns a readonly
- * `Signal<boolean>` — read it in a template or `computed`/`effect`. Call
- * inside a component's injection context (`effect()` requires it); the
- * subscription is cleaned up on context destroy. Null/undefined signal →
- * always `true`. Renders `true` on the server.
+ * Mount a `HydrationSignal` into Angular signals. Call inside a component's
+ * injection context (`effect()` requires it).
  *
  * @example
  * ```ts
+ * import { useHydrated } from "@stainless-code/persist/frameworks/angular";
  * // in a component
  * hydrated = useHydrated(prefsHydration);
  * // template: @if (hydrated()) { <Prefs /> } @else { <Skeleton /> }

@@ -11,12 +11,11 @@ const noopSubscribe: (listener: () => void) => () => void = () => () => {};
 const alwaysTrue: () => boolean = () => true;
 
 /**
- * Mount a `HydrationSignal` into Preact via `useSyncExternalStore` (preact/compat).
- * Returns `{ hydrated }` — gate UI on it. Null/undefined signal → `hydrated: true`.
- * Renders `true` on the server.
+ * Mount a `HydrationSignal` into Preact.
  *
  * @example
  * ```ts
+ * import { useHydrated } from "@stainless-code/persist/frameworks/preact";
  * const { hydrated } = useHydrated(prefsHydration);
  * if (!hydrated) return <Skeleton />;
  * ```

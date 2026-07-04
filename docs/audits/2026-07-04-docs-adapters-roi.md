@@ -121,20 +121,20 @@ Ordered by ROI = impact ÷ effort. **Effort:** S / M / L. **Status as of 2026-07
 
 ### Tier 2 — Build out the surface (high impact, medium effort)
 
-| #     | Action                                                                                                                                                                                 | Effort |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| ✅ 10 | Encryption-at-rest codec (WebCrypto + codec). Headline "custom codec" example in JSDoc (`persist-core.ts:69`, `persist-idb.ts:52`, `skill:155`) with no shipped impl.                  | M      |
-| 11    | `examples/` monorepo workspace — runnable `tanstack-idb-react`, `tanstack-localstorage-react`, `nextjs-ssr`, `react-native-mmkv`. No runnable demo today.                              | M      |
-| 12    | Docs site (VitePress / Astro Starlight) — split wall-of-text README into Getting Started → Adapters → Recipes → Adapter authoring → Reference; host `docs/api/` under it.              | M      |
-| 13    | TanStack Query persister bridge (`persistQueryClient`-shaped). JSDoc cites Query as reference design (`persist-core.ts:12,263`). Flagship integration.                                 | M      |
-| ✅ 14 | Migration/porting guide — option mapping + conceptual diff vs zustand-persist / redux-persist / query-persist-client / pinia-persist.                                                  | S      |
-| ✅ 15 | Comparison table across the 4 incumbents. README paragraph → table.                                                                                                                    | S      |
-| ✅ 16 | Storage & codec decision matrices — lift + expand the skill's 4-row version to consumer docs.                                                                                          | S      |
-| ✅ 17 | `CompressionStream` codec — native API, ~S now; pairs with binary `TRaw`.                                                                                                              | M      |
-| ✅ 18 | Node `fs` storage adapter — trivial `StateStorage`; unblocks server/SSR/CLI.                                                                                                           | S      |
-| ✅ 19 | Pack-validation + semver gate in CI — `attw --pack` + `knip` + `publint`. Prevents shipping a broken `exports` map.                                                                    | S      |
-| ✅ 33 | Angular-signals hydration adapter — `signal` + `effect`-based gate over `HydrationSignal`; peer `@angular/core`. Svelte/Solid/Vue shipped; Angular is the remaining framework adapter. | S      |
-| ✅ 34 | Preact hydration adapter — near-clone of `./frameworks/react` (`useSyncExternalStore`); peer `preact`.                                                                                 | S      |
+| #     | Action                                                                                                                                                                    | Effort |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| ✅ 10 | Encryption-at-rest codec (WebCrypto + codec). Headline "custom codec" example in JSDoc (`persist-core.ts:69`, `persist-idb.ts:52`, `skill:155`) with no shipped impl.     | M      |
+| 11    | `examples/` monorepo workspace — runnable `tanstack-idb-react`, `tanstack-localstorage-react`, `nextjs-ssr`, `react-native-mmkv`. No runnable demo today.                 | M      |
+| 12    | Docs site (VitePress / Astro Starlight) — split wall-of-text README into Getting Started → Adapters → Recipes → Adapter authoring → Reference; host `docs/api/` under it. | M      |
+| 13    | TanStack Query persister bridge (`persistQueryClient`-shaped). JSDoc cites Query as reference design (`persist-core.ts:12,263`). Flagship integration.                    | M      |
+| ✅ 14 | Migration/porting guide — option mapping + conceptual diff vs zustand-persist / redux-persist / query-persist-client / pinia-persist.                                     | S      |
+| ✅ 15 | Comparison table across the 4 incumbents. README paragraph → table.                                                                                                       | S      |
+| ✅ 16 | Storage & codec decision matrices — lift + expand the skill's 4-row version to consumer docs.                                                                             | S      |
+| ✅ 17 | `CompressionStream` codec — native API, ~S now; pairs with binary `TRaw`.                                                                                                 | M      |
+| ✅ 18 | Node `fs` storage adapter — trivial `StateStorage`; unblocks server/SSR/CLI.                                                                                              | S      |
+| ✅ 19 | Pack-validation + semver gate in CI — `attw --pack` + `knip` + `publint`. Prevents shipping a broken `exports` map.                                                       | S      |
+| ✅ 33 | Angular-signals hydration adapter — `signal` + `effect`-based gate over `HydrationSignal`; peer `@angular/core`.                                                          | S      |
+| ✅ 34 | Preact hydration adapter — near-clone of `./frameworks/react` (`useSyncExternalStore`); peer `preact`.                                                                    | S      |
 
 ### Tier 3 — Maturity & polish (medium impact, medium effort)
 
