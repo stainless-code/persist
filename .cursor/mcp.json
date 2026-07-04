@@ -2,7 +2,13 @@
   "mcpServers": {
     "codemap": {
       "command": "bunx",
-      "args": ["codemap", "mcp", "--watch", "--root", "${workspaceFolder}"]
+      "args": [
+        "@stainless-code/codemap@latest",
+        "mcp",
+        "--watch",
+        "--root",
+        "${workspaceFolder}"
+      ]
     }
   }
 }

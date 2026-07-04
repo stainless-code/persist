@@ -149,6 +149,7 @@
     "@changesets/changelog-github": "0.7.0",
     "@changesets/cli": "2.31.0",
     "@react-native-async-storage/async-storage": "^3.1.1",
+    "@stainless-code/codemap": "0.11.1",
     "@tanstack/intent": "0.3.4",
     "@tanstack/store": "0.11.0",
     "@testing-library/dom": "10.4.1",
