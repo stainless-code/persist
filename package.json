@@ -34,7 +34,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/stainless-code/persist.git"
+    "url": "git+https://github.com/stainless-code/persist.git"
   },
   "files": [
     "dist",
@@ -80,6 +80,10 @@
       "types": "./dist/backends/compressed.d.mts",
       "import": "./dist/backends/compressed.mjs"
     },
+    "./backends/node-fs": {
+      "types": "./dist/backends/node-fs.d.mts",
+      "import": "./dist/backends/node-fs.mjs"
+    },
     "./transport/crosstab": {
       "types": "./dist/transport/crosstab.d.mts",
       "import": "./dist/transport/crosstab.mjs"
@@ -116,6 +120,7 @@
     "build": "tsdown",
     "check": "bun run build && bun run --parallel format:check lint:ci test test:dom typecheck",
     "check-updates": "bun update -i --latest",
+    "check:pack": "attw --pack . --profile esm-only && publint && knip",
     "clean": "git clean -xdf -e .env",
     "docs:api": "typedoc",
     "fix": "bun run lint:fix && bun run format",
@@ -132,7 +137,7 @@
     "lint:fix": "bun run lint --fix",
     "lint:fix:changes": "bun scripts/run-on-changed-files.ts lint:fix",
     "prepare": "husky || true",
-    "prepublishOnly": "bun run check && bun run intent:validate",
+    "prepublishOnly": "bun run check && bun run intent:validate && bun run check:pack",
     "release": "changeset publish",
     "test": "bun test ./src",
     "test:dom": "vitest run",
@@ -140,6 +145,7 @@
     "version": "changeset version && bun scripts/sync-skill-versions.ts && bun run format CHANGELOG.md"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.4",
     "@changesets/changelog-github": "0.7.0",
     "@changesets/cli": "2.31.0",
     "@react-native-async-storage/async-storage": "^3.1.1",
@@ -156,9 +162,11 @@
     "husky": "9.1.7",
     "idb-keyval": "6.2.6",
     "jsdom": "29.1.1",
+    "knip": "^6.24.0",
     "lint-staged": "17.0.8",
     "oxfmt": "0.56.0",
     "oxlint": "1.71.0",
+    "publint": "^0.3.21",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "react-native-mmkv": "^4.3.2",

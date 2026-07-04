@@ -27,6 +27,7 @@ Persistence is bound to a structural `PersistableSource` (`getState` / `setState
 | `@stainless-code/persist/backends/secure-store`   | `adapters/backends/secure-store`            | `expo-secure-store`                           |
 | `@stainless-code/persist/backends/encrypted`      | `adapters/backends/encrypted`               | none (web global)                             |
 | `@stainless-code/persist/backends/compressed`     | `adapters/backends/compressed`              | none (web global)                             |
+| `@stainless-code/persist/backends/node-fs`        | `adapters/backends/node-fs`                 | none (Node built-in)                          |
 | `@stainless-code/persist/transport/crosstab`      | `adapters/transport/crosstab`               | none (web global)                             |
 | `@stainless-code/persist/sources/tanstack-store`  | `adapters/sources/tanstack-store`           | `@tanstack/store` (types only)                |
 | `@stainless-code/persist/frameworks/react`        | `adapters/frameworks/react`                 | `react`                                       |
@@ -44,7 +45,7 @@ No barrel — importing a subpath is the dependency opt-in. Each subpath entry o
 - **`core/`** — the zero-dep engine (`persist-core.ts`, `hydration.ts`) plus `index.ts` (the `.` entry that re-exports both). Nothing in `core/` imports an adapter.
 - **`adapters/<seam>/`** — opt-in entries that own an optional peer and import only from `core/`:
   - `codecs/` — `StorageCodec` adapters (seroval, zod)
-  - `backends/` — `StateStorage` adapters + wrappers (idb, async-storage, mmkv, secure-store, encrypted, compressed)
+  - `backends/` — `StateStorage` adapters + wrappers (idb, async-storage, mmkv, secure-store, encrypted, compressed, node-fs)
   - `transport/` — `CrossTabEventTarget` adapters (crosstab — BroadcastChannel bridge)
   - `sources/` — `PersistableSource` adapters (tanstack-store)
   - `frameworks/` — `HydrationSignal` framework adapters (react, solid, vue, svelte, svelte-store)

@@ -36,6 +36,7 @@ Each subpath owns its dependency as an **optional peer** — import only the ent
 | `@stainless-code/persist/backends/secure-store`   | `expo-secure-store`                         |
 | `@stainless-code/persist/backends/encrypted`      | none (web global)                           |
 | `@stainless-code/persist/backends/compressed`     | none (web global)                           |
+| `@stainless-code/persist/backends/node-fs`        | none (Node built-in)                        |
 | `@stainless-code/persist/transport/crosstab`      | none (web global)                           |
 | `@stainless-code/persist/sources/tanstack-store`  | `@tanstack/store`                           |
 | `@stainless-code/persist/frameworks/react`        | `react`                                     |
@@ -396,6 +397,7 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 | `@stainless-code/persist/backends/secure-store`   | `secureStoreStateStorage`, `createSecureStoreStorage`                                                                   | `expo-secure-store`                         |
 | `@stainless-code/persist/backends/encrypted`      | `createEncryptedStorage` (AES-GCM WebCrypto)                                                                            | none (web global)                           |
 | `@stainless-code/persist/backends/compressed`     | `createCompressedStorage` (gzip/deflate/deflate-raw)                                                                    | none (web global)                           |
+| `@stainless-code/persist/backends/node-fs`        | `nodeFsStateStorage` (one file per key)                                                                                 | none (Node built-in)                        |
 | `@stainless-code/persist/transport/crosstab`      | `createBroadcastCrossTab`                                                                                               | none (web global)                           |
 | `@stainless-code/persist/sources/tanstack-store`  | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only)              |
 | `@stainless-code/persist/frameworks/react`        | `useHydrated` React hook                                                                                                | `react`                                     |
@@ -467,6 +469,36 @@ persistSource({ getState, setState, subscribe }, opts); // zustand-like, redux, 
 ```
 
 Compose freely: `createStorage(backend, codec, options)` covers every backend × codec cell. **Factory policy:** codec factories take the backend as an argument; a backend earns its own factory only when it needs real adaptation (IndexedDB); everything else composes — no factory-per-combination.
+
+## Choosing a storage
+
+Pick by sync-vs-async (does it gate UI?), cross-tab needs, and whether you want structured-clone (Set/Map/Date natively).
+
+| Backend              | Sync? | Cross-tab | Structured-clone | Size               | Gate UI? | Subpath                    |
+| -------------------- | ----- | --------- | ---------------- | ------------------ | -------- | -------------------------- |
+| IndexedDB            | ✗     | ✗         | ✓                | large              | ✓        | `./backends/idb`           |
+| AsyncStorage (RN)    | ✗     | ✗         | ✗                | large              | ✓        | `./backends/async-storage` |
+| MMKV (RN)            | ✓     | ✗         | ✗                | large              | ✗        | `./backends/mmkv`          |
+| Secure Store (Expo)  | ✗     | ✗         | ✗                | ~2KB/key           | ✓        | `./backends/secure-store`  |
+| Node fs              | ✗     | ✗         | ✗                | disk               | ✓        | `./backends/node-fs`       |
+| Encrypted (wrapper)  | ✗     | inherits  | ✗                | inherits           | ✓        | `./backends/encrypted`     |
+| Compressed (wrapper) | ✗     | inherits  | ✗                | inherits (smaller) | ✓        | `./backends/compressed`    |
+| localStorage         | ✓     | ✓         | ✗                | ~5MB               | ✗        | core `createJSONStorage`   |
+| sessionStorage       | ✓     | ✗         | ✗                | ~5MB               | ✗        | core `createJSONStorage`   |
+
+IDB has no storage events — pair `./transport/crosstab` for cross-tab sync.
+
+## Choosing a codec
+
+Pick by whether you need Set/Map/Date round-trips, schema-gated persistence, or a structured-clone backend. `identityCodec` only with structured-clone backends (IDB) — never string-wire.
+
+| Codec                 | Set/Map/Date         | Wire type                  | Schema validation | For backend                 | Subpath                  |
+| --------------------- | -------------------- | -------------------------- | ----------------- | --------------------------- | ------------------------ |
+| `jsonCodec`           | ✗                    | string                     | ✗                 | string-wire                 | core                     |
+| `serovalCodec`        | ✓                    | string (JSON-shaped)       | ✗                 | string-wire                 | `./codecs/seroval`       |
+| `zodCodec`            | ✓ (via schema)       | string                     | ✓                 | string-wire                 | `./codecs/zod`           |
+| `identityCodec`       | ✓ (structured clone) | `StorageValue<S>` (object) | ✗                 | structured-clone only (IDB) | core                     |
+| custom `StorageCodec` | yours                | yours                      | yours             | any                         | custom `encode`/`decode` |
 
 ## Recipes
 
@@ -641,6 +673,20 @@ persistStore(store, {
   crossTabEventTarget: bridge.crossTabEventTarget,
 });
 // teardown: persist.destroy(); bridge.close();
+```
+
+### Node fs (server / SSR / CLI)
+
+```ts
+import { createStorage } from "@stainless-code/persist";
+import { nodeFsStateStorage } from "@stainless-code/persist/backends/node-fs";
+import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
+
+// One file per key under ./persist — async (fs.promises); gate UI on useHydrated in SSR
+const storage = createStorage<Prefs>(
+  () => nodeFsStateStorage({ dir: "./.persist" }),
+  serovalCodec(),
+);
 ```
 
 Caveats that matter per backend: async backends (IDB) can't settle hydration before first paint → gate UI on `useHydrated` (`@stainless-code/persist/frameworks/react`); `sessionStorage` is per-tab (crossTab is meaningless); `identityCodec` never with string-only backends.

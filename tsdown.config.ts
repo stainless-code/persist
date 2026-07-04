@@ -18,6 +18,7 @@ export default defineConfig({
     "backends/secure-store": "src/adapters/backends/secure-store.ts",
     "backends/encrypted": "src/adapters/backends/encrypted.ts",
     "backends/compressed": "src/adapters/backends/compressed.ts",
+    "backends/node-fs": "src/adapters/backends/node-fs.ts",
     "transport/crosstab": "src/adapters/transport/crosstab.ts",
     "sources/tanstack-store": "src/adapters/sources/tanstack-store.ts",
     "frameworks/react": "src/adapters/frameworks/react.ts",

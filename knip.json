@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "scripts/*.ts",
+    "tests-dom/*.test.tsx",
+    "vitest.config.ts",
+    "tsdown.config.ts",
+    "lint-staged.config.js"
+  ]
+}

@@ -10,6 +10,7 @@
     "src/adapters/backends/secure-store.ts",
     "src/adapters/backends/encrypted.ts",
     "src/adapters/backends/compressed.ts",
+    "src/adapters/backends/node-fs.ts",
     "src/adapters/transport/crosstab.ts",
     "src/adapters/sources/tanstack-store.ts",
     "src/adapters/frameworks/react.ts",
