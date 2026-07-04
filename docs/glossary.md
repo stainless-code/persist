@@ -58,4 +58,4 @@
 
 - [`docs/architecture.md`](./architecture.md) — the three-seam model and entry-point layout.
 - [`docs/README.md`](./README.md) — docs index.
-- `src/persist-core.ts`, `src/hydration.ts` — the JSDoc is the full contract.
+- `src/core/persist-core.ts`, `src/core/hydration.ts` — the JSDoc is the full contract.

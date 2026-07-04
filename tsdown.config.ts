@@ -2,7 +2,7 @@ import { defineConfig } from "tsdown";
 
 const outDir = "dist";
 
-// Fourteen subpath entries — each maps 1:1 to an `exports` entry and mirrors
+// Sixteen subpath entries — each maps 1:1 to an `exports` entry and mirrors
 // the src folder structure: key `<seam>/<name>` → `src/adapters/<seam>/<name>.ts`
 // → `dist/<seam>/<name>.mjs` → subpath `./<seam>/<name>`. The core (`core/index`)
 // re-exports `persist-core` + `hydration`; the adapters own their optional peer

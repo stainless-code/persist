@@ -19,7 +19,7 @@ description: STOP and fact-check PR review comments before applying or dismissin
 
 Common LLM-reviewer patterns on this repo:
 
-1. **"This isn't tested" without checking siblings** — `persist-core` contracts are pinned across `persist-core.test.ts`, `persist-seroval.test.ts`, `persist-idb.test.ts`, `persist-tanstack.test.ts`; `useHydrated` spans `src/use-hydrated.test.ts` (bun, SSR/snapshot) **and** `tests-dom/**/*.test.tsx` (vitest, rerender/detach). Verify coverage before accepting.
+1. **"This isn't tested" without checking siblings** — `persist-core` contracts are pinned across `src/core/persist-core.test.ts`, `src/adapters/codecs/seroval.test.ts`, `src/adapters/backends/idb.test.ts`, `src/adapters/sources/tanstack-store.test.ts`; `useHydrated` spans `src/adapters/frameworks/react.test.ts` (bun, SSR/snapshot) **and** `tests-dom/**/*.test.tsx` (vitest, rerender/detach). Verify coverage before accepting.
 2. **Type-safety alarms** — if `bun run typecheck` (tsgo) passes, the claim is almost always wrong, or about runtime behavior the type system can't see (then the reviewer must justify with the runtime case).
 3. **Generic "best practice" claims unsupported by our rules** — "always destructure", "prefer interfaces over types", "add `useMemo`/`useCallback`" — stylistic; we either have a rule or we don't. Grep `.agents/` for the convention.
 4. **Convention citations that don't exist** — "this breaks the library's API conventions" — grep `.agents/` + `docs/architecture.md`. If not codified, it's preference, not rule.

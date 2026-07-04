@@ -11,7 +11,7 @@ By-design or false-positive findings — do not re-raise.
 ```
 
 <!-- Example:
-- **[correctness]** `src/persist-core.ts:147` — sync-first read path: by-design — sync backends settle pre-paint; async rides the same getItem Promise branch.
+- **[correctness]** `src/core/persist-core.ts:147` — sync-first read path: by-design — sync backends settle pre-paint; async rides the same getItem Promise branch.
 -->
 
 ## Deferred

@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it, mock } from "bun:test";
 
 // Bun resolves `solid-js` to the SSR build (`createEffect` is a no-op). Point
-// both the test and persist-solid at the client build for reactive coverage.
+// both the test and `solid` at the client build for reactive coverage.
 mock.module(
   "solid-js",
   // @ts-expect-error client bundle — no `.d.ts` subpath; runtime-only for tests.

@@ -2,19 +2,19 @@
 
 `@stainless-code/persist` is a small, freshly extracted library. Before large PRs, please open an issue so we can align on:
 
-- **Public surface** — anything exported from an entry point (`src/index.ts` and the four subpath entries) is the public API and must carry JSDoc that reads well in hovers and published typings. See [`docs/architecture.md`](../docs/architecture.md) for the seam model.
+- **Public surface** — anything exported from an entry point (`src/core/index.ts` and the fifteen opt-in adapter subpaths) is the public API and must carry JSDoc that reads well in hovers and published typings. See [`docs/architecture.md`](../docs/architecture.md) for the seam model.
 - **Runtimes** — **Node** `^20.19.0 || >=22.12.0` and **Bun** `>=1.0.0` (`package.json` **engines**). The core is zero-dep by design (enforced by a gate test); each subpath owns its optional peer.
 
 ## Dev workflow
 
 ```bash
 bun install            # runs `prepare` → Husky git hooks
-bun test ./src         # 99 bun:test unit tests
+bun test ./src         # 154 bun:test unit tests
 bun run test:dom       # vitest + jsdom — React useHydrated reactivity (DOM) tests
 bun run typecheck      # tsgo --noEmit
 bun run lint           # oxlint
 bun run format         # oxfmt
-bun run build          # tsdown → dist/ (five subpath entries)
+bun run build          # tsdown → dist/ (sixteen subpath entries)
 bun run docs:api       # TypeDoc → docs/api/ (git-ignored HTML site)
 bun run check          # build, then format:check + lint:ci + test + test:dom + typecheck (in parallel)
 bun run check-updates  # interactive dependency updates (`bun update -i --latest`)

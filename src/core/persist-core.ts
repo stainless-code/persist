@@ -1,9 +1,7 @@
-// Library core — ZERO value imports by design (enforced by a test). Each
-// module maps 1:1 to a package entry point and consumers import them
-// directly — no barrel, so every dependency edge is the import graph:
-// `./persist-seroval` (seroval codec), `./persist-idb` (idb-keyval backend),
-// `./persist-tanstack` (@tanstack/store adapters), `./hydration` +
-// `./use-hydrated` (hydration signal + React hook).
+// Library core — ZERO value imports by design (enforced by a test). Adapters
+// under `./codecs|backends|transport|sources|frameworks/` each map 1:1 to a
+// package entry point; consumers import them directly — no barrel, so every
+// dependency edge is the import graph.
 
 /**
  * Minimal string-keyed storage interface (matches `localStorage` /
@@ -127,7 +125,7 @@ export interface PersistOptions<TState, TPersistedState = TState> {
   /**
    * Storage layer to read/write. When no backend is available at all (SSR,
    * tests), `persistSource` returns a no-op `PersistApi`. For `Set`/`Map`/
-   * `Date` round-trips pass `createSerovalStorage` (from `./persist-seroval`).
+   * `Date` round-trips pass `createSerovalStorage` (from `./codecs/seroval`).
    * @default JSON-encoded `localStorage` (`createJSONStorage`)
    */
   storage?: PersistStorage<TPersistedState>;
@@ -574,7 +572,7 @@ function resolveDefaultStorage<TState, TPersistedState>(
   if (typeof localStorage === "undefined") return;
   // JSON default keeps the core zero-dep — a seroval default would drag a
   // runtime dependency into every consumer. `Set`/`Map`/`Date` users opt in
-  // by passing `createSerovalStorage` from `./persist-seroval` explicitly.
+  // by passing `createSerovalStorage` from `./codecs/seroval` explicitly.
   return createJSONStorage<TPersistedState>(() => localStorage);
 }
 

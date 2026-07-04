@@ -71,9 +71,9 @@ Output a triage table grouped by verdict, not by file:
 ```markdown
 ## ✅ Correct (N) — apply
 
-| #   | File:line          | Claim (1 line) | Action                |
-| --- | ------------------ | -------------- | --------------------- |
-| 1   | persist-core.ts:42 | …              | Apply suggested diff. |
+| #   | File:line                   | Claim (1 line) | Action                |
+| --- | --------------------------- | -------------- | --------------------- |
+| 1   | src/core/persist-core.ts:42 | …              | Apply suggested diff. |
 
 ## ❌ Incorrect / hallucinated (N) — push back
 

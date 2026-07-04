@@ -1,5 +1,5 @@
 // Hydration is OBSERVED from outside the store via `useSyncExternalStore`
-// (see `./use-hydrated.ts`), never by mutating `store.state` with a
+// (see `./frameworks/react` — the reference `useHydrated`), never by mutating `store.state` with a
 // `__hydrated` flag — store creation and `useSelector` reads stay identical
 // with or without a hydration sidekick.
 

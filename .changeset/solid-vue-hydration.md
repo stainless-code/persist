@@ -2,7 +2,7 @@
 "@stainless-code/persist": minor
 ---
 
-Add `./frameworks/solid` and `./frameworks/vue` hydration subpaths — `useHydrated(signal)` over the `HydrationSignal` seam, mirroring the React adapter (`src/use-hydrated.ts`).
+Add `./frameworks/solid` and `./frameworks/vue` hydration subpaths — `useHydrated(signal)` over the `HydrationSignal` seam, mirroring the React adapter (`src/adapters/frameworks/react.ts`).
 
 - `./frameworks/solid` (peer `solid-js >=1.6.0`): returns a Solid `Accessor<boolean>` via `from`; the subscription is owned by the reactive scope and cleaned up on scope dispose. Uses the `from(producer, initialValue)` overload so the accessor is `Accessor<boolean>` (not `boolean | undefined`); reads `isHydrated()` for the initial value (pull-model signal — no initial notification).
 - `./frameworks/vue` (peer `vue >=3.3.0`): returns a Vue `Ref<boolean>` via `shallowRef`; subscription cleaned up via `onScopeDispose` — call inside `setup()` or an `effectScope()`.

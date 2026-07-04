@@ -8,11 +8,15 @@
     "src/adapters/backends/async-storage.ts",
     "src/adapters/backends/mmkv.ts",
     "src/adapters/backends/secure-store.ts",
+    "src/adapters/backends/encrypted.ts",
+    "src/adapters/backends/compressed.ts",
     "src/adapters/transport/crosstab.ts",
     "src/adapters/sources/tanstack-store.ts",
     "src/adapters/frameworks/react.ts",
     "src/adapters/frameworks/solid.ts",
-    "src/adapters/frameworks/vue.ts"
+    "src/adapters/frameworks/vue.ts",
+    "src/adapters/frameworks/svelte.ts",
+    "src/adapters/frameworks/svelte-store.ts"
   ],
   "out": "docs/api",
   "name": "@stainless-code/persist",
