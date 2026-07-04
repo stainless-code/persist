@@ -4,7 +4,7 @@ description: Persist a @tanstack/store Store or writable Atom with @stainless-co
 license: MIT
 metadata:
   library: "@stainless-code/persist"
-  library_version: "0.1.0"
+  library_version: "0.1.1"
   framework: "tanstack-store"
 sources:
   - README.md
