@@ -57,6 +57,14 @@
     "./zod": {
       "types": "./dist/persist-zod.d.mts",
       "import": "./dist/persist-zod.mjs"
+    },
+    "./solid": {
+      "types": "./dist/persist-solid.d.mts",
+      "import": "./dist/persist-solid.mjs"
+    },
+    "./vue": {
+      "types": "./dist/persist-vue.d.mts",
+      "import": "./dist/persist-vue.mjs"
     }
   },
   "publishConfig": {
@@ -110,10 +118,12 @@
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "seroval": "1.5.4",
+    "solid-js": "^1.9.14",
     "tsdown": "0.22.3",
     "typedoc": "0.28.19",
     "typescript": "6.0.3",
     "vitest": "4.1.9",
+    "vue": "^3.5.39",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
@@ -121,6 +131,8 @@
     "idb-keyval": ">=4.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "seroval": ">=1.0.0",
+    "solid-js": ">=1.6.0",
+    "vue": ">=3.3.0",
     "zod": ">=3.20.0"
   },
   "peerDependenciesMeta": {
@@ -134,6 +146,12 @@
       "optional": true
     },
     "react": {
+      "optional": true
+    },
+    "solid-js": {
+      "optional": true
+    },
+    "vue": {
       "optional": true
     },
     "zod": {

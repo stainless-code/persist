@@ -34,6 +34,8 @@ Each subpath owns its dependency as an **optional peer** — import only the ent
 | `@stainless-code/persist/react`          | `react`              |
 | `@stainless-code/persist/crosstab`       | none (web global)    |
 | `@stainless-code/persist/zod`            | `zod`                |
+| `@stainless-code/persist/solid`          | `solid-js`           |
+| `@stainless-code/persist/vue`            | `vue`                |
 
 ```bash
 # only when you use the matching entry
@@ -161,6 +163,8 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 | `@stainless-code/persist/react`          | `useHydrated` React hook                                                                                                | `react`                        |
 | `@stainless-code/persist/crosstab`       | `createBroadcastCrossTab`                                                                                               | none (web global)              |
 | `@stainless-code/persist/zod`            | `zodCodec`, `createZodStorage`                                                                                          | `zod`                          |
+| `@stainless-code/persist/solid`          | `useHydrated` (Solid `Accessor<boolean>`)                                                                               | `solid-js`                     |
+| `@stainless-code/persist/vue`            | `useHydrated` (Vue `Ref<boolean>`)                                                                                      | `vue`                          |
 
 No barrel — importing a subpath is the dependency opt-in.
 
@@ -376,7 +380,7 @@ Caveats that matter per backend: async backends (IDB) can't settle hydration bef
 
 ## Writing a framework adapter
 
-The React hook (`@stainless-code/persist/react`) is ~20 lines over `HydrationSignal` — every adapter is the same shape. The contract (full version on `HydrationSignal`'s JSDoc): subscribe returns an idempotent unsubscribe; each subscribe call is an independent subscription; **no initial notification and no payload** — pull `isHydrated()` after attach and on every notification; transitions while detached aren't replayed (the snapshot re-read recovers); **render `hydrated: true` on the server** (no storage server-side); `null` signal = no persistence = hydrated.
+The React hook (`@stainless-code/persist/react`) is ~20 lines over `HydrationSignal` — every adapter is the same shape. Solid (`@stainless-code/persist/solid`, `Accessor<boolean>` via `from`) and Vue (`@stainless-code/persist/vue`, `Ref<boolean>` via `shallowRef` + `onScopeDispose`) ship the same way. The contract (full version on `HydrationSignal`'s JSDoc): subscribe returns an idempotent unsubscribe; each subscribe call is an independent subscription; **no initial notification and no payload** — pull `isHydrated()` after attach and on every notification; transitions while detached aren't replayed (the snapshot re-read recovers); **render `hydrated: true` on the server** (no storage server-side); `null` signal = no persistence = hydrated.
 
 ```ts
 import type { HydrationSignal } from "@stainless-code/persist";
