@@ -65,6 +65,18 @@
     "./vue": {
       "types": "./dist/persist-vue.d.mts",
       "import": "./dist/persist-vue.mjs"
+    },
+    "./async-storage": {
+      "types": "./dist/persist-asyncstorage.d.mts",
+      "import": "./dist/persist-asyncstorage.mjs"
+    },
+    "./mmkv": {
+      "types": "./dist/persist-mmkv.d.mts",
+      "import": "./dist/persist-mmkv.mjs"
+    },
+    "./secure-store": {
+      "types": "./dist/persist-securestore.d.mts",
+      "import": "./dist/persist-securestore.mjs"
     }
   },
   "publishConfig": {
@@ -100,6 +112,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "0.7.0",
     "@changesets/cli": "2.31.0",
+    "@react-native-async-storage/async-storage": "^3.1.1",
     "@tanstack/intent": "0.3.4",
     "@tanstack/store": "0.11.0",
     "@testing-library/dom": "10.4.1",
@@ -109,6 +122,7 @@
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "@typescript/native-preview": "7.0.0-dev.20260628.1",
+    "expo-secure-store": "^57.0.0",
     "husky": "9.1.7",
     "idb-keyval": "6.2.6",
     "jsdom": "29.1.1",
@@ -117,6 +131,7 @@
     "oxlint": "1.71.0",
     "react": "19.2.7",
     "react-dom": "19.2.7",
+    "react-native-mmkv": "^4.3.2",
     "seroval": "1.5.4",
     "solid-js": "^1.9.14",
     "tsdown": "0.22.3",
@@ -127,9 +142,12 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
+    "@react-native-async-storage/async-storage": ">=1.0.0",
     "@tanstack/store": ">=0.10.0",
+    "expo-secure-store": ">=12.0.0",
     "idb-keyval": ">=4.0.0",
     "react": "^18.0.0 || ^19.0.0",
+    "react-native-mmkv": ">=4.0.0",
     "seroval": ">=1.0.0",
     "solid-js": ">=1.6.0",
     "vue": ">=3.3.0",
@@ -155,6 +173,15 @@
       "optional": true
     },
     "zod": {
+      "optional": true
+    },
+    "@react-native-async-storage/async-storage": {
+      "optional": true
+    },
+    "react-native-mmkv": {
+      "optional": true
+    },
+    "expo-secure-store": {
       "optional": true
     }
   },

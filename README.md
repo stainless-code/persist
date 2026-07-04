@@ -25,17 +25,20 @@ bun add @stainless-code/persist
 
 Each subpath owns its dependency as an **optional peer** — import only the entries you use, install the matching peer only when you do:
 
-| Subpath                                  | Optional peer        |
-| ---------------------------------------- | -------------------- |
-| `@stainless-code/persist`                | none (zero-dep core) |
-| `@stainless-code/persist/seroval`        | `seroval`            |
-| `@stainless-code/persist/idb`            | `idb-keyval`         |
-| `@stainless-code/persist/tanstack-store` | `@tanstack/store`    |
-| `@stainless-code/persist/react`          | `react`              |
-| `@stainless-code/persist/crosstab`       | none (web global)    |
-| `@stainless-code/persist/zod`            | `zod`                |
-| `@stainless-code/persist/solid`          | `solid-js`           |
-| `@stainless-code/persist/vue`            | `vue`                |
+| Subpath                                  | Optional peer                               |
+| ---------------------------------------- | ------------------------------------------- |
+| `@stainless-code/persist`                | none (zero-dep core)                        |
+| `@stainless-code/persist/seroval`        | `seroval`                                   |
+| `@stainless-code/persist/idb`            | `idb-keyval`                                |
+| `@stainless-code/persist/tanstack-store` | `@tanstack/store`                           |
+| `@stainless-code/persist/react`          | `react`                                     |
+| `@stainless-code/persist/crosstab`       | none (web global)                           |
+| `@stainless-code/persist/zod`            | `zod`                                       |
+| `@stainless-code/persist/solid`          | `solid-js`                                  |
+| `@stainless-code/persist/vue`            | `vue`                                       |
+| `@stainless-code/persist/async-storage`  | `@react-native-async-storage/async-storage` |
+| `@stainless-code/persist/mmkv`           | `react-native-mmkv`                         |
+| `@stainless-code/persist/secure-store`   | `expo-secure-store`                         |
 
 ```bash
 # only when you use the matching entry
@@ -154,17 +157,20 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 
 ## Entry points (one subpath = one optional peer)
 
-| Subpath                                  | Symbols                                                                                                                 | Optional peer                  |
-| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| `@stainless-code/persist`                | `persistSource`, `PersistApi`, `createStorage`, `jsonCodec`, `identityCodec`, registry, `HydrationSignal` (`hydration`) | none                           |
-| `@stainless-code/persist/seroval`        | `serovalCodec`, `createSerovalStorage`                                                                                  | `seroval`                      |
-| `@stainless-code/persist/idb`            | `idbStateStorage`, `createIdbStorage` (structured-clone mode)                                                           | `idb-keyval`                   |
-| `@stainless-code/persist/tanstack-store` | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only) |
-| `@stainless-code/persist/react`          | `useHydrated` React hook                                                                                                | `react`                        |
-| `@stainless-code/persist/crosstab`       | `createBroadcastCrossTab`                                                                                               | none (web global)              |
-| `@stainless-code/persist/zod`            | `zodCodec`, `createZodStorage`                                                                                          | `zod`                          |
-| `@stainless-code/persist/solid`          | `useHydrated` (Solid `Accessor<boolean>`)                                                                               | `solid-js`                     |
-| `@stainless-code/persist/vue`            | `useHydrated` (Vue `Ref<boolean>`)                                                                                      | `vue`                          |
+| Subpath                                  | Symbols                                                                                                                 | Optional peer                               |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `@stainless-code/persist`                | `persistSource`, `PersistApi`, `createStorage`, `jsonCodec`, `identityCodec`, registry, `HydrationSignal` (`hydration`) | none                                        |
+| `@stainless-code/persist/seroval`        | `serovalCodec`, `createSerovalStorage`                                                                                  | `seroval`                                   |
+| `@stainless-code/persist/idb`            | `idbStateStorage`, `createIdbStorage` (structured-clone mode)                                                           | `idb-keyval`                                |
+| `@stainless-code/persist/tanstack-store` | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only)              |
+| `@stainless-code/persist/react`          | `useHydrated` React hook                                                                                                | `react`                                     |
+| `@stainless-code/persist/crosstab`       | `createBroadcastCrossTab`                                                                                               | none (web global)                           |
+| `@stainless-code/persist/zod`            | `zodCodec`, `createZodStorage`                                                                                          | `zod`                                       |
+| `@stainless-code/persist/solid`          | `useHydrated` (Solid `Accessor<boolean>`)                                                                               | `solid-js`                                  |
+| `@stainless-code/persist/vue`            | `useHydrated` (Vue `Ref<boolean>`)                                                                                      | `vue`                                       |
+| `@stainless-code/persist/async-storage`  | `asyncStorageStateStorage`, `createAsyncStorage`                                                                        | `@react-native-async-storage/async-storage` |
+| `@stainless-code/persist/mmkv`           | `mmkvStateStorage`, `createMmkvStorage`                                                                                 | `react-native-mmkv`                         |
+| `@stainless-code/persist/secure-store`   | `secureStoreStateStorage`, `createSecureStoreStorage`                                                                   | `expo-secure-store`                         |
 
 No barrel — importing a subpath is the dependency opt-in.
 
@@ -180,7 +186,10 @@ import { createJSONStorage } from "@stainless-code/persist";
 createSerovalStorage(() => localStorage); // durable prefs
 createSerovalStorage(() => sessionStorage); // per-visit state (dies with the tab)
 createIdbStorage(); // IndexedDB, structured-clone mode
-createJSONStorage(() => AsyncStorage); // React Native — satisfies StateStorage as-is
+createJSONStorage(() => AsyncStorage); // React Native — or use ./async-storage for the typed adapter
+createAsyncStorage(); // React Native AsyncStorage — async, useHydrated gating
+createMmkvStorage({ id: "app-prefs" }); // React Native MMKV — sync, no gate needed
+createSecureStoreStorage(); // expo-secure-store — OS keychain, ~2KB/key, for secrets
 // custom: in-memory for tests, remote KV, encrypted wrapper — implement 3 methods
 ```
 
