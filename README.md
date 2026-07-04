@@ -157,21 +157,23 @@ Both TanStack Persist and zustand persist wire a single store library to a singl
 
 Every row is a seam or lifecycle concern — not a roadmap item. `@stainless-code/persist` treats each as composable; incumbents bake most of them into framework-specific middleware.
 
-| Capability                                            | `@stainless-code/persist` | zustand-persist | redux-persist | `@tanstack/query-persist-client` | pinia-persist |
-| ----------------------------------------------------- | :-----------------------: | :-------------: | :-----------: | :------------------------------: | :-----------: |
-| Store-agnostic (structural source)                    |             ✓             |        ✗        |       ~       |                ~                 |       ✗       |
-| Codec seam (swap serialization)                       |             ✓             |        ~        |       ~       |                ✗                 |       ~       |
-| Storage seam (swap backend)                           |             ✓             |        ✓        |       ✓       |                ✓                 |       ✓       |
-| Hydration signal (gate UI flash)                      |             ✓             |        ~        |       ~       |                ✗                 |       ✗       |
-| Cross-tab sync                                        |             ✓             |        ✗        |       ✗       |                ✗                 |       ✗       |
-| `migrate` (versioned)                                 |             ✓             |        ✓        |       ✓       |                ~                 |       ~       |
-| `retryWrite` (quota shrink-or-give-up)                |             ✓             |        ✗        |       ✗       |                ~                 |       ✗       |
-| `throttleMs`                                          |             ✓             |        ✗        |       ✗       |                ✗                 |       ✗       |
-| `maxAge` / `buster` expiry                            |             ✓             |        ✗        |       ✗       |                ✓                 |       ✗       |
-| Schema validation (codec)                             |             ✓             |        ✗        |       ✗       |                ✗                 |       ✗       |
-| Framework hydration adapters (React/Solid/Vue/Svelte) |             ✓             |        ✗        |       ✗       |                ✗                 |       ✗       |
+| Capability                             | `@stainless-code/persist` | zustand-persist | redux-persist | `@tanstack/query-persist-client` | pinia-persist |
+| -------------------------------------- | :-----------------------: | :-------------: | :-----------: | :------------------------------: | :-----------: |
+| Store-agnostic (structural source)     |             ✓             |        ✗        |       ✗       |                ~                 |       ✗       |
+| Codec seam (swap serialization)        |             ✓             |        ~        |       ✓       |                ~                 |       ~       |
+| Storage seam (swap backend)            |             ✓             |        ✓        |       ✓       |                ✓                 |       ✓       |
+| Hydration signal (gate UI flash)       |             ✓             |        ~        |       ~       |                ✓                 |       ~       |
+| Cross-tab sync                         |             ✓             |        ✗        |       ✗       |                ✗                 |       ✗       |
+| `migrate` (versioned)                  |             ✓             |        ✓        |       ✓       |                ✗                 |       ✗       |
+| `retryWrite` (quota shrink-or-give-up) |             ✓             |        ✗        |       ✗       |                ✓                 |       ✗       |
+| `throttleMs`                           |             ✓             |        ✗        |       ✓       |                ✓                 |       ✗       |
+| `maxAge` / `buster` expiry             |             ✓             |        ✗        |       ✗       |                ✓                 |       ✗       |
+| Schema validation (codec)              |             ✓             |        ✗        |       ✗       |                ✗                 |       ✗       |
+| Framework hydration adapters           |             ✓             |        ✗        |       ✗       |                ✓                 |       ✗       |
 
-**Differentiator:** `@stainless-code/persist` is the only library here with a first-class hydration signal **and** a codec seam **and** a storage seam — so every backend×codec cell is a one-line composition, not a feature request.
+**Differentiator:** `@stainless-code/persist` is the only library here with built-in cross-tab sync, a schema-validation codec, and a fully store-agnostic source (`PersistableSource`) — and the only one that scores ✓ on every row. The closest peer, `@tanstack/query-persist-client`, matches on the hydration signal, `retryWrite` (shrink-or-give-up), `throttleMs`, `maxAge`/`buster`, and framework adapters — but is query-cache-bound (not store-agnostic), exposes no codec seam on its `Persister` interface, and ships no versioned `migrate`, cross-tab sync, or schema validation.
+
+_Cells verified against each library's source on 2026-07-04: `pmndrs/zustand`, `rt2zz/redux-persist`, `TanStack/query`, `prazdevs/pinia-plugin-persistedstate`._
 
 ## Migrating from …
 
@@ -226,18 +228,20 @@ export const prefsHydration = toHydrationSignal(persist);
 
 redux-persist reconciles whole reducer trees implicitly; here `merge` is explicit and a hydration signal gates UI until the snapshot lands. redux stores have `getState`/`subscribe`/`dispatch` (no `setState`), so wrap the store in a `PersistableSource` whose `setState` dispatches an action your reducer recognizes to replace state.
 
-| redux-persist                     | `@stainless-code/persist`                                                  |
-| --------------------------------- | -------------------------------------------------------------------------- |
-| `key`                             | `name`                                                                     |
-| `storage`                         | `storage`                                                                  |
-| `version`                         | `version`                                                                  |
-| `migrate`                         | `migrate`                                                                  |
-| `whitelist` / `blacklist`         | `partialize` (project the slice)                                           |
-| `transforms`                      | `merge` or custom `StorageCodec` via `createStorage`                       |
-| `stateReconciler`                 | `merge` (default shallow-spread; customize)                                |
-| `persistReducer` / `persistStore` | `persistSource(reduxSource, opts)`                                         |
-| —                                 | `toHydrationSignal` + framework adapter (no redux-persist equivalent)      |
-| —                                 | `crossTab`, `maxAge`, `buster`, `throttleMs`, `retryWrite` (no equivalent) |
+| redux-persist                     | `@stainless-code/persist`                                                |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| `key`                             | `name`                                                                   |
+| `storage`                         | `storage`                                                                |
+| `version`                         | `version`                                                                |
+| `migrate`                         | `migrate`                                                                |
+| `whitelist` / `blacklist`         | `partialize` (project the slice)                                         |
+| `transforms`                      | `merge` (per-reducer in/out)                                             |
+| `serialize` / `deserialize`       | custom `StorageCodec` via `createStorage`                                |
+| `stateReconciler`                 | `merge` (default shallow-spread; customize)                              |
+| `throttle`                        | `throttleMs`                                                             |
+| `persistReducer` / `persistStore` | `persistSource(reduxSource, opts)`                                       |
+| —                                 | `toHydrationSignal` + framework adapter (no redux-persist equivalent)    |
+| —                                 | `crossTab`, `maxAge`, `buster`, `retryWrite`, schema validation (no eq.) |
 
 ```ts
 // redux-persist
@@ -272,16 +276,18 @@ export const rootHydration = toHydrationSignal(persist);
 
 query-persist-client owns the query cache lifecycle; here the seam is any `PersistableSource` — supply a cache-shaped source and compose storage like any other store.
 
-| query-persist-client                | `@stainless-code/persist`                                                                |
-| ----------------------------------- | ---------------------------------------------------------------------------------------- |
-| `persister` (`Persister` interface) | `storage` (`PersistStorage` — `getItem`/`setItem`/`removeItem`, or wrap `createStorage`) |
-| `maxAge`                            | `maxAge`                                                                                 |
-| `buster`                            | `buster`                                                                                 |
-| `retry`                             | `retryWrite`                                                                             |
-| `dehydrate` / `hydrate`             | `partialize` / `merge`                                                                   |
-| `persistQueryClient`                | `persistSource(queryCacheSource, opts)`                                                  |
-| —                                   | `toHydrationSignal` + framework adapter (no equivalent)                                  |
-| —                                   | codec seam via `createStorage(backend, codec)` (no equivalent)                           |
+| query-persist-client                            | `@stainless-code/persist`                                                                 |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `persister` (`Persister` interface)             | `storage` (`PersistStorage` — `getItem`/`setItem`/`removeItem`, or wrap `createStorage`)  |
+| `serialize` / `deserialize`                     | `StorageCodec` via `createStorage`                                                        |
+| `maxAge`                                        | `maxAge`                                                                                  |
+| `buster`                                        | `buster`                                                                                  |
+| `retry` (shrink-or-give-up)                     | `retryWrite`                                                                              |
+| `throttleTime`                                  | `throttleMs`                                                                              |
+| `dehydrate` / `hydrate`                         | `partialize` / `merge`                                                                    |
+| `persistQueryClient`                            | `persistSource(queryCacheSource, opts)`                                                   |
+| `useIsRestoring` / `PersistQueryClientProvider` | `toHydrationSignal` + framework adapter (`useHydrated`/`hydratedRune`/`hydratedStore`)    |
+| —                                               | store-agnostic source, versioned `migrate`, `crossTab`, schema validation (no equivalent) |
 
 ```ts
 // @tanstack/query-persist-client
@@ -329,7 +335,7 @@ pinia-persist is a Pinia plugin; here persistence is a middleware call on any re
 | `storage`                        | `storage`                                                                             |
 | `paths`                          | `partialize` (pick paths)                                                             |
 | `serializer`                     | custom `StorageCodec` or default `jsonCodec` via `createStorage`                      |
-| `beforeRestore` / `afterRestore` | `onRehydrateStorage`                                                                  |
+| `beforeHydrate` / `afterHydrate` | `onRehydrateStorage`                                                                  |
 | `debug`                          | `onError`                                                                             |
 | `pinia.use(plugin)`              | `persistSource(piniaSource, opts)`                                                    |
 | —                                | `toHydrationSignal` + framework adapter (no equivalent)                               |
