@@ -453,6 +453,18 @@ export function createStorage<S, TRaw = string>(
     return undefined;
   }
 
+  // Node 22+ exposes a `localStorage` global whose methods are `undefined`
+  // without a valid `--localstorage-file` path. The lookup doesn't throw — the
+  // global exists as an object — so without this shape check the broken
+  // backend passes availability and crashes in `hydrate` at `storage.getItem`.
+  if (
+    typeof storage?.getItem !== "function" ||
+    typeof storage?.setItem !== "function" ||
+    typeof storage?.removeItem !== "function"
+  ) {
+    return undefined;
+  }
+
   const parseStored = (
     name: string,
     raw: TRaw | null,
