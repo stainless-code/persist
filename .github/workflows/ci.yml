@@ -137,6 +137,21 @@ jobs:
       - name: Run pack validation
         run: bun run check:pack
 
+  size:
+    name: 📏 Bundle size
+    needs: [skip-ci, build]
+    if: needs['skip-ci'].outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Run size limit
+        run: bun run size
+
   audit:
     # Non-blocking — known-CVE visibility only; does not catch supply-chain malware.
     # Team policy: if this job is red on a dep/lockfile PR, triage before merge
@@ -158,7 +173,18 @@ jobs:
 
   ci-complete:
     name: CI complete
-    needs: [skip-ci, format, lint, typecheck, test, test-dom, build, check-pack]
+    needs:
+      [
+        skip-ci,
+        format,
+        lint,
+        typecheck,
+        test,
+        test-dom,
+        build,
+        check-pack,
+        size,
+      ]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -171,7 +197,8 @@ jobs:
             needs.test.result != 'success' ||
             needs['test-dom'].result != 'success' ||
             needs.build.result != 'success' ||
-            needs['check-pack'].result != 'success'
+            needs['check-pack'].result != 'success' ||
+            needs.size.result != 'success'
           )
         run: exit 1
 

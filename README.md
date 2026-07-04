@@ -2,6 +2,8 @@
 
 Hydration-aware persistence middleware for any reactive store — storage × codec seams, TanStack Store adapters, and a React hydration hook. Store-agnostic via a structural `PersistableSource`; every "can it do X?" is a one-line composition instead of a feature request.
 
+[![core size](https://img.shields.io/size-limit/label/gzip/.size-limit.json/core/stainless-code/persist)](https://github.com/stainless-code/persist/blob/main/.size-limit.json)
+
 Jump to what you need —
 
 - [Install](#install)
@@ -19,6 +21,8 @@ Jump to what you need —
   - [Recipes](#recipes)
   - [Writing a framework adapter](#writing-a-framework-adapter)
   - [Lifecycle in one paragraph](#lifecycle-in-one-paragraph)
+- [Compatibility](#compatibility)
+- [FAQ](#faq)
 - [API reference](#api-reference)
 
 ## Install
@@ -727,6 +731,40 @@ export function hydratedRune(signal: HydrationSignal | null) {
 ## Lifecycle in one paragraph
 
 `persistSource` hydrates on create (skip with `skipHydration`; `rehydrate()` is awaitable), subscribe-writes on every `setState` (gated until hydrated; optional trailing `throttleMs`), and tears down completely via `destroy()` — required for non-singleton stores. Failures route to `onError` with a phase (`write`/`hydrate`/`migrate`/`crossTab`); the console fallback is dev-only. Payloads carry `version` (→ `migrate`), `timestamp` (→ `maxAge`), and `buster`; `retryWrite` implements shrink-or-give-up on quota errors with a write-generation guard so stale retries never clobber newer state.
+
+## Compatibility
+
+| Runtime / dep             | Supported range         |
+| ------------------------- | ----------------------- |
+| `@stainless-code/persist` | 0.1.1                   |
+| Node                      | ^20.19.0 \|\| >=22.12.0 |
+| Bun                       | >=1.0.0                 |
+| TypeScript                | >=5.0                   |
+| React                     | ^18.0.0 \|\| ^19.0.0    |
+| @tanstack/store           | >=0.10.0                |
+
+## FAQ
+
+**Why does my UI flash?**  
+You're on an async backend (IndexedDB, AsyncStorage, SecureStore, Node fs) without gating on hydration. The store holds its constructor default until the read settles — wrong theme, empty filters, then a snap to persisted state. Gate persisted-dependent UI with your framework adapter: [`useHydrated`](#what-does-hydration-aware-mean) (`@stainless-code/persist/frameworks/react`), `hydratedRune` (`@stainless-code/persist/frameworks/svelte`), or `hydratedStore` (`@stainless-code/persist/frameworks/svelte-store`). Sync backends (`localStorage`, MMKV) at module load need no gate. Don't manually defer writes before hydration — the middleware already gates writes until hydrated; double-gating drops legitimate updates.
+
+**IDB cross-tab isn't syncing**  
+IndexedDB fires no `storage` events — `crossTab: true` alone does nothing on this backend. Import `@stainless-code/persist/transport/crosstab` (`createBroadcastCrossTab`), pass `bridge.crossTabEventTarget` as `crossTabEventTarget`, and wrap storage with `bridge.wrap(...)`. See [Cross-tab over IndexedDB](#cross-tab-over-indexeddb).
+
+**Quota exceeded / storage full**  
+Pass `retryWrite: ({ state, errorCount }) => ...` — return a smaller state to retry, or `undefined` to give up (last error routes to `onError`). Use `errorCount` as the aggressiveness dial. The write-generation guard ensures stale retries never clobber newer state. See [retryWrite — shrink-or-give-up on quota](#retrywrite--shrink-or-give-up-on-quota).
+
+**Set / Map / Date don't round-trip**  
+Default `jsonCodec` is plain JSON — rich types silently degrade. String-wire backends (`localStorage`, AsyncStorage): `@stainless-code/persist/codecs/seroval` (`serovalCodec` / `createSerovalStorage`). Structured-clone: `@stainless-code/persist/backends/idb` (`createIdbStorage` — no codec needed). Never pair `identityCodec` with a string-only backend. See [Choosing a codec](#choosing-a-codec).
+
+**How do I clear all persisted keys on logout?**  
+Create one `createPersistRegistry()` from core; pass `registry` to every `persistStore` / `persistSource`. On logout: `await registry.clearAll()` — wipes every registered key in one shot. See [Clear-all on logout](#clear-all-on-logout).
+
+**How do I encrypt at rest?**  
+Wrap any backend with `@stainless-code/persist/backends/encrypted` (`createEncryptedStorage`) — WebCrypto is async, so encryption lives at the storage seam, not in a sync codec: `createStorage(() => createEncryptedStorage(() => localStorage, { key }), serovalCodec())`. See [Recipes](#recipes) for compress-then-encrypt stacks.
+
+**The store is not a singleton — how do I clean up?**  
+Call `persist.destroy()` on unmount (e.g. `useEffect` cleanup). It detaches the source subscription, removes the cross-tab listener, unregisters from any `registry`, and flushes pending throttled writes. See [IndexedDB + React, end to end](#indexeddb--react-end-to-end) (non-singleton stores).
 
 ## API reference
 

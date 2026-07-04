@@ -1,0 +1,20 @@
+[
+  {
+    "name": "core",
+    "path": "dist/core/index.mjs",
+    "limit": "2.5 KB",
+    "gzip": true
+  },
+  {
+    "name": "react",
+    "path": "dist/frameworks/react.mjs",
+    "limit": "2 KB",
+    "gzip": true
+  },
+  {
+    "name": "seroval",
+    "path": "dist/codecs/seroval.mjs",
+    "limit": "2 KB",
+    "gzip": true
+  }
+]
