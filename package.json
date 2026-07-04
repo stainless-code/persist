@@ -31,60 +31,60 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs"
+      "types": "./dist/core/index.d.mts",
+      "import": "./dist/core/index.mjs"
     },
     "./codecs/seroval": {
-      "types": "./dist/seroval.d.mts",
-      "import": "./dist/seroval.mjs"
+      "types": "./dist/codecs/seroval.d.mts",
+      "import": "./dist/codecs/seroval.mjs"
     },
     "./codecs/zod": {
-      "types": "./dist/zod.d.mts",
-      "import": "./dist/zod.mjs"
+      "types": "./dist/codecs/zod.d.mts",
+      "import": "./dist/codecs/zod.mjs"
     },
     "./backends/idb": {
-      "types": "./dist/idb.d.mts",
-      "import": "./dist/idb.mjs"
+      "types": "./dist/backends/idb.d.mts",
+      "import": "./dist/backends/idb.mjs"
     },
     "./backends/async-storage": {
-      "types": "./dist/async-storage.d.mts",
-      "import": "./dist/async-storage.mjs"
+      "types": "./dist/backends/async-storage.d.mts",
+      "import": "./dist/backends/async-storage.mjs"
     },
     "./backends/mmkv": {
-      "types": "./dist/mmkv.d.mts",
-      "import": "./dist/mmkv.mjs"
+      "types": "./dist/backends/mmkv.d.mts",
+      "import": "./dist/backends/mmkv.mjs"
     },
     "./backends/secure-store": {
-      "types": "./dist/secure-store.d.mts",
-      "import": "./dist/secure-store.mjs"
+      "types": "./dist/backends/secure-store.d.mts",
+      "import": "./dist/backends/secure-store.mjs"
     },
     "./transport/crosstab": {
-      "types": "./dist/crosstab.d.mts",
-      "import": "./dist/crosstab.mjs"
+      "types": "./dist/transport/crosstab.d.mts",
+      "import": "./dist/transport/crosstab.mjs"
     },
     "./sources/tanstack-store": {
-      "types": "./dist/tanstack-store.d.mts",
-      "import": "./dist/tanstack-store.mjs"
+      "types": "./dist/sources/tanstack-store.d.mts",
+      "import": "./dist/sources/tanstack-store.mjs"
     },
     "./frameworks/react": {
-      "types": "./dist/react.d.mts",
-      "import": "./dist/react.mjs"
+      "types": "./dist/frameworks/react.d.mts",
+      "import": "./dist/frameworks/react.mjs"
     },
     "./frameworks/solid": {
-      "types": "./dist/solid.d.mts",
-      "import": "./dist/solid.mjs"
+      "types": "./dist/frameworks/solid.d.mts",
+      "import": "./dist/frameworks/solid.mjs"
     },
     "./frameworks/vue": {
-      "types": "./dist/vue.d.mts",
-      "import": "./dist/vue.mjs"
+      "types": "./dist/frameworks/vue.d.mts",
+      "import": "./dist/frameworks/vue.mjs"
     },
     "./frameworks/svelte": {
-      "types": "./dist/svelte.d.mts",
-      "import": "./dist/svelte.mjs"
+      "types": "./dist/frameworks/svelte.d.mts",
+      "import": "./dist/frameworks/svelte.mjs"
     },
     "./frameworks/svelte-store": {
-      "types": "./dist/svelte-store.d.mts",
-      "import": "./dist/svelte-store.mjs"
+      "types": "./dist/frameworks/svelte-store.d.mts",
+      "import": "./dist/frameworks/svelte-store.mjs"
     }
   },
   "publishConfig": {

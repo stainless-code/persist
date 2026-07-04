@@ -47,7 +47,7 @@ No barrel — importing a subpath is the dependency opt-in. Each subpath entry o
   - `sources/` — `PersistableSource` adapters (tanstack-store)
   - `frameworks/` — `HydrationSignal` framework adapters (react, solid, vue, svelte, svelte-store)
 
-A per-entry self-check test pins the invariant: every adapter's relative imports resolve into `core/` (no cross-adapter coupling). `dist/` is flat (`dist/<subpath>.mjs`) via tsdown's record-form `entry`, regardless of src depth.
+A per-entry self-check test pins the invariant: every adapter's relative imports resolve into `core/` (no cross-adapter coupling). `dist/` mirrors `src/` (`dist/<seam>/<name>.mjs` via tsdown's record-form `entry` keyed by `<seam>/<name>`) — src folder → tsdown key → dist path → subpath, all 1:1.
 
 ## Hydration lifecycle
 

@@ -16,4 +16,4 @@ Reorganize the public subpath namespace to mirror the folder structure (`src/cor
 - `./solid` → `./frameworks/solid`
 - `./vue` → `./frameworks/vue`
 
-The `.` (core) entry is unchanged. `dist/` stays flat (`dist/<basename>.mjs`); the `exports` map routes each categorized subpath to its flat dist file. Internal `src/` was refolded into `core/` + `adapters/<seam>/` with the `persist-` filename prefix dropped (folder is the category, file is the subpath basename).
+The `.` (core) entry is unchanged. `dist/` mirrors `src/` (`dist/<seam>/<name>.mjs` via tsdown's record-form `entry` keyed by `<seam>/<name>`) — src folder → tsdown key → dist path → subpath, all 1:1. Internal `src/` was refolded into `core/` + `adapters/<seam>/` with the `persist-` filename prefix dropped (folder is the category, file is the subpath basename).

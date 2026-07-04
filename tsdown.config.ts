@@ -2,27 +2,27 @@ import { defineConfig } from "tsdown";
 
 const outDir = "dist";
 
-// Twelve subpath entries — each maps 1:1 to an `exports` entry. The core
-// (`index`) re-exports `persist-core` + `hydration`; the adapters under
-// `adapters/<seam>/` own their optional peer deps, which stay external so
-// consumers tree-shake cleanly. The record form flattens dist output to
-// `dist/<name>.mjs` regardless of the src folder depth.
+// Fourteen subpath entries — each maps 1:1 to an `exports` entry and mirrors
+// the src folder structure: key `<seam>/<name>` → `src/adapters/<seam>/<name>.ts`
+// → `dist/<seam>/<name>.mjs` → subpath `./<seam>/<name>`. The core (`core/index`)
+// re-exports `persist-core` + `hydration`; the adapters own their optional peer
+// deps, which stay external so consumers tree-shake cleanly.
 export default defineConfig({
   entry: {
-    index: "src/core/index.ts",
-    seroval: "src/adapters/codecs/seroval.ts",
-    zod: "src/adapters/codecs/zod.ts",
-    idb: "src/adapters/backends/idb.ts",
-    "async-storage": "src/adapters/backends/async-storage.ts",
-    mmkv: "src/adapters/backends/mmkv.ts",
-    "secure-store": "src/adapters/backends/secure-store.ts",
-    crosstab: "src/adapters/transport/crosstab.ts",
-    "tanstack-store": "src/adapters/sources/tanstack-store.ts",
-    react: "src/adapters/frameworks/react.ts",
-    solid: "src/adapters/frameworks/solid.ts",
-    vue: "src/adapters/frameworks/vue.ts",
-    svelte: "src/adapters/frameworks/svelte.ts",
-    "svelte-store": "src/adapters/frameworks/svelte-store.ts",
+    "core/index": "src/core/index.ts",
+    "codecs/seroval": "src/adapters/codecs/seroval.ts",
+    "codecs/zod": "src/adapters/codecs/zod.ts",
+    "backends/idb": "src/adapters/backends/idb.ts",
+    "backends/async-storage": "src/adapters/backends/async-storage.ts",
+    "backends/mmkv": "src/adapters/backends/mmkv.ts",
+    "backends/secure-store": "src/adapters/backends/secure-store.ts",
+    "transport/crosstab": "src/adapters/transport/crosstab.ts",
+    "sources/tanstack-store": "src/adapters/sources/tanstack-store.ts",
+    "frameworks/react": "src/adapters/frameworks/react.ts",
+    "frameworks/solid": "src/adapters/frameworks/solid.ts",
+    "frameworks/vue": "src/adapters/frameworks/vue.ts",
+    "frameworks/svelte": "src/adapters/frameworks/svelte.ts",
+    "frameworks/svelte-store": "src/adapters/frameworks/svelte-store.ts",
   },
   outDir,
   format: "esm",
