@@ -49,6 +49,10 @@
     "./react": {
       "types": "./dist/use-hydrated.d.mts",
       "import": "./dist/use-hydrated.mjs"
+    },
+    "./crosstab": {
+      "types": "./dist/persist-crosstab.d.mts",
+      "import": "./dist/persist-crosstab.mjs"
     }
   },
   "publishConfig": {

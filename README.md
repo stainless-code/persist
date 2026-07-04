@@ -32,6 +32,7 @@ Each subpath owns its dependency as an **optional peer** — import only the ent
 | `@stainless-code/persist/idb`            | `idb-keyval`         |
 | `@stainless-code/persist/tanstack-store` | `@tanstack/store`    |
 | `@stainless-code/persist/react`          | `react`              |
+| `@stainless-code/persist/crosstab`       | none (web global)    |
 
 ```bash
 # only when you use the matching entry
@@ -157,6 +158,7 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 | `@stainless-code/persist/idb`            | `idbStateStorage`, `createIdbStorage` (structured-clone mode)                                                           | `idb-keyval`                   |
 | `@stainless-code/persist/tanstack-store` | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only) |
 | `@stainless-code/persist/react`          | `useHydrated` React hook                                                                                                | `react`                        |
+| `@stainless-code/persist/crosstab`       | `createBroadcastCrossTab`                                                                                               | none (web global)              |
 
 No barrel — importing a subpath is the dependency opt-in.
 
@@ -343,6 +345,24 @@ persistStore(store, {
   storage,
   buster: "grid-v2",
 });
+```
+
+### Cross-tab over IndexedDB
+
+```ts
+import { createBroadcastCrossTab } from "@stainless-code/persist/crosstab";
+import { createIdbStorage } from "@stainless-code/persist/idb";
+
+// IDB fires no storage events — bridge a BroadcastChannel as the transport.
+// storageArea: null in every posted event → key-only matching in every tab.
+const bridge = createBroadcastCrossTab({ channelName: "app:prefs" })!;
+persistStore(store, {
+  name: "app:prefs:v1",
+  storage: bridge.wrap(createIdbStorage()!),
+  crossTab: true,
+  crossTabEventTarget: bridge.crossTabEventTarget,
+});
+// teardown: persist.destroy(); bridge.close();
 ```
 
 Caveats that matter per backend: async backends (IDB) can't settle hydration before first paint → gate UI on `useHydrated` (`@stainless-code/persist/react`); `sessionStorage` is per-tab (crossTab is meaningless); `identityCodec` never with string-only backends.

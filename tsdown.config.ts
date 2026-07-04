@@ -10,6 +10,7 @@ export default defineConfig({
     "src/index.ts",
     "src/persist-seroval.ts",
     "src/persist-idb.ts",
+    "src/persist-crosstab.ts",
     "src/persist-tanstack.ts",
     "src/use-hydrated.ts",
   ],
