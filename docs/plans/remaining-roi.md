@@ -104,11 +104,12 @@ From audit Appendix B.3. Each is a one-line composition over an existing seam; s
 
 ## Sequencing
 
-1. **#4 (provenance)** — S, unblocks supply-chain integrity; do first.
-2. **#1 (Query bridge) + #6 (migration-chain)** — M each, pure code, high adoption payoff, no deps.
-3. **#5 (real-browser + SSR matrix)** — M, de-risks the hydration-critical paths before more surface lands.
-4. **#2 (examples/) → #3 (docs site) → #9 (playground)** — the docs/demo arc; sequence so each builds on the prior.
-5. **#7 (React ergonomics) + #8 (OPFS/SQLite/Cloudflare)** — strategic; decide ship-vs-recipe per item.
+(#4 is implemented; pending first-release verification — strike once the npm Provenance badge lands.)
+
+1. **#1 (Query bridge) + #6 (migration-chain)** — M each, pure code, high adoption payoff, no deps. Best next pick.
+2. **#5 (real-browser + SSR matrix)** — M, de-risks the hydration-critical paths before more surface lands.
+3. **#2 (examples/) → #3 (docs site) → #9 (playground)** — the docs/demo arc; sequence so each builds on the prior.
+4. **#7 (React ergonomics) + #8 (OPFS/SQLite/Cloudflare)** — strategic; decide ship-vs-recipe per item.
 
 ## Reference
 
