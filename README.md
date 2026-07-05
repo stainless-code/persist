@@ -47,6 +47,10 @@ Each subpath owns its dependency as an **optional peer** — import only the ent
 | `@stainless-code/persist/backends/node-fs`        | none (Node built-in)                        |
 | `@stainless-code/persist/transport/crosstab`      | none (web global)                           |
 | `@stainless-code/persist/sources/tanstack-store`  | `@tanstack/store`                           |
+| `@stainless-code/persist/sources/zustand`         | `zustand`                                   |
+| `@stainless-code/persist/sources/jotai`           | `jotai`                                     |
+| `@stainless-code/persist/sources/valtio`          | `valtio`                                    |
+| `@stainless-code/persist/sources/mobx`            | `mobx`                                      |
 | `@stainless-code/persist/frameworks/react`        | `react`                                     |
 | `@stainless-code/persist/frameworks/solid`        | `solid-js`                                  |
 | `@stainless-code/persist/frameworks/vue`          | `vue`                                       |
@@ -408,6 +412,10 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 | `@stainless-code/persist/backends/node-fs`        | `nodeFsStateStorage` (one file per key)                                                                                 | none (Node built-in)                        |
 | `@stainless-code/persist/transport/crosstab`      | `createBroadcastCrossTab`                                                                                               | none (web global)                           |
 | `@stainless-code/persist/sources/tanstack-store`  | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only)              |
+| `@stainless-code/persist/sources/zustand`         | `persistZustand`                                                                                                        | `zustand`                                   |
+| `@stainless-code/persist/sources/jotai`           | `persistJotai`                                                                                                          | `jotai`                                     |
+| `@stainless-code/persist/sources/valtio`          | `persistValtio`                                                                                                         | `valtio`                                    |
+| `@stainless-code/persist/sources/mobx`            | `persistMobx`                                                                                                           | `mobx`                                      |
 | `@stainless-code/persist/frameworks/react`        | `useHydrated` React hook                                                                                                | `react`                                     |
 | `@stainless-code/persist/frameworks/solid`        | `useHydrated` (Solid `Accessor<boolean>`)                                                                               | `solid-js`                                  |
 | `@stainless-code/persist/frameworks/vue`          | `useHydrated` (Vue `Ref<boolean>`)                                                                                      | `vue`                                       |
@@ -665,6 +673,93 @@ persistStore(store, {
   storage,
   buster: "grid-v2",
 });
+```
+
+### Wrapping your store
+
+Every shipped source adapter is a thin `persistSource` wrapper — import the subpath, pass your store, wire storage. Redux, signals, hand-rolled atoms: same seam.
+
+**zustand**
+
+```ts
+import { create } from "zustand";
+import { createJSONStorage } from "@stainless-code/persist";
+import { persistZustand } from "@stainless-code/persist/sources/zustand";
+
+const usePrefs = create(() => ({ theme: "light" as const }));
+const persist = persistZustand(usePrefs, {
+  name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+```
+
+Or pass a custom `PersistableSource` to `persistSource` directly — the adapter is a thin wrapper over `getState`/`setState`/`subscribe`.
+
+**jotai**
+
+```ts
+import { atom, createStore } from "jotai";
+import { createJSONStorage } from "@stainless-code/persist";
+import { persistJotai } from "@stainless-code/persist/sources/jotai";
+
+const store = createStore();
+const themeAtom = atom<"light" | "dark">("light");
+const persist = persistJotai(store, themeAtom, {
+  name: "app:theme:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+```
+
+Or pass a custom `PersistableSource` to `persistSource` directly — the adapter is a thin wrapper over `getState`/`setState`/`subscribe`.
+
+**valtio**
+
+```ts
+import { proxy } from "valtio";
+import { createJSONStorage } from "@stainless-code/persist";
+import { persistValtio } from "@stainless-code/persist/sources/valtio";
+
+const prefs = proxy({ theme: "light" as const });
+const persist = persistValtio(prefs, {
+  name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+```
+
+Or pass a custom `PersistableSource` to `persistSource` directly — the adapter is a thin wrapper over `getState`/`setState`/`subscribe`.
+
+**mobx**
+
+```ts
+import { observable } from "mobx";
+import { createJSONStorage } from "@stainless-code/persist";
+import { persistMobx } from "@stainless-code/persist/sources/mobx";
+
+const prefs = observable.object({ theme: "light" as const });
+const persist = persistMobx(prefs, {
+  name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+```
+
+Or pass a custom `PersistableSource` to `persistSource` directly — the adapter is a thin wrapper over `getState`/`setState`/`subscribe`.
+
+**Any other store**
+
+```ts
+import { createJSONStorage, persistSource } from "@stainless-code/persist";
+
+const persist = persistSource(
+  {
+    getState: () => myStore.getState(),
+    setState: (updater) => myStore.setState(updater),
+    subscribe: (listener) => myStore.subscribe(() => listener()),
+  },
+  {
+    name: "app:custom:v1",
+    storage: createJSONStorage(() => localStorage),
+  },
+);
 ```
 
 ### Cross-tab over IndexedDB

@@ -30,6 +30,10 @@ Persistence is bound to a structural `PersistableSource` (`getState` / `setState
 | `@stainless-code/persist/backends/node-fs`        | `adapters/backends/node-fs`                 | none (Node built-in)                          |
 | `@stainless-code/persist/transport/crosstab`      | `adapters/transport/crosstab`               | none (web global)                             |
 | `@stainless-code/persist/sources/tanstack-store`  | `adapters/sources/tanstack-store`           | `@tanstack/store` (types only)                |
+| `@stainless-code/persist/sources/zustand`         | `adapters/sources/zustand`                  | `zustand`                                     |
+| `@stainless-code/persist/sources/jotai`           | `adapters/sources/jotai`                    | `jotai`                                       |
+| `@stainless-code/persist/sources/valtio`          | `adapters/sources/valtio`                   | `valtio`                                      |
+| `@stainless-code/persist/sources/mobx`            | `adapters/sources/mobx`                     | `mobx`                                        |
 | `@stainless-code/persist/frameworks/react`        | `adapters/frameworks/react`                 | `react`                                       |
 | `@stainless-code/persist/frameworks/solid`        | `adapters/frameworks/solid`                 | `solid-js`                                    |
 | `@stainless-code/persist/frameworks/vue`          | `adapters/frameworks/vue`                   | `vue`                                         |
@@ -49,7 +53,7 @@ No barrel — importing a subpath is the dependency opt-in. Each subpath entry o
   - `codecs/` — `StorageCodec` adapters (seroval, zod)
   - `backends/` — `StateStorage` adapters + wrappers (idb, async-storage, mmkv, secure-store, encrypted, compressed, node-fs)
   - `transport/` — `CrossTabEventTarget` adapters (crosstab — BroadcastChannel bridge)
-  - `sources/` — `PersistableSource` adapters (tanstack-store)
+  - `sources/` — `PersistableSource` adapters (tanstack-store, zustand, jotai, valtio, mobx)
   - `frameworks/` — `HydrationSignal` framework adapters (react, solid, vue, svelte, svelte-store, angular, preact)
 
 A per-entry self-check test pins the invariant: every adapter's relative imports resolve into `core/` (no cross-adapter coupling). `dist/` mirrors `src/` (`dist/<seam>/<name>.mjs` via tsdown's record-form `entry` keyed by `<seam>/<name>`) — src folder → tsdown key → dist path → subpath, all 1:1.

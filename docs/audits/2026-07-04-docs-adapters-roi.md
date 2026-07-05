@@ -145,7 +145,7 @@ Ordered by ROI = impact ÷ effort. **Effort:** S / M / L. **Status as of 2026-07
 | ✅ 22 | Coverage gate.                                                                                          | S      |
 | ✅ 23 | Bundle-size badge + `size-limit` gate.                                                                  | S      |
 | ✅ 24 | `packageManager` pin + TS consumer range + Node/React/TanStack compat table.                            | S      |
-| 25    | `zustand`/`jotai`/`valtio`/`mobx`/signals source adapters — decide ship-as-subpath vs recipe first.     | S each |
+| ✅ 25 | `zustand`/`jotai`/`valtio`/`mobx` source adapters — shipped + recipes.                                  | S each |
 | ✅ 27 | FAQ / troubleshooting page.                                                                             | S      |
 
 ### Tier 4 — Strategic bets (high impact, high effort)

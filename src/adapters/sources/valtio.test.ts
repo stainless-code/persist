@@ -1,0 +1,154 @@
+import { beforeEach, describe, expect, it, mock } from "bun:test";
+
+import type { StateStorage } from "../../core/persist-core";
+
+type MockProxy<T extends object> = T & {
+  __listeners: Set<() => void>;
+  __state: T;
+};
+
+mock.module("valtio", () => ({
+  snapshot: <T extends object>(proxyObj: T): T => {
+    const state = (proxyObj as MockProxy<T>).__state ?? proxyObj;
+    return { ...state };
+  },
+  subscribe: (proxyObj: object, callback: () => void) => {
+    const listeners = (proxyObj as MockProxy<object>).__listeners;
+    listeners.add(callback);
+    return () => listeners.delete(callback);
+  },
+}));
+
+const { createJSONStorage } = await import("../../core/persist-core");
+const { persistValtio } = await import("./valtio");
+
+class MemoryStorage implements StateStorage {
+  private store = new Map<string, string>();
+
+  clear() {
+    this.store.clear();
+  }
+
+  getItem(key: string) {
+    return this.store.get(key) ?? null;
+  }
+
+  removeItem(key: string) {
+    this.store.delete(key);
+  }
+
+  setItem(key: string, value: string) {
+    this.store.set(key, value);
+  }
+}
+
+function createMockProxy<T extends object>(initial: T): MockProxy<T> {
+  const listeners = new Set<() => void>();
+  const state = { ...initial };
+  const proxy = new Proxy(state, {
+    get(target, prop) {
+      if (prop === "__listeners") return listeners;
+      if (prop === "__state") return state;
+      return target[prop as keyof T];
+    },
+    set(target, prop, value) {
+      if (prop === "__listeners" || prop === "__state") return true;
+      (target as Record<string, unknown>)[prop as string] = value;
+      listeners.forEach((l) => l());
+      return true;
+    },
+  }) as MockProxy<T>;
+  proxy.__listeners = listeners;
+  proxy.__state = state;
+  return proxy;
+}
+
+function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
+  return new Promise<void>((resolve, reject) => {
+    let ticks = 0;
+    const tick = () => {
+      if (hasHydrated()) {
+        resolve();
+        return;
+      }
+      if (++ticks > maxTicks) {
+        reject(new Error("waitForHydration: never hydrated"));
+        return;
+      }
+      queueMicrotask(tick);
+    };
+    tick();
+  });
+}
+
+describe("persistValtio", () => {
+  let memory: MemoryStorage;
+
+  beforeEach(() => {
+    memory = new MemoryStorage();
+  });
+
+  it("round-trips through persistSource", async () => {
+    const proxy = createMockProxy({ count: 0 });
+    const jsonStorage = createJSONStorage<{ count: number }>(() => memory)!;
+    await jsonStorage.setItem("count-proxy", {
+      state: { count: 7 },
+      version: 0,
+    });
+
+    const persist = persistValtio(proxy, {
+      name: "count-proxy",
+      storage: jsonStorage,
+    });
+
+    await waitForHydration(persist.hasHydrated);
+    expect(proxy.count).toBe(7);
+
+    Object.assign(proxy, { count: proxy.count + 1 });
+    await new Promise((resolve) => queueMicrotask(resolve));
+
+    const stored = await jsonStorage.getItem("count-proxy");
+    expect(stored?.state.count).toBe(8);
+
+    const freshProxy = createMockProxy({ count: 0 });
+    const rehydrate = persistValtio(freshProxy, {
+      name: "count-proxy",
+      storage: jsonStorage,
+    });
+    await waitForHydration(rehydrate.hasHydrated);
+    expect(freshProxy.count).toBe(8);
+  });
+
+  it("subscribe fires on setState", async () => {
+    const proxy = createMockProxy({ count: 0 });
+    const jsonStorage = createJSONStorage<{ count: number }>(() => memory)!;
+
+    const persist = persistValtio(proxy, {
+      name: "subscribe-proxy",
+      storage: jsonStorage,
+    });
+
+    await waitForHydration(persist.hasHydrated);
+    expect(proxy.__listeners.size).toBe(1);
+
+    Object.assign(proxy, { count: 42 });
+    await new Promise((resolve) => queueMicrotask(resolve));
+
+    const stored = await jsonStorage.getItem("subscribe-proxy");
+    expect(stored?.state.count).toBe(42);
+  });
+});
+
+describe("valtio dependency isolation", () => {
+  it("imports only from core (no cross-adapter coupling)", async () => {
+    const source = await Bun.file(
+      new URL("./valtio.ts", import.meta.url),
+    ).text();
+    const relativeImports = [
+      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
+    ].map((match) => match[1]);
+    for (const importPath of relativeImports) {
+      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
+    }
+  });
+});
