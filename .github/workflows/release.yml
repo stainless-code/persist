@@ -1,5 +1,6 @@
 # [Changesets](https://github.com/changesets/changesets): open a "Version packages" PR when
-# `.changeset/*.md` files land on `main`, then publish to npm when that PR merges (requires `NPM_TOKEN`).
+# `.changeset/*.md` files land on `main`, then publish to npm when that PR merges via npm
+# trusted publishing (GitHub OIDC — no NPM_TOKEN; provenance auto-generated).
 name: Release
 
 on:
@@ -12,11 +13,13 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 permissions:
   contents: write
   pull-requests: write
+  id-token: write
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -29,8 +32,9 @@ jobs:
       # Opens/updates the Version PR when `.changeset/*.md` exist. When there are none, the action
       # can still run `publish` (see changesets/action) so a just-merged Version PR can ship.
       # `changeset publish` should exit 0 when there is nothing new to publish. If this job fails,
-      # read the step log: common causes are missing/invalid NPM_TOKEN, registry/network errors, or
-      # a real publish failure — not assumed from the runner alone.
+      # read the step log: common causes are OIDC/trusted-publishing misconfig (`id-token: write`,
+      # the `release` environment, or the npm trusted-publisher binding), registry/network errors,
+      # or a real publish failure — not assumed from the runner alone.
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
@@ -43,4 +47,3 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
