@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { MemoryStorage } from "../../testing/memory-storage";
+import { waitForHydration } from "../../testing/wait-for-hydration";
 
 const observableMap = new WeakMap<object, Set<() => void>>();
 
@@ -38,24 +39,6 @@ function createMockObservable<T extends object>(initial: T): T {
 
 function listenerCount(observable: object) {
   return observableMap.get(observable)?.size ?? 0;
-}
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
 }
 
 describe("persistObservable", () => {

@@ -24,7 +24,4 @@ Capped or out-of-scope-for-now — reconcile re-vets; remove lines when fixed.
 - **[severity]** `file:line` — finding (deferred: out of scope | cap | blocked)
 ```
 
-- **[info]** `src/adapters/transport/crosstab.test.ts` — no test for `removeItem` broadcast → receiving-tab `onCrossTabRemove` (deferred: coverage gap, not blocking; the setItem-broadcast path is covered).
-- **[nit]** `src/adapters/**/*.ts` `@example` blocks — reference symbols (e.g. `createJSONStorage`) without importing them (deferred: large surface; the `@example` import _paths_ resolve per the repo's stated bar; importing every used symbol is a stricter standard beyond it).
 - **[info]** `package.json` peerDependencies — `./frameworks/svelte` declares `svelte >=5.0.0` in source/README but `package.json` has `svelte >=3.0.0` shared with `./frameworks/svelte-store` (deferred: out of bounds — peer deps are package-level, not subpath-level; can't fix without splitting the svelte subpath into a separate package).
-- **[info]** `src/adapters/**/*.test.ts` — `createMockSource` + `waitForHydration` still copy-pasted per file (deferred: out of scope for this PR — not a regression; same dedup pattern as the shipped `MemoryStorage` fixture).

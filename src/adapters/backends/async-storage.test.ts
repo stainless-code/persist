@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
+import { createMockSource } from "../../testing/mock-source";
+import { waitForHydration } from "../../testing/wait-for-hydration";
+
 // bun has no React Native runtime — fake AsyncStorage with a Map-backed
 // implementation. The module under test only maps shapes; real RN behavior is
 // AsyncStorage's concern.
@@ -22,43 +25,6 @@ mock.module("@react-native-async-storage/async-storage", () => ({
 const { asyncStorageStateStorage, createAsyncStorage } =
   await import("./async-storage");
 const { persistSource } = await import("../../core/persist-core");
-
-function createMockSource<T>(initial: T) {
-  let state = initial;
-  const listeners = new Set<() => void>();
-  return {
-    get state() {
-      return state;
-    },
-    getState: () => state,
-    setState: (updater: (prev: T) => T) => {
-      state = updater(state);
-      listeners.forEach((listener) => listener());
-    },
-    subscribe: (listener: () => void) => {
-      listeners.add(listener);
-      return { unsubscribe: () => listeners.delete(listener) };
-    },
-  };
-}
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
-}
 
 describe("createAsyncStorage", () => {
   beforeEach(() => store.clear());

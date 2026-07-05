@@ -16,7 +16,10 @@ export interface NodeFsStorageOptions {
  *
  * @example
  * ```ts
+ * import { createStorage } from "@stainless-code/persist";
+ * import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
  * import { nodeFsStateStorage } from "@stainless-code/persist/backends/node-fs";
+ *
  * const storage = createStorage<Prefs>(() => nodeFsStateStorage({ dir: "./.persist" }), serovalCodec());
  * ```
  */

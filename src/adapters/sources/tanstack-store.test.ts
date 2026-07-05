@@ -5,27 +5,8 @@ import type { Atom } from "@tanstack/store";
 
 import { createJSONStorage } from "../../core/persist-core";
 import { MemoryStorage } from "../../testing/memory-storage";
+import { waitForHydration } from "../../testing/wait-for-hydration";
 import { persistAtom, persistStore } from "./tanstack-store";
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      // Bounded: a hydration regression fails loudly here instead of hanging
-      // the suite until the runner's opaque timeout.
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
-}
 
 describe("persistStore", () => {
   let memory: MemoryStorage;

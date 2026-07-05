@@ -14,6 +14,8 @@ import { createJSONStorage } from "../../core/persist-core";
  *
  * @example
  * ```ts
+ * import { secureStoreStateStorage } from "@stainless-code/persist/backends/secure-store";
+ *
  * const storage = secureStoreStateStorage();
  * ```
  */
@@ -33,6 +35,9 @@ export function secureStoreStateStorage(): StateStorage {
  *
  * @example
  * ```ts
+ * import { createSecureStoreStorage } from "@stainless-code/persist/backends/secure-store";
+ * import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+ *
  * const storage = createSecureStoreStorage<AuthToken>()!;
  * persistStore(store, { name: "auth:token:v1", storage, partialize: (s) => s.token });
  * ```

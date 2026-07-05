@@ -5,8 +5,9 @@ import { renderToString } from "react-dom/server";
 
 import { alwaysHydratedSignal, toHydrationSignal } from "../../core/hydration";
 import { createJSONStorage, persistSource } from "../../core/persist-core";
-import type { PersistableSource } from "../../core/persist-core";
 import { MemoryStorage } from "../../testing/memory-storage";
+import { createMockSource } from "../../testing/mock-source";
+import { waitForHydration } from "../../testing/wait-for-hydration";
 import { useHydrated } from "./react";
 
 /**
@@ -22,48 +23,6 @@ import { useHydrated } from "./react";
  *     a DOM renderer and is not exercised here; `hydration.test.ts` pins the
  *     subscribe/notify contract that wiring rides on.
  */
-
-function createMockSource<T>(initial: T): PersistableSource<T> & { state: T } {
-  let state = initial;
-  const listeners = new Set<() => void>();
-
-  return {
-    get state() {
-      return state;
-    },
-    getState: () => state,
-    setState: (updater) => {
-      state = updater(state);
-      listeners.forEach((listener) => listener());
-    },
-    subscribe: (listener) => {
-      listeners.add(listener);
-      return {
-        unsubscribe: () => listeners.delete(listener),
-      };
-    },
-  };
-}
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      // Bounded: a hydration regression fails loudly here instead of hanging
-      // the suite until the runner's opaque timeout.
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
-}
 
 function Probe({ signal }: { signal: Parameters<typeof useHydrated>[0] }) {
   const { hydrated } = useHydrated(signal);

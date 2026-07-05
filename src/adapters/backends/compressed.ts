@@ -20,6 +20,10 @@ export interface CreateCompressedStorageOptions {
  *
  * @example
  * ```ts
+ * import { createStorage } from "@stainless-code/persist";
+ * import { createCompressedStorage } from "@stainless-code/persist/backends/compressed";
+ * import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
+ *
  * const storage = createStorage<Prefs>(
  *   () => createCompressedStorage(() => localStorage)!,
  *   serovalCodec(),

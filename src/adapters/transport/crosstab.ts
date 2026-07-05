@@ -29,6 +29,10 @@ export interface BroadcastCrossTab<S> {
  *
  * @example
  * ```ts
+ * import { createBroadcastCrossTab } from "@stainless-code/persist/transport/crosstab";
+ * import { createIdbStorage } from "@stainless-code/persist/backends/idb";
+ * import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+ *
  * const bridge = createBroadcastCrossTab({ channelName: "app:prefs" })!;
  * const persist = persistStore(store, {
  *   name: "app:prefs:v1",

@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
+import { createMockSource } from "../../testing/mock-source";
+import { waitForHydration } from "../../testing/wait-for-hydration";
+
 // bun has no IndexedDB — fake idb-keyval with a Map-backed implementation
 // honoring the optional per-call `store` param (idb-keyval's own seam). The
 // module under test only maps shapes; the real IDB behavior is idb-keyval's
@@ -36,45 +39,6 @@ const { createIdbStorage, idbStateStorage } = await import("./idb");
 const { createStorage, persistSource } =
   await import("../../core/persist-core");
 const { serovalCodec } = await import("../codecs/seroval");
-
-function createMockSource<T>(initial: T) {
-  let state = initial;
-  const listeners = new Set<() => void>();
-  return {
-    get state() {
-      return state;
-    },
-    getState: () => state,
-    setState: (updater: (prev: T) => T) => {
-      state = updater(state);
-      listeners.forEach((listener) => listener());
-    },
-    subscribe: (listener: () => void) => {
-      listeners.add(listener);
-      return { unsubscribe: () => listeners.delete(listener) };
-    },
-  };
-}
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      // Bounded: a hydration regression fails loudly here instead of hanging
-      // the suite until the runner's opaque timeout.
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
-}
 
 describe("createIdbStorage", () => {
   beforeEach(() => {

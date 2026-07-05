@@ -11,6 +11,9 @@ import { createJSONStorage } from "../../core/persist-core";
  *
  * @example
  * ```ts
+ * import { createMMKV } from "react-native-mmkv";
+ * import { mmkvStateStorage } from "@stainless-code/persist/backends/mmkv";
+ *
  * const instance = createMMKV({ id: "app-prefs" });
  * const storage = mmkvStateStorage(instance);
  * ```
@@ -44,6 +47,9 @@ export interface MmkvStorageOptions {
  *
  * @example
  * ```ts
+ * import { createMmkvStorage } from "@stainless-code/persist/backends/mmkv";
+ * import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+ *
  * const storage = createMmkvStorage<Prefs>({ id: "app-prefs" })!;
  * persistStore(store, { name: "app:prefs:v1", storage });
  * ```

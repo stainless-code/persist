@@ -12,6 +12,8 @@ import { createJSONStorage } from "../../core/persist-core";
  *
  * @example
  * ```ts
+ * import { asyncStorageStateStorage } from "@stainless-code/persist/backends/async-storage";
+ *
  * const storage = asyncStorageStateStorage();
  * ```
  */
@@ -32,6 +34,9 @@ export function asyncStorageStateStorage(
  *
  * @example
  * ```ts
+ * import { createAsyncStorage } from "@stainless-code/persist/backends/async-storage";
+ * import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+ *
  * const storage = createAsyncStorage<Prefs>()!;
  * persistStore(store, { name: "app:prefs:v1", storage });
  * ```

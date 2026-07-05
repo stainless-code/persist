@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { MemoryStorage } from "../../testing/memory-storage";
+import { waitForHydration } from "../../testing/wait-for-hydration";
 
 type MockProxy<T extends object> = T & {
   __listeners: Set<() => void>;
@@ -41,24 +42,6 @@ function createMockProxy<T extends object>(initial: T): MockProxy<T> {
   proxy.__listeners = listeners;
   proxy.__state = state;
   return proxy;
-}
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
 }
 
 describe("persistProxy", () => {

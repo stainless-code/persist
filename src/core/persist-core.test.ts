@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 
 import { MemoryStorage } from "../testing/memory-storage";
+import { createMockSource } from "../testing/mock-source";
+import { waitForHydration } from "../testing/wait-for-hydration";
 import {
   createJSONStorage,
   createMigrationChain,
@@ -13,7 +15,6 @@ import {
 import type {
   CrossTabEventTarget,
   CrossTabStorageEvent,
-  PersistableSource,
   StateStorage,
   StorageValue,
 } from "./persist-core";
@@ -45,48 +46,6 @@ describe("persist-core zero-dep gate", () => {
     expect(storeValueImports).toEqual([]);
   });
 });
-
-function createMockSource<T>(initial: T): PersistableSource<T> & { state: T } {
-  let state = initial;
-  const listeners = new Set<() => void>();
-
-  return {
-    get state() {
-      return state;
-    },
-    getState: () => state,
-    setState: (updater) => {
-      state = updater(state);
-      listeners.forEach((listener) => listener());
-    },
-    subscribe: (listener) => {
-      listeners.add(listener);
-      return {
-        unsubscribe: () => listeners.delete(listener),
-      };
-    },
-  };
-}
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      // Bounded: a hydration regression fails loudly here instead of hanging
-      // the suite until the runner's opaque timeout.
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
-}
 
 describe("createJSONStorage codec seam", () => {
   let memory: MemoryStorage;

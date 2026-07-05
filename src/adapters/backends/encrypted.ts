@@ -22,6 +22,11 @@ export interface CreateEncryptedStorageOptions {
  *
  * @example
  * ```ts
+ * import { createStorage } from "@stainless-code/persist";
+ * import { createEncryptedStorage } from "@stainless-code/persist/backends/encrypted";
+ * import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
+ * import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+ *
  * const key = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
  * const storage = createStorage<Prefs>(
  *   () => createEncryptedStorage(() => localStorage, { key })!,

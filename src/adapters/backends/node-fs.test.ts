@@ -4,34 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { createStorage, persistSource } from "../../core/persist-core";
-import type { PersistableSource } from "../../core/persist-core";
+import { createMockSource } from "../../testing/mock-source";
 import { serovalCodec } from "../codecs/seroval";
 import { nodeFsStateStorage } from "./node-fs";
 
 async function tempDir(): Promise<string> {
   return mkdtemp(join(tmpdir(), "persist-nodefs-"));
-}
-
-function createMockSource<T>(initial: T): PersistableSource<T> & { state: T } {
-  let state = initial;
-  const listeners = new Set<() => void>();
-
-  return {
-    get state() {
-      return state;
-    },
-    getState: () => state,
-    setState: (updater) => {
-      state = updater(state);
-      listeners.forEach((listener) => listener());
-    },
-    subscribe: (listener) => {
-      listeners.add(listener);
-      return {
-        unsubscribe: () => listeners.delete(listener),
-      };
-    },
-  };
 }
 
 function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {

@@ -1,11 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
 import { persistSource } from "../../core/persist-core";
-import type {
-  PersistableSource,
-  PersistStorage,
-  StorageValue,
-} from "../../core/persist-core";
+import type { PersistStorage, StorageValue } from "../../core/persist-core";
+import { createMockSource } from "../../testing/mock-source";
+import { waitForHydration } from "../../testing/wait-for-hydration";
 import { createBroadcastCrossTab } from "./crosstab";
 
 function createSharedAsyncStorage<S>(
@@ -23,46 +21,6 @@ function createSharedAsyncStorage<S>(
       return Promise.resolve();
     },
   };
-}
-
-function createMockSource<T>(initial: T): PersistableSource<T> & { state: T } {
-  let state = initial;
-  const listeners = new Set<() => void>();
-
-  return {
-    get state() {
-      return state;
-    },
-    getState: () => state,
-    setState: (updater) => {
-      state = updater(state);
-      listeners.forEach((listener) => listener());
-    },
-    subscribe: (listener) => {
-      listeners.add(listener);
-      return {
-        unsubscribe: () => listeners.delete(listener),
-      };
-    },
-  };
-}
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
 }
 
 function waitForState<T>(
@@ -138,6 +96,58 @@ describe("createBroadcastCrossTab", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     await waitForState(() => sourceB.state, { count: 42 });
+
+    persistA.destroy();
+    persistB.destroy();
+    bridgeA.close();
+    bridgeB.close();
+  });
+
+  it("removeItem broadcast → receiving-tab onCrossTabRemove", async () => {
+    const shared = new Map<string, StorageValue<{ count: number }>>();
+    const channelName = `remove-${Math.random()}`;
+
+    const bridgeA = createBroadcastCrossTab<{ count: number }>({
+      channelName,
+    })!;
+    const bridgeB = createBroadcastCrossTab<{ count: number }>({
+      channelName,
+    })!;
+
+    const sourceA = createMockSource({ count: 0 });
+    const sourceB = createMockSource({ count: 0 });
+
+    const persistA = persistSource(sourceA, {
+      name: "remove-key",
+      storage: bridgeA.wrap(createSharedAsyncStorage(shared)),
+      crossTab: true,
+      crossTabEventTarget: bridgeA.crossTabEventTarget,
+    });
+
+    let removeCalls = 0;
+    const persistB = persistSource(sourceB, {
+      name: "remove-key",
+      storage: bridgeB.wrap(createSharedAsyncStorage(shared)),
+      skipHydration: true,
+      crossTab: true,
+      crossTabEventTarget: bridgeB.crossTabEventTarget,
+      onCrossTabRemove: () => {
+        removeCalls++;
+        sourceB.setState(() => ({ count: 0 }));
+      },
+    });
+
+    await waitForHydration(persistA.hasHydrated);
+    // Seed a non-default value so the removal is meaningful.
+    sourceA.setState(() => ({ count: 7 }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await waitForHydration(persistB.hasHydrated);
+
+    // Tab A clears → bridge posts newValue:null → tab B's onCrossTabRemove fires.
+    await persistA.clearStorage();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(removeCalls).toBe(1);
 
     persistA.destroy();
     persistB.destroy();

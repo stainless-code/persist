@@ -4,6 +4,7 @@ import type { WritableAtom } from "jotai";
 
 import { createJSONStorage } from "../../core/persist-core";
 import { MemoryStorage } from "../../testing/memory-storage";
+import { waitForHydration } from "../../testing/wait-for-hydration";
 import { persistAtom } from "./jotai";
 
 function createMockJotaiStore<T>(initialValue: T) {
@@ -36,24 +37,6 @@ function createMockJotaiStore<T>(initialValue: T) {
     listenerCount: () => listeners.size,
     getValue: () => value,
   };
-}
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
 }
 
 describe("persistAtom", () => {

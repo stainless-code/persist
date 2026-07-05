@@ -4,6 +4,7 @@ import type { StoreApi } from "zustand";
 
 import { createJSONStorage } from "../../core/persist-core";
 import { MemoryStorage } from "../../testing/memory-storage";
+import { waitForHydration } from "../../testing/wait-for-hydration";
 import { persistStore } from "./zustand";
 
 function createMockStore<T>(initial: T) {
@@ -25,24 +26,6 @@ function createMockStore<T>(initial: T) {
     },
     listenerCount: () => listeners.size,
   };
-}
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
 }
 
 describe("persistStore", () => {

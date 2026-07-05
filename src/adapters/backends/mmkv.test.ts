@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 import type { MMKV } from "react-native-mmkv";
 
+import { createMockSource } from "../../testing/mock-source";
+import { waitForHydration } from "../../testing/wait-for-hydration";
+
 // Fake MMKV instance backed by a Map; createMMKV returns one per id. Cast to
 // `MMKV` — the adapter only calls `getString`/`set`/`remove`; the HybridObject
 // base props (`name`/`equals`/`dispose`/…) are unused in tests.
@@ -31,45 +34,6 @@ mock.module("react-native-mmkv", () => ({
 
 const { mmkvStateStorage, createMmkvStorage } = await import("./mmkv");
 const { persistSource } = await import("../../core/persist-core");
-
-function createMockSource<T>(initial: T) {
-  let state = initial;
-  const listeners = new Set<() => void>();
-  return {
-    get state() {
-      return state;
-    },
-    getState: () => state,
-    setState: (updater: (prev: T) => T) => {
-      state = updater(state);
-      listeners.forEach((listener) => listener());
-    },
-    subscribe: (listener: () => void) => {
-      listeners.add(listener);
-      return { unsubscribe: () => listeners.delete(listener) };
-    },
-  };
-}
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      // Bounded: a hydration regression fails loudly here instead of hanging
-      // the suite until the runner's opaque timeout.
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
-}
 
 describe("createMmkvStorage", () => {
   beforeEach(() => instances.clear());

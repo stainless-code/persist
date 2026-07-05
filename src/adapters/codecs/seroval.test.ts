@@ -1,51 +1,11 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 
 import { createStorage, persistSource } from "../../core/persist-core";
-import type { PersistableSource, StateStorage } from "../../core/persist-core";
+import type { StateStorage } from "../../core/persist-core";
 import { MemoryStorage } from "../../testing/memory-storage";
+import { createMockSource } from "../../testing/mock-source";
+import { waitForHydration } from "../../testing/wait-for-hydration";
 import { createSerovalStorage, serovalCodec } from "./seroval";
-
-function createMockSource<T>(initial: T): PersistableSource<T> & { state: T } {
-  let state = initial;
-  const listeners = new Set<() => void>();
-
-  return {
-    get state() {
-      return state;
-    },
-    getState: () => state,
-    setState: (updater) => {
-      state = updater(state);
-      listeners.forEach((listener) => listener());
-    },
-    subscribe: (listener) => {
-      listeners.add(listener);
-      return {
-        unsubscribe: () => listeners.delete(listener),
-      };
-    },
-  };
-}
-
-function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
-  return new Promise<void>((resolve, reject) => {
-    let ticks = 0;
-    const tick = () => {
-      if (hasHydrated()) {
-        resolve();
-        return;
-      }
-      // Bounded: a hydration regression fails loudly here instead of hanging
-      // the suite until the runner's opaque timeout.
-      if (++ticks > maxTicks) {
-        reject(new Error("waitForHydration: never hydrated"));
-        return;
-      }
-      queueMicrotask(tick);
-    };
-    tick();
-  });
-}
 
 describe("createSerovalStorage", () => {
   let memory: MemoryStorage;
