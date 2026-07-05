@@ -63,12 +63,9 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 - **Acceptance:** CI `Test (Browser)` job runs Playwright green; `Test (SSR)` job runs a Next.js app green; both gated by `CI complete`. Co-locate fixtures under `tests-browser/` and `tests-ssr/` (outside `bun test ./src`'s scan, like `tests-dom/`).
 - **Lands:** `.github/workflows/ci.yml` + new test dirs; `docs/architecture.md` § Test matrix updated. No changeset (test-only).
 
-### 6. Migration-chain helper — Tier 4, M
+### 6. Migration-chain helper — ✅ shipped
 
-- **What:** a `createMigrationChain({ 0: fn, 1: fn, 2: fn })` helper (in `core/` or a `./codecs/`-style utility subpath) that walks v0→v1→…→current, feeding each step's output to the next, and produces a single `migrate` callback for `persistSource`.
-- **Why:** today `migrate` is a single callback receiving the stored version; multi-step v0→v1→v2 chaining is user-written and error-prone (off-by-one on the stored version, skipped steps).
-- **Acceptance:** helper ships with tests covering forward chaining + skip-from-older-than-chain + a throwing step; README recipe under "Recipes". Decide core vs subpath: if it stays zero-dep it can live in `core/`; if it needs no peer, a `core/` export is fine (no new subpath).
-- **Lands:** `src/core/persist-core.ts` (or a new utility) + JSDoc + README recipe. Changeset: `minor` (new public export).
+Shipped in `2e9247f` — `createMigrationChain` in `src/core/persist-core.ts` + README recipe + changeset. Options-bag API (`version` / `steps` / `onNewer` default throw / `onOlder` default discard), eager gap-validation, beyond TanStack `buster` (transforms, not discards).
 
 ### 7. React ergonomics layer — Tier 4, M-L
 
@@ -106,7 +103,7 @@ From audit Appendix B.3. Each is a one-line composition over an existing seam; s
 
 (#4 is implemented; pending first-release verification — strike once the npm Provenance badge lands.)
 
-1. **#1 (Query bridge) + #6 (migration-chain)** — M each, pure code, high adoption payoff, no deps. Best next pick.
+1. **#1 (Query bridge)** — M, pure code, high adoption payoff, no deps. Best next pick. (#6 migration-chain shipped.)
 2. **#5 (real-browser + SSR matrix)** — M, de-risks the hydration-critical paths before more surface lands.
 3. **#2 (examples/) → #3 (docs site) → #9 (playground)** — the docs/demo arc; sequence so each builds on the prior.
 4. **#7 (React ergonomics) + #8 (OPFS/SQLite/Cloudflare)** — strategic; decide ship-vs-recipe per item.
