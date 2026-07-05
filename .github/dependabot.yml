@@ -1,12 +1,23 @@
-# Keep GitHub Actions versions current. npm deps are managed via changesets
-# and `bun run check-updates`; dependabot only watches the workflow toolchain.
 version: 2
+
 updates:
-  - package-ecosystem: github-actions
-    directory: /
+  # npm — group devDep bumps so they land in one weekly PR (devDeps only;
+  # the package has no runtime deps). Peer deps are intentionally not bumped
+  # (their ranges are the public surface).
+  - package-ecosystem: npm
+    directory: "/"
     schedule:
-      interval: monthly
-    commit-message:
-      prefix: "chore(ci): "
-    labels:
-      - dependencies
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      dev-deps:
+        dependency-type: development
+
+  # GitHub Actions — keep the SHA-pinned actions current. Bumps the commit SHA
+  # (and the trailing `# vN` comment) so a pinned action's latest major stays
+  # tamper-resistant without manual tracking.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
