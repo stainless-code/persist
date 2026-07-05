@@ -21,13 +21,13 @@ export interface JotaiStore {
  * @example
  * ```ts
  * import { atom, createStore } from "jotai";
- * import { persistJotai } from "@stainless-code/persist/sources/jotai";
+ * import { persistAtom } from "@stainless-code/persist/sources/jotai";
  * const countAtom = atom(0);
  * const store = createStore();
- * const persist = persistJotai(store, countAtom, { name: "count" });
+ * const persist = persistAtom(store, countAtom, { name: "count" });
  * ```
  */
-export function persistJotai<TState, TPersistedState = TState>(
+export function persistAtom<TState, TPersistedState = TState>(
   store: JotaiStore,
   atom: WritableAtom<TState, [TState | ((prev: TState) => TState)], void>,
   options: PersistOptions<TState, TPersistedState>,

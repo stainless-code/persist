@@ -4,7 +4,7 @@ import type { WritableAtom } from "jotai";
 
 import { createJSONStorage } from "../../core/persist-core";
 import type { StateStorage } from "../../core/persist-core";
-import { persistJotai } from "./jotai";
+import { persistAtom } from "./jotai";
 
 class MemoryStorage implements StateStorage {
   private store = new Map<string, string>();
@@ -51,7 +51,7 @@ function createMockJotaiStore<T>(initialValue: T) {
     },
   };
   return {
-    store: store as Parameters<typeof persistJotai>[0],
+    store: store as Parameters<typeof persistAtom>[0],
     atom,
     listenerCount: () => listeners.size,
     getValue: () => value,
@@ -76,7 +76,7 @@ function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
   });
 }
 
-describe("persistJotai", () => {
+describe("persistAtom", () => {
   let memory: MemoryStorage;
 
   beforeEach(() => {
@@ -88,7 +88,7 @@ describe("persistJotai", () => {
     const jsonStorage = createJSONStorage<number>(() => memory)!;
     await jsonStorage.setItem("count-atom", { state: 7, version: 0 });
 
-    const persist = persistJotai(mock.store, mock.atom, {
+    const persist = persistAtom(mock.store, mock.atom, {
       name: "count-atom",
       storage: jsonStorage,
     });
@@ -103,7 +103,7 @@ describe("persistJotai", () => {
     expect(stored?.state).toBe(9);
 
     const fresh = createMockJotaiStore(0);
-    const rehydrate = persistJotai(fresh.store, fresh.atom, {
+    const rehydrate = persistAtom(fresh.store, fresh.atom, {
       name: "count-atom",
       storage: jsonStorage,
     });
@@ -115,7 +115,7 @@ describe("persistJotai", () => {
     const mock = createMockJotaiStore(0);
     const jsonStorage = createJSONStorage<number>(() => memory)!;
 
-    const persist = persistJotai(mock.store, mock.atom, {
+    const persist = persistAtom(mock.store, mock.atom, {
       name: "subscribe-atom",
       storage: jsonStorage,
     });

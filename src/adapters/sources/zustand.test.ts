@@ -4,7 +4,7 @@ import type { StoreApi } from "zustand";
 
 import { createJSONStorage } from "../../core/persist-core";
 import type { StateStorage } from "../../core/persist-core";
-import { persistZustand } from "./zustand";
+import { persistStore } from "./zustand";
 
 class MemoryStorage implements StateStorage {
   private store = new Map<string, string>();
@@ -65,7 +65,7 @@ function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
   });
 }
 
-describe("persistZustand", () => {
+describe("persistStore", () => {
   let memory: MemoryStorage;
 
   beforeEach(() => {
@@ -80,7 +80,7 @@ describe("persistZustand", () => {
       version: 0,
     });
 
-    const persist = persistZustand(store as StoreApi<{ count: number }>, {
+    const persist = persistStore(store as StoreApi<{ count: number }>, {
       name: "count-store",
       storage: jsonStorage,
     });
@@ -95,13 +95,10 @@ describe("persistZustand", () => {
     expect(stored?.state.count).toBe(8);
 
     const freshStore = createMockStore({ count: 0 });
-    const rehydrate = persistZustand(
-      freshStore as StoreApi<{ count: number }>,
-      {
-        name: "count-store",
-        storage: jsonStorage,
-      },
-    );
+    const rehydrate = persistStore(freshStore as StoreApi<{ count: number }>, {
+      name: "count-store",
+      storage: jsonStorage,
+    });
     await waitForHydration(rehydrate.hasHydrated);
     expect(freshStore.getState().count).toBe(8);
   });
@@ -110,7 +107,7 @@ describe("persistZustand", () => {
     const store = createMockStore({ count: 0 });
     const jsonStorage = createJSONStorage<{ count: number }>(() => memory)!;
 
-    const persist = persistZustand(store as StoreApi<{ count: number }>, {
+    const persist = persistStore(store as StoreApi<{ count: number }>, {
       name: "subscribe-store",
       storage: jsonStorage,
     });

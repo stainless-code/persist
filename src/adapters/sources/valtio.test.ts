@@ -20,7 +20,7 @@ mock.module("valtio", () => ({
 }));
 
 const { createJSONStorage } = await import("../../core/persist-core");
-const { persistValtio } = await import("./valtio");
+const { persistProxy } = await import("./valtio");
 
 class MemoryStorage implements StateStorage {
   private store = new Map<string, string>();
@@ -81,7 +81,7 @@ function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
   });
 }
 
-describe("persistValtio", () => {
+describe("persistProxy", () => {
   let memory: MemoryStorage;
 
   beforeEach(() => {
@@ -96,7 +96,7 @@ describe("persistValtio", () => {
       version: 0,
     });
 
-    const persist = persistValtio(proxy, {
+    const persist = persistProxy(proxy, {
       name: "count-proxy",
       storage: jsonStorage,
     });
@@ -111,7 +111,7 @@ describe("persistValtio", () => {
     expect(stored?.state.count).toBe(8);
 
     const freshProxy = createMockProxy({ count: 0 });
-    const rehydrate = persistValtio(freshProxy, {
+    const rehydrate = persistProxy(freshProxy, {
       name: "count-proxy",
       storage: jsonStorage,
     });
@@ -123,7 +123,7 @@ describe("persistValtio", () => {
     const proxy = createMockProxy({ count: 0 });
     const jsonStorage = createJSONStorage<{ count: number }>(() => memory)!;
 
-    const persist = persistValtio(proxy, {
+    const persist = persistProxy(proxy, {
       name: "subscribe-proxy",
       storage: jsonStorage,
     });

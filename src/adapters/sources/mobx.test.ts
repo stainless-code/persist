@@ -17,7 +17,7 @@ mock.module("mobx", () => ({
 }));
 
 const { createJSONStorage } = await import("../../core/persist-core");
-const { persistMobx } = await import("./mobx");
+const { persistObservable } = await import("./mobx");
 
 class MemoryStorage implements StateStorage {
   private store = new Map<string, string>();
@@ -78,7 +78,7 @@ function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
   });
 }
 
-describe("persistMobx", () => {
+describe("persistObservable", () => {
   let memory: MemoryStorage;
 
   beforeEach(() => {
@@ -93,7 +93,7 @@ describe("persistMobx", () => {
       version: 0,
     });
 
-    const persist = persistMobx(observable, {
+    const persist = persistObservable(observable, {
       name: "count-observable",
       storage: jsonStorage,
     });
@@ -108,7 +108,7 @@ describe("persistMobx", () => {
     expect(stored?.state.count).toBe(8);
 
     const freshObservable = createMockObservable({ count: 0 });
-    const rehydrate = persistMobx(freshObservable, {
+    const rehydrate = persistObservable(freshObservable, {
       name: "count-observable",
       storage: jsonStorage,
     });
@@ -120,7 +120,7 @@ describe("persistMobx", () => {
     const observable = createMockObservable({ count: 0 });
     const jsonStorage = createJSONStorage<{ count: number }>(() => memory)!;
 
-    const persist = persistMobx(observable, {
+    const persist = persistObservable(observable, {
       name: "subscribe-observable",
       storage: jsonStorage,
     });

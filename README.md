@@ -412,10 +412,10 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 | `@stainless-code/persist/backends/node-fs`        | `nodeFsStateStorage` (one file per key)                                                                                 | none (Node built-in)                        |
 | `@stainless-code/persist/transport/crosstab`      | `createBroadcastCrossTab`                                                                                               | none (web global)                           |
 | `@stainless-code/persist/sources/tanstack-store`  | `persistStore`, `persistAtom`                                                                                           | `@tanstack/store` (types only)              |
-| `@stainless-code/persist/sources/zustand`         | `persistZustand`                                                                                                        | `zustand`                                   |
-| `@stainless-code/persist/sources/jotai`           | `persistJotai`                                                                                                          | `jotai`                                     |
-| `@stainless-code/persist/sources/valtio`          | `persistValtio`                                                                                                         | `valtio`                                    |
-| `@stainless-code/persist/sources/mobx`            | `persistMobx`                                                                                                           | `mobx`                                      |
+| `@stainless-code/persist/sources/zustand`         | `persistStore`                                                                                                          | `zustand`                                   |
+| `@stainless-code/persist/sources/jotai`           | `persistAtom`                                                                                                           | `jotai`                                     |
+| `@stainless-code/persist/sources/valtio`          | `persistProxy`                                                                                                          | `valtio`                                    |
+| `@stainless-code/persist/sources/mobx`            | `persistObservable`                                                                                                     | `mobx`                                      |
 | `@stainless-code/persist/frameworks/react`        | `useHydrated` React hook                                                                                                | `react`                                     |
 | `@stainless-code/persist/frameworks/solid`        | `useHydrated` (Solid `Accessor<boolean>`)                                                                               | `solid-js`                                  |
 | `@stainless-code/persist/frameworks/vue`          | `useHydrated` (Vue `Ref<boolean>`)                                                                                      | `vue`                                       |
@@ -677,17 +677,17 @@ persistStore(store, {
 
 ### Wrapping your store
 
-Every shipped source adapter is a thin `persistSource` wrapper — import the subpath, pass your store, wire storage. Redux, signals, hand-rolled atoms: same seam.
+Every shipped source adapter is a thin `persistSource` wrapper — import the subpath, pass your store, wire storage. **Naming is shape-based, not library-based** (`persistStore` / `persistAtom` / `persistProxy` / `persistObservable`): same persistable shape → same name → same merge semantics, regardless of library; the subpath carries the library. Importing two same-shape adapters into one module? Alias one: `import { persistStore as persistZustand } from "@stainless-code/persist/sources/zustand"`. Redux, signals, hand-rolled atoms: same seam — pass a custom `PersistableSource` to `persistSource` directly.
 
 **zustand**
 
 ```ts
 import { create } from "zustand";
 import { createJSONStorage } from "@stainless-code/persist";
-import { persistZustand } from "@stainless-code/persist/sources/zustand";
+import { persistStore } from "@stainless-code/persist/sources/zustand";
 
 const usePrefs = create(() => ({ theme: "light" as const }));
-const persist = persistZustand(usePrefs, {
+const persist = persistStore(usePrefs, {
   name: "app:prefs:v1",
   storage: createJSONStorage(() => localStorage),
 });
@@ -700,11 +700,11 @@ Or pass a custom `PersistableSource` to `persistSource` directly — the adapter
 ```ts
 import { atom, createStore } from "jotai";
 import { createJSONStorage } from "@stainless-code/persist";
-import { persistJotai } from "@stainless-code/persist/sources/jotai";
+import { persistAtom } from "@stainless-code/persist/sources/jotai";
 
 const store = createStore();
 const themeAtom = atom<"light" | "dark">("light");
-const persist = persistJotai(store, themeAtom, {
+const persist = persistAtom(store, themeAtom, {
   name: "app:theme:v1",
   storage: createJSONStorage(() => localStorage),
 });
@@ -717,10 +717,10 @@ Or pass a custom `PersistableSource` to `persistSource` directly — the adapter
 ```ts
 import { proxy } from "valtio";
 import { createJSONStorage } from "@stainless-code/persist";
-import { persistValtio } from "@stainless-code/persist/sources/valtio";
+import { persistProxy } from "@stainless-code/persist/sources/valtio";
 
 const prefs = proxy({ theme: "light" as const });
-const persist = persistValtio(prefs, {
+const persist = persistProxy(prefs, {
   name: "app:prefs:v1",
   storage: createJSONStorage(() => localStorage),
 });
@@ -733,10 +733,10 @@ Or pass a custom `PersistableSource` to `persistSource` directly — the adapter
 ```ts
 import { observable } from "mobx";
 import { createJSONStorage } from "@stainless-code/persist";
-import { persistMobx } from "@stainless-code/persist/sources/mobx";
+import { persistObservable } from "@stainless-code/persist/sources/mobx";
 
 const prefs = observable.object({ theme: "light" as const });
-const persist = persistMobx(prefs, {
+const persist = persistObservable(prefs, {
   name: "app:prefs:v1",
   storage: createJSONStorage(() => localStorage),
 });

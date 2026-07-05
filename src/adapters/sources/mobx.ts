@@ -11,12 +11,15 @@ import { persistSource } from "../../core/persist-core";
  * @example
  * ```ts
  * import { observable } from "mobx";
- * import { persistMobx } from "@stainless-code/persist/sources/mobx";
+ * import { persistObservable } from "@stainless-code/persist/sources/mobx";
  * const state = observable.object({ count: 0 });
- * const persist = persistMobx(state, { name: "count" });
+ * const persist = persistObservable(state, { name: "count" });
  * ```
  */
-export function persistMobx<TState extends object, TPersistedState = TState>(
+export function persistObservable<
+  TState extends object,
+  TPersistedState = TState,
+>(
   observable: TState,
   options: PersistOptions<TState, TPersistedState>,
 ): PersistApi<TState, TPersistedState> {

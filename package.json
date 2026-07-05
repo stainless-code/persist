@@ -1,7 +1,7 @@
 {
   "name": "@stainless-code/persist",
   "version": "0.1.1",
-  "description": "Hydration-aware persistence middleware for any reactive store — pluggable storage × codec seams, cross-tab sync, and React/Solid/Vue/Svelte hydration adapters",
+  "description": "Hydration-aware persistence for any reactive store — zero-dep persistSource core; codecs, backends, cross-tab transport, source + framework hydration adapters ship as opt-in recipes",
   "keywords": [
     "broadcastchannel",
     "codec",

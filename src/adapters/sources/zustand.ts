@@ -11,12 +11,12 @@ import { persistSource } from "../../core/persist-core";
  * @example
  * ```ts
  * import { create } from "zustand";
- * import { persistZustand } from "@stainless-code/persist/sources/zustand";
+ * import { persistStore } from "@stainless-code/persist/sources/zustand";
  * const store = create(() => ({ count: 0 }));
- * const persist = persistZustand(store, { name: "count", storage: createJSONStorage(() => localStorage) });
+ * const persist = persistStore(store, { name: "count", storage: createJSONStorage(() => localStorage) });
  * ```
  */
-export function persistZustand<TState, TPersistedState = TState>(
+export function persistStore<TState, TPersistedState = TState>(
   store: StoreApi<TState>,
   options: PersistOptions<TState, TPersistedState>,
 ): PersistApi<TState, TPersistedState> {

@@ -53,7 +53,7 @@ No barrel — importing a subpath is the dependency opt-in. Each subpath entry o
   - `codecs/` — `StorageCodec` adapters (seroval, zod)
   - `backends/` — `StateStorage` adapters + wrappers (idb, async-storage, mmkv, secure-store, encrypted, compressed, node-fs)
   - `transport/` — `CrossTabEventTarget` adapters (crosstab — BroadcastChannel bridge)
-  - `sources/` — `PersistableSource` adapters (tanstack-store, zustand, jotai, valtio, mobx)
+  - `sources/` — `PersistableSource` adapters (tanstack-store, zustand, jotai, valtio, mobx). Shape-named, not library-named — same persistable shape → same name → same merge semantics; the subpath carries the library. Alias when importing two same-shape adapters into one module.
   - `frameworks/` — `HydrationSignal` framework adapters (react, solid, vue, svelte, svelte-store, angular, preact)
 
 A per-entry self-check test pins the invariant: every adapter's relative imports resolve into `core/` (no cross-adapter coupling). `dist/` mirrors `src/` (`dist/<seam>/<name>.mjs` via tsdown's record-form `entry` keyed by `<seam>/<name>`) — src folder → tsdown key → dist path → subpath, all 1:1.

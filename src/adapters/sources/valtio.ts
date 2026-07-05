@@ -11,12 +11,12 @@ import { persistSource } from "../../core/persist-core";
  * @example
  * ```ts
  * import { proxy } from "valtio";
- * import { persistValtio } from "@stainless-code/persist/sources/valtio";
+ * import { persistProxy } from "@stainless-code/persist/sources/valtio";
  * const state = proxy({ count: 0 });
- * const persist = persistValtio(state, { name: "count" });
+ * const persist = persistProxy(state, { name: "count" });
  * ```
  */
-export function persistValtio<TState extends object, TPersistedState = TState>(
+export function persistProxy<TState extends object, TPersistedState = TState>(
   proxyObject: TState,
   options: PersistOptions<TState, TPersistedState>,
 ): PersistApi<TState, TPersistedState> {
