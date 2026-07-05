@@ -63,10 +63,6 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 - **Acceptance:** CI `Test (Browser)` job runs Playwright green; `Test (SSR)` job runs a Next.js app green; both gated by `CI complete`. Co-locate fixtures under `tests-browser/` and `tests-ssr/` (outside `bun test ./src`'s scan, like `tests-dom/`).
 - **Lands:** `.github/workflows/ci.yml` + new test dirs; `docs/architecture.md` § Test matrix updated. No changeset (test-only).
 
-### 6. Migration-chain helper — ✅ shipped
-
-Shipped in `2e9247f` — `createMigrationChain` in `src/core/persist-core.ts` + README recipe + changeset. Options-bag API (`version` / `steps` / `onNewer` default throw / `onOlder` default discard), eager gap-validation, beyond TanStack `buster` (transforms, not discards).
-
 ### 7. React ergonomics layer — Tier 4, M-L
 
 - **What:** a `./frameworks/react` ergonomics companion (or a new `./frameworks/react-context` subpath) — `<PersistProvider>` + React context + `usePersisted(store, selector)` selector binding + auto-`destroy()` on unmount. The existing `useHydrated` stays the reference primitive.
@@ -103,7 +99,7 @@ From audit Appendix B.3. Each is a one-line composition over an existing seam; s
 
 (#4 is implemented; pending first-release verification — strike once the npm Provenance badge lands.)
 
-1. **#1 (Query bridge)** — M, pure code, high adoption payoff, no deps. Best next pick. (#6 migration-chain shipped.)
+1. **#1 (Query bridge)** — M, pure code, high adoption payoff, no deps. Best next pick.
 2. **#5 (real-browser + SSR matrix)** — M, de-risks the hydration-critical paths before more surface lands.
 3. **#2 (examples/) → #3 (docs site) → #9 (playground)** — the docs/demo arc; sequence so each builds on the prior.
 4. **#7 (React ergonomics) + #8 (OPFS/SQLite/Cloudflare)** — strategic; decide ship-vs-recipe per item.

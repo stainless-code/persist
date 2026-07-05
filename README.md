@@ -680,9 +680,8 @@ persistStore(store, {
 ```ts
 import { createMigrationChain } from "@stainless-code/persist";
 
-// Per-version steps: steps[N] takes vN → v(N+1). The chain walks from the
-// stored version to the current one, awaiting each step. Drop support for
-// old versions by starting the chain at a higher key (onOlder discards).
+// steps[N] takes vN → v(N+1). Start at a higher key to drop support for
+// old versions (onOlder discards by default).
 const migrate = createMigrationChain<Prefs>({
   version: 3,
   steps: {
