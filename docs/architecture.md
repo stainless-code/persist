@@ -81,12 +81,12 @@ One API. Sync backends (localStorage) settle hydration before first paint; async
 
 Two runners, split by what they need:
 
-| Runner                                    | Scope                     | Pattern            | Why                                                                                                                         |
-| ----------------------------------------- | ------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `bun:test`                                | `src/**/*.test.ts`        | `bun test ./src`   | No DOM — fast unit tests for the core, codecs, backends, TanStack adapters, and `useHydrated` SSR/snapshot contracts.       |
-| `vitest` + jsdom + @testing-library/react | `tests-dom/**/*.test.tsx` | `bun run test:dom` | The React `useHydrated` rerender + unmount-detach path needs a DOM + a client renderer (`useSyncExternalStore` reactivity). |
+| Runner                                    | Scope                     | Pattern            | Why                                                                                                                                    |
+| ----------------------------------------- | ------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `bun:test`                                | `src/**/*.test.ts`        | `bun test ./src`   | No DOM — fast unit tests for the core, codecs, backends, transport, source + framework adapters, and hydration SSR/snapshot contracts. |
+| `vitest` + jsdom + @testing-library/react | `tests-dom/**/*.test.tsx` | `bun run test:dom` | The React `useHydrated` rerender + unmount-detach path needs a DOM + a client renderer (`useSyncExternalStore` reactivity).            |
 
-The split is structural — `tests-dom/` is a top-level directory outside `bun test ./src`'s scan, so the two runners never pick up the same file. `check` runs both in parallel; CI runs them as separate jobs (`Test`, `Test (DOM)`) gated by the single `CI complete` job. The bun suite's `use-hydrated.test.ts` header documents which contracts it pins and which it deliberately leaves to the vitest suite.
+The split is structural — `tests-dom/` is a top-level directory outside `bun test ./src`'s scan, so the two runners never pick up the same file. `check` runs both in parallel; CI runs them as separate jobs (`Test`, `Test (DOM)`) gated by the single `CI complete` job. The bun suite's `src/adapters/frameworks/react.test.ts` header documents which contracts it pins and which it deliberately leaves to the vitest suite.
 
 ## Reference
 

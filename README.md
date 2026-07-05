@@ -829,12 +829,12 @@ export function hydratedRune(signal: HydrationSignal | null) {
 
 ## Compatibility
 
-| Runtime / dep   | Supported range         |
-| --------------- | ----------------------- |
-| Node            | ^20.19.0 \|\| >=22.12.0 |
-| Bun             | >=1.0.0                 |
-| React           | ^18.0.0 \|\| ^19.0.0    |
-| @tanstack/store | >=0.10.0                |
+| Runtime | Supported range         |
+| ------- | ----------------------- |
+| Node    | ^20.19.0 \|\| >=22.12.0 |
+| Bun     | >=1.0.0                 |
+
+Optional peer ranges (frameworks, stores, codecs, backends) live in `package.json` `peerDependencies` — import only the subpaths you use.
 
 ## FAQ
 
