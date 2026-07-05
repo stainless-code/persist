@@ -675,6 +675,25 @@ persistStore(store, {
 });
 ```
 
+### Migration chain
+
+```ts
+import { createMigrationChain } from "@stainless-code/persist";
+
+// Per-version steps: steps[N] takes vN → v(N+1). The chain walks from the
+// stored version to the current one, awaiting each step. Drop support for
+// old versions by starting the chain at a higher key (onOlder discards).
+const migrate = createMigrationChain<Prefs>({
+  version: 3,
+  steps: {
+    0: (s) => ({ ...s, theme: "light" }),
+    1: (s) => ({ ...s, filters: [] }),
+    2: (s) => ({ ...s, layout: "grid" }),
+  },
+});
+persistStore(store, { name: "app:prefs:v3", version: 3, storage, migrate });
+```
+
 ### Wrapping your store
 
 Every shipped source adapter is a thin `persistSource` wrapper — import the subpath, pass your store, wire storage. **Naming is shape-based, not library-based** (`persistStore` / `persistAtom` / `persistProxy` / `persistObservable`): same persistable shape → same name → same merge semantics, regardless of library; the subpath carries the library. Importing two same-shape adapters into one module? Alias one: `import { persistStore as persistZustand } from "@stainless-code/persist/sources/zustand"`. Redux, signals, hand-rolled atoms: same seam — pass a custom `PersistableSource` to `persistSource` directly.

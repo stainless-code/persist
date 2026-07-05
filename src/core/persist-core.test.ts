@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { MemoryStorage } from "../testing/memory-storage";
 import {
   createJSONStorage,
+  createMigrationChain,
   createPersistRegistry,
   createStorage,
   identityCodec,
@@ -2052,5 +2053,230 @@ describe("PersistRegistry", () => {
     // An unrelated registry clearAll must not touch the unregistered store.
     await registry.clearAll();
     expect(await jsonStorage.getItem("no-registry")).not.toBeNull();
+  });
+});
+
+describe("createMigrationChain", () => {
+  it("walks every step from the stored version to the current one", async () => {
+    const migrate = createMigrationChain<{
+      count?: number;
+      theme?: string;
+      filters?: string[];
+      layout?: string;
+    }>({
+      version: 3,
+      steps: {
+        0: (s) => ({ ...s, theme: "light" }),
+        1: (s) => ({ ...s, filters: [] }),
+        2: (s) => ({ ...s, layout: "grid" }),
+      },
+    });
+    // v0 payload → runs all three steps in order.
+    expect(await migrate({ count: 7 }, 0)).toEqual({
+      count: 7,
+      theme: "light",
+      filters: [],
+      layout: "grid",
+    });
+  });
+
+  it("runs only the steps from the stored version onward (partial walk)", async () => {
+    const migrate = createMigrationChain<{
+      count?: number;
+      theme?: string;
+      filters?: string[];
+      layout?: string;
+    }>({
+      version: 3,
+      steps: {
+        0: (s) => ({ ...s, theme: "light" }),
+        1: (s) => ({ ...s, filters: [] }),
+        2: (s) => ({ ...s, layout: "grid" }),
+      },
+    });
+    // v2 payload → only steps[2] runs.
+    expect(
+      await migrate({ count: 7, theme: "dark", filters: ["x"] }, 2),
+    ).toEqual({ count: 7, theme: "dark", filters: ["x"], layout: "grid" });
+  });
+
+  it("awaits async steps sequentially", async () => {
+    const order: number[] = [];
+    const migrate = createMigrationChain<{ v?: number }>({
+      version: 3,
+      steps: {
+        0: async (s) => {
+          await new Promise((r) => setTimeout(r, 5));
+          order.push(0);
+          return { ...s, v: 1 };
+        },
+        1: async (s) => {
+          order.push(1);
+          return { ...s, v: 2 };
+        },
+        2: async (s) => {
+          order.push(2);
+          return { ...s, v: 3 };
+        },
+      },
+    });
+    await migrate({}, 0);
+    expect(order).toEqual([0, 1, 2]);
+  });
+
+  it("discards (returns undefined) when the stored version is older than the chain's earliest step", async () => {
+    const migrate = createMigrationChain<{ x?: number }>({
+      version: 3,
+      steps: { 2: (s) => ({ ...s, x: 1 }) }, // minKey=2 → v0/v1 unsupported
+    });
+    expect(await migrate({ count: 7 }, 0)).toBeUndefined();
+  });
+
+  it("onOlder: 'throw' → migrate throws", async () => {
+    const migrate = createMigrationChain<{ x?: number }>({
+      version: 3,
+      steps: { 2: (s) => ({ ...s, x: 1 }) },
+      onOlder: "throw",
+    });
+    await expect(migrate({}, 0)).rejects.toThrow(
+      /older than the chain's earliest/,
+    );
+  });
+
+  it("onNewer: default 'throw' when the stored version is newer than current", async () => {
+    const migrate = createMigrationChain<{ x?: number }>({
+      version: 3,
+      steps: { 0: (s) => s, 1: (s) => s, 2: (s) => s },
+    });
+    await expect(migrate({}, 5)).rejects.toThrow(/newer than current 3/);
+  });
+
+  it("onNewer: 'discard' → returns undefined", async () => {
+    const migrate = createMigrationChain<{ x?: number }>({
+      version: 3,
+      steps: { 0: (s) => s, 1: (s) => s, 2: (s) => s },
+      onNewer: "discard",
+    });
+    expect(await migrate({}, 5)).toBeUndefined();
+  });
+
+  it("propagates a throwing step", async () => {
+    const migrate = createMigrationChain<{ x?: number }>({
+      version: 2,
+      steps: {
+        0: (s) => s,
+        1: () => {
+          throw new Error("bad step");
+        },
+      },
+    });
+    await expect(migrate({}, 0)).rejects.toThrow("bad step");
+  });
+
+  it("eagerly throws at construction on a gap in the covered range", () => {
+    expect(() =>
+      createMigrationChain<{ x?: number }>({
+        version: 3,
+        steps: { 0: (s) => s, 2: (s) => s }, // missing 1
+      }),
+    ).toThrow(/missing migration step from v1/);
+  });
+
+  it("eagerly throws at construction on an out-of-range step key", () => {
+    expect(() =>
+      createMigrationChain<{ x?: number }>({
+        version: 3,
+        steps: { 0: (s) => s, 1: (s) => s, 2: (s) => s, 3: (s) => s }, // 3 >= version
+      }),
+    ).toThrow(/out of range/);
+  });
+
+  it("eagerly throws at construction on a non-integer / negative version", () => {
+    expect(() => createMigrationChain({ version: 2.5, steps: {} })).toThrow(
+      /non-negative integer/,
+    );
+    expect(() => createMigrationChain({ version: -1, steps: {} })).toThrow(
+      /non-negative integer/,
+    );
+  });
+
+  it("end-to-end: a v0 payload hydrates through the chain to the current version", async () => {
+    const memory = new MemoryStorage();
+    const jsonStorage = createJSONStorage<{
+      theme?: string;
+      filters?: string[];
+    }>(() => memory)!;
+    await jsonStorage.setItem("prefs", {
+      state: { theme: "dark" },
+      version: 0,
+    });
+
+    const source = createMockSource({ theme: "light", filters: ["default"] });
+    const persist = persistSource(source, {
+      name: "prefs",
+      version: 2,
+      storage: jsonStorage,
+      migrate: createMigrationChain<{ theme?: string; filters?: string[] }>({
+        version: 2,
+        steps: {
+          0: (s) => ({ ...s, theme: "light" }),
+          1: (s) => ({ ...s, filters: [] }),
+        },
+      }),
+    });
+    await waitForHydration(persist.hasHydrated);
+    expect(source.state).toEqual({ theme: "light", filters: [] });
+    // The migrated state writes back at the current version.
+    expect((await jsonStorage.getItem("prefs"))?.version).toBe(2);
+  });
+
+  it("end-to-end: onOlder discard keeps the initial state (no onError)", async () => {
+    const memory = new MemoryStorage();
+    const jsonStorage = createJSONStorage<{ x?: number }>(() => memory)!;
+    await jsonStorage.setItem("dropped", { state: { x: 7 }, version: 0 });
+
+    const errors: Array<{ phase: string }> = [];
+    const source = createMockSource({ x: 99 });
+    const persist = persistSource(source, {
+      name: "dropped",
+      version: 3,
+      storage: jsonStorage,
+      migrate: createMigrationChain<{ x?: number }>({
+        version: 3,
+        steps: { 2: (s) => s }, // minKey=2 → v0 unsupported
+      }),
+      onError: (_e, ctx) => errors.push({ phase: ctx.phase }),
+    });
+    await waitForHydration(persist.hasHydrated);
+    // Discarded → keeps initial state, no error reported.
+    expect(source.state).toEqual({ x: 99 });
+    expect(errors).toEqual([]);
+  });
+
+  it("end-to-end: a throwing step routes to onError phase 'migrate'", async () => {
+    const memory = new MemoryStorage();
+    const jsonStorage = createJSONStorage<{ x?: number }>(() => memory)!;
+    await jsonStorage.setItem("bad-step", { state: { x: 1 }, version: 0 });
+
+    const errors: Array<{ phase: string; message: string }> = [];
+    const source = createMockSource({ x: 0 });
+    const persist = persistSource(source, {
+      name: "bad-step",
+      version: 2,
+      storage: jsonStorage,
+      migrate: createMigrationChain<{ x?: number }>({
+        version: 2,
+        steps: {
+          0: (s) => s,
+          1: () => {
+            throw new Error("bad step");
+          },
+        },
+      }),
+      onError: (e, ctx) =>
+        errors.push({ phase: ctx.phase, message: (e as Error).message }),
+    });
+    await waitForHydration(persist.hasHydrated);
+    expect(errors).toContainEqual({ phase: "migrate", message: "bad step" });
   });
 });

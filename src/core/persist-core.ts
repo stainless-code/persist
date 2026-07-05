@@ -399,6 +399,121 @@ export function createPersistRegistry(): PersistRegistry {
 }
 
 /**
+ * Options for {@link createMigrationChain}.
+ */
+export interface CreateMigrationChainOptions<S> {
+  /** Current schema version — must equal {@link PersistOptions.version}. */
+  version: number;
+  /**
+   * Per-version migration steps, keyed by the version each step transforms
+   * *from*: `steps[N]` takes vN state → v(N+1). The covered range
+   * `[minKey, version-1]` must be gap-free (validated eagerly at
+   * construction); `minKey > 0` drops support for older versions. Each
+   * step may be sync or Promise.
+   */
+  steps: Record<number, (state: S) => S | Promise<S>>;
+  /**
+   * Stored payload's version is *newer* than {@link version} (a downgrade).
+   * `"throw"` (default) → the returned `migrate` throws → persist-core
+   * routes it to `onError` phase `"migrate"`. `"discard"` → `migrate`
+   * resolves `undefined` → hydrate keeps the current/initial state.
+   */
+  onNewer?: "discard" | "throw";
+  /**
+   * Stored payload's version is older than the chain's earliest step
+   * (`minKey > 0` — you dropped support for that version). `"discard"`
+   * (default) → hydrate keeps the current/initial state. `"throw"` →
+   * `onError` phase `"migrate"`.
+   */
+  onOlder?: "discard" | "throw";
+}
+
+/**
+ * Build a `migrate` callback from a per-version step chain. The returned
+ * function walks `steps[fromVersion]` → `steps[fromVersion+1]` → … →
+ * `steps[version-1]`, awaiting each, so a payload at any supported older
+ * version migrates to the current one. Plug it straight into
+ * {@link PersistOptions.migrate}.
+ *
+ * Beyond TanStack Persist's `buster` (which discards on mismatch) — this
+ * transforms instead. The chain is validated eagerly at construction: a
+ * gap in the covered range, an out-of-range key, or a non-integer version
+ * throws now, not on a payload months later.
+ *
+ * @example
+ * ```ts
+ * import { createMigrationChain } from "@stainless-code/persist";
+ * import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+ *
+ * const migrate = createMigrationChain<Prefs>({
+ *   version: 3,
+ *   steps: {
+ *     0: (s) => ({ ...s, theme: "light" }),
+ *     1: (s) => ({ ...s, filters: [] }),
+ *     2: (s) => ({ ...s, layout: "grid" }),
+ *   },
+ * });
+ * persistStore(store, { name: "app:prefs:v3", version: 3, migrate });
+ * ```
+ */
+export function createMigrationChain<S>(
+  options: CreateMigrationChainOptions<S>,
+): (state: unknown, fromVersion: number) => Promise<S> {
+  const { version, steps, onNewer = "throw", onOlder = "discard" } = options;
+
+  if (!Number.isInteger(version) || version < 0) {
+    throw new Error(
+      `[createMigrationChain] version must be a non-negative integer, got ${version}`,
+    );
+  }
+
+  const fromKeys = Object.keys(steps)
+    .map(Number)
+    .filter((n) => Number.isInteger(n))
+    .sort((a, b) => a - b);
+  for (const from of fromKeys) {
+    if (from < 0 || from >= version) {
+      throw new Error(
+        `[createMigrationChain] step key ${from} is out of range [0, ${version - 1}]`,
+      );
+    }
+  }
+  // The covered range is [minKey, version-1]; no gaps within it.
+  const minKey = fromKeys.length ? fromKeys[0] : 0;
+  for (let from = minKey; from < version; from++) {
+    if (typeof steps[from] !== "function") {
+      throw new Error(
+        `[createMigrationChain] missing migration step from v${from} (gap in [${minKey}, ${version - 1}])`,
+      );
+    }
+  }
+
+  return async (state, fromVersion) => {
+    if (fromVersion > version) {
+      if (onNewer === "throw") {
+        throw new Error(
+          `[createMigrationChain] stored version ${fromVersion} is newer than current ${version} (downgrade not supported)`,
+        );
+      }
+      return undefined as unknown as S;
+    }
+    if (fromVersion < minKey) {
+      if (onOlder === "throw") {
+        throw new Error(
+          `[createMigrationChain] stored version ${fromVersion} is older than the chain's earliest supported v${minKey}`,
+        );
+      }
+      return undefined as unknown as S;
+    }
+    let current = state as S;
+    for (let from = fromVersion; from < version; from++) {
+      current = await steps[from](current);
+    }
+    return current;
+  };
+}
+
+/**
  * JSON codec — no `Set` / `Map` / `Date` round-trip. Accepts the standard
  * `JSON.parse` reviver / `JSON.stringify` replacer.
  */
