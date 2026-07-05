@@ -15,9 +15,9 @@ on:
     branches:
       - main
 
-# Least privilege: every CI job is read-only (no repo writes). The Release
-# workflow carries its own elevated `permissions` (contents / pull-requests /
-# id-token) — this default does not extend to it.
+# CI jobs are read-only; the Release workflow carries its own elevated
+# `permissions` (contents / pull-requests / id-token) — this default doesn't
+# extend to it.
 permissions:
   contents: read
 
