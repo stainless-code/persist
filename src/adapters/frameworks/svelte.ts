@@ -1,4 +1,4 @@
-// Svelte 5 (runes) hydration adapter — peer `svelte` >=5.0.0. Svelte 4 (pre-runes): `./frameworks/svelte-store`.
+// Svelte 5 (runes) hydration adapter — peer `svelte` >=5.7.0 (`createSubscriber` from `svelte/reactivity` landed in 5.7). Svelte 4 (pre-runes): `./frameworks/svelte-store`.
 import { createSubscriber } from "svelte/reactivity";
 
 import type { HydrationSignal } from "../../core/hydration";

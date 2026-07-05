@@ -1,4 +1,4 @@
-// Compressed storage wrapper — no peer dep (`CompressionStream`/`DecompressionStream` are web globals, browsers + Node 18+). String-wire backends; output is base64.
+// Compressed storage wrapper — no peer dep (`CompressionStream`/`DecompressionStream` are web globals, browsers + Node 18+ for gzip/deflate; Node 20.12+ for `deflate-raw`). String-wire backends; output is base64.
 import type { StateStorage } from "../../core/persist-core";
 
 export type CompressionFormat = "gzip" | "deflate" | "deflate-raw";

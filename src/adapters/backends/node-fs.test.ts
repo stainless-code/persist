@@ -63,7 +63,9 @@ describe("nodeFsStateStorage", () => {
     try {
       const storage = nodeFsStateStorage({ dir });
       await storage.setItem("k", "v");
-      expect(await readFile(join(dir, "k"), "utf8")).toBe("v");
+      const file = (await readdir(dir)).find((f) => f.startsWith("k."));
+      expect(file).toBeTruthy();
+      expect(await readFile(join(dir, file!), "utf8")).toBe("v");
       expect(await storage.getItem("k")).toBe("v");
     } finally {
       await rm(base, { recursive: true, force: true });
@@ -76,8 +78,25 @@ describe("nodeFsStateStorage", () => {
       const storage = nodeFsStateStorage({ dir });
       await storage.setItem("app:prefs:v1", "prefs");
       const files = await readdir(dir);
-      expect(files).toContain("app_prefs_v1");
+      // Filename = sanitized segment + hash suffix (collision-resistant).
+      expect(files.find((f) => f.startsWith("app_prefs_v1."))).toBeTruthy();
       expect(await storage.getItem("app:prefs:v1")).toBe("prefs");
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("distinct keys that sanitize to the same segment don't collide", async () => {
+    const dir = await tempDir();
+    try {
+      const storage = nodeFsStateStorage({ dir });
+      await storage.setItem("app:prefs", "a");
+      await storage.setItem("app_prefs", "b");
+      const files = await readdir(dir);
+      // Both sanitize to `app_prefs` but the hash suffix keeps them distinct.
+      expect(files.length).toBe(2);
+      expect(await storage.getItem("app:prefs")).toBe("a");
+      expect(await storage.getItem("app_prefs")).toBe("b");
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

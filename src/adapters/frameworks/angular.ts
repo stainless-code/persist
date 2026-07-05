@@ -24,6 +24,10 @@ export function useHydrated(
   if (!signalSource) return alwaysTrue;
   const hydrated = signal(signalSource.isHydrated());
   effect((onCleanup) => {
+    // `effect()` runs after the current change-detection cycle, so a hydration
+    // transition between signal creation and effect attach would leave the
+    // signal stale. Re-read at attach time to close that gap.
+    hydrated.set(signalSource.isHydrated());
     const unsubscribe = signalSource.subscribeHydrated(() => {
       hydrated.set(signalSource.isHydrated());
     });

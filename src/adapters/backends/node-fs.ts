@@ -9,6 +9,16 @@ export interface NodeFsStorageOptions {
   dir: string;
 }
 
+// djb2 — a short, dependency-free hash. Appended to the sanitized filename so
+// distinct keys that sanitize to the same segment (e.g. `app:prefs` and
+// `app_prefs`) don't collide on one file. Not cryptographic; sufficient for
+// app-defined store names.
+const hashKey = (s: string): string => {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = (h * 33) ^ s.charCodeAt(i);
+  return (h >>> 0).toString(16);
+};
+
 /**
  * Node `fs` storage backend — one file per key under `dir` (async `fs.promises`).
  * Keys are sanitized to filename-safe segments (`app:prefs:v1` → `app_prefs_v1`).
@@ -37,7 +47,7 @@ export function nodeFsStateStorage(
         `[nodeFsStateStorage] key "${name}" sanitizes to "${safe}" — refusing to resolve outside dir`,
       );
     }
-    return join(dir, safe);
+    return join(dir, `${safe}.${hashKey(name)}`);
   };
 
   return {

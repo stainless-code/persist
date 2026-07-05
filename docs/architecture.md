@@ -37,7 +37,7 @@ Persistence is bound to a structural `PersistableSource` (`getState` / `setState
 | `@stainless-code/persist/frameworks/react`        | `adapters/frameworks/react`                 | `react`                                       |
 | `@stainless-code/persist/frameworks/solid`        | `adapters/frameworks/solid`                 | `solid-js`                                    |
 | `@stainless-code/persist/frameworks/vue`          | `adapters/frameworks/vue`                   | `vue`                                         |
-| `@stainless-code/persist/frameworks/svelte`       | `adapters/frameworks/svelte`                | `svelte` (>=5 runes)                          |
+| `@stainless-code/persist/frameworks/svelte`       | `adapters/frameworks/svelte`                | `svelte` (>=5.7 runes)                        |
 | `@stainless-code/persist/frameworks/svelte-store` | `adapters/frameworks/svelte-store`          | `svelte` (>=3 store)                          |
 | `@stainless-code/persist/frameworks/angular`      | `adapters/frameworks/angular`               | `@angular/core` (>=17)                        |
 | `@stainless-code/persist/frameworks/preact`       | `adapters/frameworks/preact`                | `preact` (>=10.19)                            |

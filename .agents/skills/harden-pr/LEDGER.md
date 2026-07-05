@@ -24,4 +24,4 @@ Capped or out-of-scope-for-now — reconcile re-vets; remove lines when fixed.
 - **[severity]** `file:line` — finding (deferred: out of scope | cap | blocked)
 ```
 
-- **[info]** `package.json` peerDependencies — `./frameworks/svelte` declares `svelte >=5.0.0` in source/README but `package.json` has `svelte >=3.0.0` shared with `./frameworks/svelte-store` (deferred: out of bounds — peer deps are package-level, not subpath-level; can't fix without splitting the svelte subpath into a separate package).
+- **[info]** `package.json` peerDependencies — `./frameworks/svelte` declares `svelte >=5.7.0` in source/README but `package.json` has `svelte >=3.0.0` shared with `./frameworks/svelte-store` (deferred: out of bounds — peer deps are package-level, not subpath-level; can't fix without splitting the svelte subpath into a separate package).
