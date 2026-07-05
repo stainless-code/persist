@@ -18,7 +18,7 @@
 
 ## Core capability inventory
 
-52 distinct capabilities confirmed by the core audit (read `src/persist-core.ts` + `src/persist-core.test.ts` in full). Highlights:
+52 distinct capabilities confirmed by the core audit (read `src/core/persist-core.ts` + `src/core/persist-core.test.ts` in full). Highlights:
 
 Two-axis `storage × codec` seam · structured-clone mode via `identityCodec` (Set/Map/Date survive without a codec) · trailing throttle with bypass for `skipPersist` removals · `destroy()` flushes pending throttled writes in `noRetry` mode · uncapped `retryWrite` that owns termination and covers post-migrate write-back · write-generation guard spanning throttle+retry+destroy+rehydrate · cross-tab `storageArea` identity guard with key-only fallback · `onCrossTabRemove` ownership primitive · `PersistRegistry` clear-all with `allSettled` + rethrow-first · `HydrationSignal` pull-model adapter contract (no initial notify, no payload, SSR renders hydrated) · `alwaysHydratedSignal()` collapses the no-persist ternary · `instanceof Promise` (same-realm) over thenable duck-typing · Node 22+ broken-`localStorage` shape guard · expiry-before-migrate ordering.
 
@@ -26,12 +26,12 @@ Most of these are **only documented in JSDoc + tests**, not consumer prose.
 
 ### Extension seams (interface shapes)
 
-- **Storage backend** — `StateStorage<TRaw>` (`src/persist-core.ts:20`): `getItem`/`setItem`/`removeItem`, sync or async (detected via `instanceof Promise`).
-- **Codec** — `StorageCodec<S, TRaw>` (`src/persist-core.ts:74`): `encode`/`decode` of `StorageValue<S>` ↔ wire type.
-- **Reactive source** — `PersistableSource<TState>` (`src/persist-core.ts:357`): `getState`/`setState`/`subscribe`.
-- **Framework hydration** — `HydrationSignal` (`src/hydration.ts:28`): `subscribeHydrated`/`isHydrated`, pull model.
-- **Cross-tab event target** — `CrossTabEventTarget` (`src/persist-core.ts:113`).
-- **Registry** — `PersistRegistry` (`src/persist-core.ts:369`).
+- **Storage backend** — `StateStorage<TRaw>` (`src/core/persist-core.ts:20`): `getItem`/`setItem`/`removeItem`, sync or async (detected via `instanceof Promise`).
+- **Codec** — `StorageCodec<S, TRaw>` (`src/core/persist-core.ts:74`): `encode`/`decode` of `StorageValue<S>` ↔ wire type.
+- **Reactive source** — `PersistableSource<TState>` (`src/core/persist-core.ts:357`): `getState`/`setState`/`subscribe`.
+- **Framework hydration** — `HydrationSignal` (`src/core/hydration.ts:28`): `subscribeHydrated`/`isHydrated`, pull model.
+- **Cross-tab event target** — `CrossTabEventTarget` (`src/core/persist-core.ts:113`).
+- **Registry** — `PersistRegistry` (`src/core/persist-core.ts:369`).
 
 ### Core gaps (no shipped impl, seam only)
 
@@ -41,11 +41,11 @@ No IDB transactions · no `BroadcastChannel` transport shipped · no migration-c
 
 ## Adapter landscape
 
-5 subpath entries today (`package.json:32-53`): `.` (zero-dep core) · `./seroval` (seroval codec) · `./idb` (idb-keyval, structured-clone mode) · `./tanstack-store` (`persistStore`/`persistAtom`) · `./react` (`useHydrated` only).
+5 subpath entries today: `.` (zero-dep core) · `./codecs/seroval` (seroval codec) · `./backends/idb` (idb-keyval, structured-clone mode) · `./sources/tanstack-store` (`persistStore`/`persistAtom`) · `./frameworks/react` (`useHydrated` only).
 
-Each optional peer is isolated behind its own subpath entry — importing the subpath IS the dep opt-in (enforced by `persist-idb.test.ts:175`).
+Each optional peer is isolated behind its own subpath entry — importing the subpath IS the dep opt-in (enforced by `src/adapters/backends/idb.test.ts:175`).
 
-**React surface is just `useHydrated`.** No provider/context, no auto store binding, no auto-`destroy()` on unmount, no RN-specific entry. `use-hydrated.ts:22` JSDoc signals richer ergonomics are intentionally deferred to a higher-layer package.
+**React surface is just `useHydrated`.** No provider/context, no auto store binding, no auto-`destroy()` on unmount, no RN-specific entry. `src/adapters/frameworks/react.ts:22` JSDoc signals richer ergonomics are intentionally deferred to a higher-layer package.
 
 ### Missing adapters — brainstormed
 
@@ -107,34 +107,34 @@ Ordered by ROI = impact ÷ effort. **Effort:** S / M / L. **Status as of 2026-07
 
 ### Tier 1 — Ship first (high impact, low effort)
 
-| #    | Action                                                                                                                                                                                                                               | Effort |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ |
-| ✅ 1 | Define "hydration-aware" in the README — one paragraph + a "what flashes without it" diagram. Fixes the single biggest tone gap.                                                                                                     | S      |
-| ✅ 2 | Add a complete IDB + React + `useHydrated` + `destroy()` walkthrough to the README. Closes the gap that justifies the library's existence.                                                                                           | S      |
-| ✅ 3 | Link the generated `docs/api/` site from the README + publish to GitHub Pages (`.nojekyll` already present).                                                                                                                         | S      |
-| ✅ 4 | Document `createPersistRegistry` + clear-all-on-logout with a recipe.                                                                                                                                                                | S      |
-| ✅ 5 | Add recipes for `partialize`, `merge`, `retryWrite`, `throttleMs`, `maxAge`, `buster` — six hidden powers, one short block each.                                                                                                     | S      |
-| ✅ 6 | BroadcastChannel → `CrossTabEventTarget` bridge adapter for IDB cross-tab. Seam exists (`persist-core.ts:113`); IDB fires no `storage` events so `crossTab` is silently broken on IDB without it (`persist-idb.ts:62`, `skill:116`). | S      |
-| ✅ 7 | `expo-secure-store` / `react-native-mmkv` / `AsyncStorage` storage adapters (one subpath each). Unlocks an entire platform.                                                                                                          | S each |
-| ✅ 8 | `zod`-validated codec adapter — decode runs in existing corrupt-payload try/catch (`persist-core.ts:473`); validation errors map cleanly to `clearCorruptOnFailure`.                                                                 | S      |
-| ✅ 9 | Solid + Vue framework hydration adapters — `HydrationSignal` JSDoc names both as targets (`hydration.ts:9-10`); each is a one-liner.                                                                                                 | S each |
+| #    | Action                                                                                                                                                                                                                                                      | Effort |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| ✅ 1 | Define "hydration-aware" in the README — one paragraph + a "what flashes without it" diagram. Fixes the single biggest tone gap.                                                                                                                            | S      |
+| ✅ 2 | Add a complete IDB + React + `useHydrated` + `destroy()` walkthrough to the README. Closes the gap that justifies the library's existence.                                                                                                                  | S      |
+| ✅ 3 | Link the generated `docs/api/` site from the README + publish to GitHub Pages (`.nojekyll` already present).                                                                                                                                                | S      |
+| ✅ 4 | Document `createPersistRegistry` + clear-all-on-logout with a recipe.                                                                                                                                                                                       | S      |
+| ✅ 5 | Add recipes for `partialize`, `merge`, `retryWrite`, `throttleMs`, `maxAge`, `buster` — six hidden powers, one short block each.                                                                                                                            | S      |
+| ✅ 6 | BroadcastChannel → `CrossTabEventTarget` bridge adapter for IDB cross-tab. Seam exists (`src/core/persist-core.ts:113`); IDB fires no `storage` events so `crossTab` is silently broken on IDB without it (`src/adapters/backends/idb.ts:62`, `skill:116`). | S      |
+| ✅ 7 | `expo-secure-store` / `react-native-mmkv` / `AsyncStorage` storage adapters (one subpath each). Unlocks an entire platform.                                                                                                                                 | S each |
+| ✅ 8 | `zod`-validated codec adapter — decode runs in existing corrupt-payload try/catch (`src/core/persist-core.ts:473`); validation errors map cleanly to `clearCorruptOnFailure`.                                                                               | S      |
+| ✅ 9 | Solid + Vue framework hydration adapters — `HydrationSignal` JSDoc names both as targets (`src/core/hydration.ts:9-10`); each is a one-liner.                                                                                                               | S each |
 
 ### Tier 2 — Build out the surface (high impact, medium effort)
 
-| #     | Action                                                                                                                                                                    | Effort |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| ✅ 10 | Encryption-at-rest codec (WebCrypto + codec). Headline "custom codec" example in JSDoc (`persist-core.ts:69`, `persist-idb.ts:52`, `skill:155`) with no shipped impl.     | M      |
-| 11    | `examples/` monorepo workspace — runnable `tanstack-idb-react`, `tanstack-localstorage-react`, `nextjs-ssr`, `react-native-mmkv`. No runnable demo today.                 | M      |
-| 12    | Docs site (VitePress / Astro Starlight) — split wall-of-text README into Getting Started → Adapters → Recipes → Adapter authoring → Reference; host `docs/api/` under it. | M      |
-| 13    | TanStack Query persister bridge (`persistQueryClient`-shaped). JSDoc cites Query as reference design (`persist-core.ts:12,263`). Flagship integration.                    | M      |
-| ✅ 14 | Migration/porting guide — option mapping + conceptual diff vs zustand-persist / redux-persist / query-persist-client / pinia-persist.                                     | S      |
-| ✅ 15 | Comparison table across the 4 incumbents. README paragraph → table.                                                                                                       | S      |
-| ✅ 16 | Storage & codec decision matrices — lift + expand the skill's 4-row version to consumer docs.                                                                             | S      |
-| ✅ 17 | `CompressionStream` codec — native API, ~S now; pairs with binary `TRaw`.                                                                                                 | M      |
-| ✅ 18 | Node `fs` storage adapter — trivial `StateStorage`; unblocks server/SSR/CLI.                                                                                              | S      |
-| ✅ 19 | Pack-validation + semver gate in CI — `attw --pack` + `knip` + `publint`. Prevents shipping a broken `exports` map.                                                       | S      |
-| ✅ 33 | Angular-signals hydration adapter — `signal` + `effect`-based gate over `HydrationSignal`; peer `@angular/core`.                                                          | S      |
-| ✅ 34 | Preact hydration adapter — near-clone of `./frameworks/react` (`useSyncExternalStore`); peer `preact`.                                                                    | S      |
+| #     | Action                                                                                                                                                                                       | Effort |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| ✅ 10 | Encryption-at-rest codec (WebCrypto + codec). Headline "custom codec" example in JSDoc (`src/core/persist-core.ts:69`, `src/adapters/backends/idb.ts:52`, `skill:155`) with no shipped impl. | M      |
+| 11    | `examples/` monorepo workspace — runnable `tanstack-idb-react`, `tanstack-localstorage-react`, `nextjs-ssr`, `react-native-mmkv`. No runnable demo today.                                    | M      |
+| 12    | Docs site (VitePress / Astro Starlight) — split wall-of-text README into Getting Started → Adapters → Recipes → Adapter authoring → Reference; host `docs/api/` under it.                    | M      |
+| 13    | TanStack Query persister bridge (`persistQueryClient`-shaped). JSDoc cites Query as reference design (`src/core/persist-core.ts:12,263`). Flagship integration.                              | M      |
+| ✅ 14 | Migration/porting guide — option mapping + conceptual diff vs zustand-persist / redux-persist / query-persist-client / pinia-persist.                                                        | S      |
+| ✅ 15 | Comparison table across the 4 incumbents. README paragraph → table.                                                                                                                          | S      |
+| ✅ 16 | Storage & codec decision matrices — lift + expand the skill's 4-row version to consumer docs.                                                                                                | S      |
+| ✅ 17 | `CompressionStream` codec — native API, ~S now; pairs with binary `TRaw`.                                                                                                                    | M      |
+| ✅ 18 | Node `fs` storage adapter — trivial `StateStorage`; unblocks server/SSR/CLI.                                                                                                                 | S      |
+| ✅ 19 | Pack-validation + semver gate in CI — `attw --pack` + `knip` + `publint`. Prevents shipping a broken `exports` map.                                                                          | S      |
+| ✅ 33 | Angular-signals hydration adapter — `signal` + `effect`-based gate over `HydrationSignal`; peer `@angular/core`.                                                                             | S      |
+| ✅ 34 | Preact hydration adapter — near-clone of `./frameworks/react` (`useSyncExternalStore`); peer `preact`.                                                                                       | S      |
 
 ### Tier 3 — Maturity & polish (medium impact, medium effort)
 
@@ -150,13 +150,13 @@ Ordered by ROI = impact ÷ effort. **Effort:** S / M / L. **Status as of 2026-07
 
 ### Tier 4 — Strategic bets (high impact, high effort)
 
-| #     | Action                                                                                                                                                                           | Effort  |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| 28    | React ergonomics layer — `<PersistProvider>` + context + `usePersisted(store)` selector binding + auto-`destroy()`. `use-hydrated.ts:22` signals this is intentionally deferred. | M-L     |
-| 29    | StackBlitz / CodeSandbox playground embedded in docs site.                                                                                                                       | M       |
-| 30    | OPFS + SQLite-WASM + Cloudflare KV/Durable Objects storage adapters.                                                                                                             | M-L     |
-| 31    | Migration-chain helper — `createMigrationChain({...})`; today `migrate` is a single callback, v0→v1→v2 chaining is user-written.                                                 | M       |
-| ✅ 32 | Continue the TanStack upstream pitch (`docs/plans/upstream-tanstack-pitch.md`) — adapter breadth (#13, #9) + docs polish (#1, #2, #12) are the leverage. Ongoing.                | ongoing |
+| #     | Action                                                                                                                                                                                            | Effort  |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| 28    | React ergonomics layer — `<PersistProvider>` + context + `usePersisted(store)` selector binding + auto-`destroy()`. `src/adapters/frameworks/react.ts:22` signals this is intentionally deferred. | M-L     |
+| 29    | StackBlitz / CodeSandbox playground embedded in docs site.                                                                                                                                        | M       |
+| 30    | OPFS + SQLite-WASM + Cloudflare KV/Durable Objects storage adapters.                                                                                                                              | M-L     |
+| 31    | Migration-chain helper — `createMigrationChain({...})`; today `migrate` is a single callback, v0→v1→v2 chaining is user-written.                                                                  | M       |
+| ✅ 32 | Continue the TanStack upstream pitch (`docs/plans/upstream-tanstack-pitch.md`) — adapter breadth (#13, #9) + docs polish (#1, #2, #12) are the leverage. Ongoing.                                 | ongoing |
 
 ---
 
@@ -183,11 +183,11 @@ Four GLM 5.2 subagents ran in parallel, one per lane. Resume any for a deeper dr
 
 # Appendix A — Core capability inventory (full subagent report)
 
-Read-only audit of `src/persist-core.ts`, `src/persist-core.test.ts`, `src/hydration.ts`, `src/hydration.test.ts`, `src/index.ts`. All file:line refs point to `src/`.
+Read-only audit of `src/core/persist-core.ts`, `src/core/persist-core.test.ts`, `src/core/hydration.ts`, `src/core/hydration.test.ts`, `src/core/index.ts`. All file:line refs point to `src/core/` (core) or `src/adapters/<seam>/` (adapters).
 
 ## A.1 Public API surface
 
-### `persist-core.ts`
+### `src/core/persist-core.ts`
 
 **Types / interfaces**
 
@@ -217,7 +217,7 @@ Read-only audit of `src/persist-core.ts`, `src/persist-core.test.ts`, `src/hydra
 | `createJSONStorage<S>(getStorage, options?)`          | `521:526`  | `createStorage(getStorage, jsonCodec(options))` convenience.                                                     |
 | `persistSource(source, options)`                      | `586:1124` | Attach persist to any `PersistableSource`; returns `PersistApi` (or no-op API when storage unavailable).         |
 
-### `hydration.ts`
+### `src/core/hydration.ts`
 
 | Export                      | Line      | One-line                                                                                         |
 | --------------------------- | --------- | ------------------------------------------------------------------------------------------------ |
@@ -284,7 +284,7 @@ Re-exports `./persist-core` + `./hydration` only. No barrel into optional peers.
 | 48  | **Idempotent unsubscribe**                                          | `84:90`, test `236:255`                                                                               | Second call to a stale unsub doesn't re-trigger teardown.                                                                                                                                                                      |
 | 49  | **Pull-model signal (no initial notification, no payload)**         | JSDoc `18:21`, tests `198:279`                                                                        | Listeners never invoked on subscribe; (re)read `isHydrated()` after attaching; missed transitions recovered by snapshot re-read.                                                                                               |
 | 50  | **`alwaysHydratedSignal()` (no-persist uniform handle)**            | `103:108`                                                                                             | Drops the `persist ? toHydrationSignal(persist) : null` ternary.                                                                                                                                                               |
-| 51  | **Zero-dep core (enforced by test)**                                | test `19:30`                                                                                          | `persist-core.ts` has no value imports; type-only imports only.                                                                                                                                                                |
+| 51  | **Zero-dep core (enforced by test)**                                | test `19:30`                                                                                          | `src/core/persist-core.ts` has no value imports; type-only imports only.                                                                                                                                                       |
 | 52  | **Async-vs-sync detection via `instanceof Promise` (not thenable)** | JSDoc `13:18`, `createStorage` `494`                                                                  | A stored value with a `.then` property is never mistaken for a pending read; same-realm native promises only.                                                                                                                  |
 
 ## A.3 Extension points / seams (interface shapes)
@@ -394,7 +394,7 @@ export interface HydrationSource {
 
 ## A.5 Gaps / limitations
 
-- **No IndexedDB integration in core** — only the seam (`StateStorage<TRaw>` + `identityCodec`). Actual IDB lives in the `./persist-idb` subpath (idb-keyval peer). No transaction batching, no key-range cursors, no IDB-specific error mapping in core.
+- **No IndexedDB integration in core** — only the seam (`StateStorage<TRaw>` + `identityCodec`). Actual IDB lives in the `./backends/idb` subpath (idb-keyval peer). No transaction batching, no key-range cursors, no IDB-specific error mapping in core.
 - **No `BroadcastChannel` transport shipped** — only the `CrossTabEventTarget` seam. Default is `window` `storage` events (same-origin only, no large-payload guarantee). A `BroadcastChannel` bridge is user-implemented.
 - **No schema-migration helper / migration chain** — `migrate` is a single callback receiving the stored version; multi-step v0→v1→v2 chaining is user-written.
 - **No compression** — pluggable via `StorageCodec` (encode/decode), but nothing shipped.
@@ -417,7 +417,7 @@ export interface HydrationSource {
 ### Notes for docs-adequacy / ROI analysis
 
 - The JSDoc on `PersistOptions` is exceptionally thorough (every invariant, every trade-off) — but several runtime invariants (write-generation guard, re-schedule-after-rehydrate, `noRetry` teardown flush, `instanceof Promise` choice, Node-22 shape check) live only in code comments + tests, not in any consumer-facing README.
-- The `HydrationSignal` adapter contract is fully specified in `hydration.ts` JSDoc but is exactly the kind of thing adapter authors need promoted to top-level docs.
+- The `HydrationSignal` adapter contract is fully specified in `src/core/hydration.ts` JSDoc but is exactly the kind of thing adapter authors need promoted to top-level docs.
 - Gaps are mostly "ship more codecs/transports" (compression, encryption, `BroadcastChannel`, IDB transactions) — all have clean seams already in place, so ROI on adding them is high (no core rework needed).
 
 ---
@@ -426,50 +426,50 @@ export interface HydrationSource {
 
 ## B.1 Current adapters / entry points
 
-The `exports` map (`package.json:32-53`) ships 5 subpath entries. Each optional peer is isolated behind its own subpath entry — importing the subpath IS the dep opt-in (enforced by a test at `persist-idb.test.ts:175-199`).
+The `exports` map in `package.json` ships 5 subpath entries. Each optional peer is isolated behind its own subpath entry — importing the subpath IS the dep opt-in (enforced by a test at `src/adapters/backends/idb.test.ts:175-199`).
 
 ### `.` (the core entry)
 
-- **Provides:** re-exports `persist-core` + `hydration` (`src/index.ts:5-6`). Zero-dep.
+- **Provides:** re-exports `persist-core` + `hydration` (`src/core/index.ts:5-6`). Zero-dep.
 - **Implements:** the canonical adapter contracts + `persistSource` engine + `createJSONStorage` / `createStorage` / `jsonCodec` / `identityCodec` / `createPersistRegistry` + `toHydrationSignal` / `alwaysHydratedSignal`.
-- **Deps:** none. `peerDependenciesMeta` marks everything optional (`package.json:116-129`).
+- **Deps:** none. `peerDependenciesMeta` in `package.json` marks everything optional.
 - **Consumer meaning:** the framework-agnostic persistence middleware. Bring your own reactive source via `persistSource`, or wire a framework adapter on top. This is also the entry non-TanStack users (zustand/Redux/hand-rolled atom) use — `persistSource` is the universal seam.
 
-### `./seroval`
+### `./codecs/seroval`
 
-- **Provides:** `serovalCodec` + `createSerovalStorage` (`persist-seroval.ts:21,37`).
-- **Implements:** `StorageCodec<S>` from persist-core (`persist-seroval.ts:9`).
+- **Provides:** `serovalCodec` + `createSerovalStorage` (`src/adapters/codecs/seroval.ts:21,37`).
+- **Implements:** `StorageCodec<S>` from persist-core (`src/adapters/codecs/seroval.ts:9`).
 - **Deps:** `seroval` (optional peer, `>=1.0.0`).
-- **Consumer meaning:** a drop-in codec so `Set` / `Map` / `Date` round-trip through any _string-keyed_ backend (`localStorage`, `sessionStorage`, custom). One factory: `createSerovalStorage(() => localStorage)` (`persist-seroval.ts:31-35`). The codec is also exposed standalone so it composes over `createStorage` for non-default backends (`persist-seroval.test.ts:159-180`).
+- **Consumer meaning:** a drop-in codec so `Set` / `Map` / `Date` round-trip through any _string-keyed_ backend (`localStorage`, `sessionStorage`, custom). One factory: `createSerovalStorage(() => localStorage)` (`src/adapters/codecs/seroval.ts:31-35`). The codec is also exposed standalone so it composes over `createStorage` for non-default backends (`src/adapters/codecs/seroval.test.ts:159-180`).
 
-### `./idb`
+### `./backends/idb`
 
-- **Provides:** `idbStateStorage` + `createIdbStorage` (`persist-idb.ts:34,74`).
-- **Implements:** `StateStorage<TRaw>` (`persist-idb.ts:11`) with `TRaw = StorageValue<S>` — the **structured-clone mode** that the generic wire-type seam enables.
+- **Provides:** `idbStateStorage` + `createIdbStorage` (`src/adapters/backends/idb.ts:34,74`).
+- **Implements:** `StateStorage<TRaw>` (`src/adapters/backends/idb.ts:11`) with `TRaw = StorageValue<S>` — the **structured-clone mode** that the generic wire-type seam enables.
 - **Deps:** `idb-keyval` (optional peer, `>=4.0.0`).
-- **Consumer meaning:** IndexedDB-backed persistence that stores the `StorageValue` envelope _natively_ — `Set`/`Map`/`Date` round-trip via structured clone with **no codec at all** (`identityCodec`), better DevTools inspection (objects, not encoded strings). Codec use cases (encryption/compression) compose as a one-liner over `idbStateStorage` + `createStorage` (`persist-idb.ts:52-58`). Custom idb-keyval `store` for namespacing (`persist-idb.ts:16-23`).
+- **Consumer meaning:** IndexedDB-backed persistence that stores the `StorageValue` envelope _natively_ — `Set`/`Map`/`Date` round-trip via structured clone with **no codec at all** (`identityCodec`), better DevTools inspection (objects, not encoded strings). Codec use cases (encryption/compression) compose as a one-liner over `idbStateStorage` + `createStorage` (`src/adapters/backends/idb.ts:52-58`). Custom idb-keyval `store` for namespacing (`src/adapters/backends/idb.ts:16-23`).
 
-### `./tanstack-store`
+### `./sources/tanstack-store`
 
-- **Provides:** `persistStore` + `persistAtom` (`persist-tanstack.ts:24,56`).
-- **Implements:** thin wrappers that supply the `PersistableSource` shape (`persist-core.ts:357-361`) to `persistSource`.
-- **Deps:** `@tanstack/store` (optional peer, `>=0.10.0`); types only (`persist-tanstack.ts:4`).
-- **Consumer meaning:** the only shipped reactive-source adapters. `persistStore` wraps a `Store` (action-bearing via `StoreActionMap`); `persistAtom` wraps a writable `Atom` and overrides default `merge` to **replace** (not shallow-spread) so primitive atom values aren't corrupted (`persist-tanstack.ts:74-80`), and throws on readonly atoms (`persist-tanstack.ts:60-62`).
+- **Provides:** `persistStore` + `persistAtom` (`src/adapters/sources/tanstack-store.ts:24,56`).
+- **Implements:** thin wrappers that supply the `PersistableSource` shape (`src/core/persist-core.ts:357-361`) to `persistSource`.
+- **Deps:** `@tanstack/store` (optional peer, `>=0.10.0`); types only (`src/adapters/sources/tanstack-store.ts:4`).
+- **Consumer meaning:** the only shipped reactive-source adapters. `persistStore` wraps a `Store` (action-bearing via `StoreActionMap`); `persistAtom` wraps a writable `Atom` and overrides default `merge` to **replace** (not shallow-spread) so primitive atom values aren't corrupted (`src/adapters/sources/tanstack-store.ts:74-80`), and throws on readonly atoms (`src/adapters/sources/tanstack-store.ts:60-62`).
 
-### `./react`
+### `./frameworks/react`
 
-- **Provides:** `useHydrated` (`use-hydrated.ts:37`).
-- **Implements:** mounts a `HydrationSignal` (`hydration.ts:28-31`) into React via `useSyncExternalStore`.
+- **Provides:** `useHydrated` (`src/adapters/frameworks/react.ts:37`).
+- **Implements:** mounts a `HydrationSignal` (`src/core/hydration.ts:28-31`) into React via `useSyncExternalStore`.
 - **Deps:** `react` (optional peer, `^18.0.0 || ^19.0.0`).
-- **Consumer meaning:** the _only_ React surface. Returns `{ hydrated }` to gate the hydrate flash on async backends (IndexedDB). State reads stay on the store (`useSelector`), not this hook (`use-hydrated.ts:7-10`). Null signal → `hydrated: true`. Server snapshot is always `true` (`use-hydrated.ts:42`).
+- **Consumer meaning:** the _only_ React surface. Returns `{ hydrated }` to gate the hydrate flash on async backends (IndexedDB). State reads stay on the store (`useSelector`), not this hook (`src/adapters/frameworks/react.ts:7-10`). Null signal → `hydrated: true`. Server snapshot is always `true` (`src/adapters/frameworks/react.ts:42`).
 
 ## B.2 Adapter pattern
 
-Three orthogonal seams, all in `persist-core.ts` / `hydration.ts`. An "adapter" picks exactly one seam to extend; it never reimplements the `persistSource` plumbing.
+Three orthogonal seams, all in `src/core/persist-core.ts` / `src/core/hydration.ts`. An "adapter" picks exactly one seam to extend; it never reimplements the `persistSource` plumbing.
 
 ### Seam A — storage backend: `StateStorage<TRaw>`
 
-```src/persist-core.ts:20:24
+```src/core/persist-core.ts:20:24
 export interface StateStorage<TRaw = string> {
   getItem: (name: string) => TRaw | null | Promise<TRaw | null>;
   setItem: (name: string, value: TRaw) => void | Promise<void>;
@@ -477,22 +477,22 @@ export interface StateStorage<TRaw = string> {
 }
 ```
 
-Sync or async (detected via `instanceof Promise`, _not_ thenable duck-typing — `persist-core.ts:14-19`). A new backend adapter either hand-rolls these three methods, or wraps an existing backend (like `idbStateStorage` wraps idb-keyval, `persist-idb.ts:37-42`) and passes it to `createStorage`.
+Sync or async (detected via `instanceof Promise`, _not_ thenable duck-typing — `src/core/persist-core.ts:14-19`). A new backend adapter either hand-rolls these three methods, or wraps an existing backend (like `idbStateStorage` wraps idb-keyval, `src/adapters/backends/idb.ts:37-42`) and passes it to `createStorage`.
 
 ### Seam B — codec: `StorageCodec<S, TRaw>`
 
-```src/persist-core.ts:74:77
+```src/core/persist-core.ts:74:77
 export interface StorageCodec<S, TRaw = string> {
   encode: (value: StorageValue<S>) => TRaw;
   decode: (raw: TRaw) => StorageValue<S>;
 }
 ```
 
-A new codec plugs into `createStorage(getStorage, codec, options)` (`persist-core.ts:444-448`) — that's the entire integration surface. `serovalCodec` (`persist-seroval.ts:21-24`) is the reference.
+A new codec plugs into `createStorage(getStorage, codec, options)` (`src/core/persist-core.ts:444-448`) — that's the entire integration surface. `serovalCodec` (`src/adapters/codecs/seroval.ts:21-24`) is the reference.
 
 ### Seam C — reactive source: `PersistableSource<TState>`
 
-```src/persist-core.ts:357:361
+```src/core/persist-core.ts:357:361
 export interface PersistableSource<TState> {
   getState: () => TState;
   setState: (updater: (prev: TState) => TState) => void;
@@ -500,73 +500,73 @@ export interface PersistableSource<TState> {
 }
 ```
 
-A new framework/store adapter constructs this shape and calls `persistSource(source, opts)`. `persistStore`/`persistAtom` (`persist-tanstack.ts:28-38`, `64-72`) are the reference.
+A new framework/store adapter constructs this shape and calls `persistSource(source, opts)`. `persistStore`/`persistAtom` (`src/adapters/sources/tanstack-store.ts:28-38`, `64-72`) are the reference.
 
 ### Seam D — framework hydration: `HydrationSignal`
 
-```src/hydration.ts:28:31
+```src/core/hydration.ts:28:31
 export interface HydrationSignal {
   subscribeHydrated: (listener: () => void) => () => void;
   isHydrated: () => boolean;
 }
 ```
 
-Adapter contract (`hydration.ts:14-27`): multiple concurrent subscribers, idempotent unsubscribe, **no** initial notification, **no** payload (pull model), SSR renders `hydrated: true`, `null` signal → hydrated. `useHydrated` is the reference implementation (`use-hydrated.ts:37-44`).
+Adapter contract (`src/core/hydration.ts:14-27`): multiple concurrent subscribers, idempotent unsubscribe, **no** initial notification, **no** payload (pull model), SSR renders `hydrated: true`, `null` signal → hydrated. `useHydrated` is the reference implementation (`src/adapters/frameworks/react.ts:37-44`).
 
 **Adapter contract checklist for a new adapter:**
 
-1. Own your dep — ship a new subpath entry, mark it optional in `peerDependenciesMeta`, never import it from core/other entries (the isolation test pattern at `persist-idb.test.ts:175-199`).
+1. Own your dep — ship a new subpath entry, mark it optional in `peerDependenciesMeta`, never import it from core/other entries (the isolation test pattern at `src/adapters/backends/idb.test.ts:175-199`).
 2. Map onto exactly one seam (A/B/C/D); compose via the exposed factory (`createStorage` / `persistSource` / `toHydrationSignal`), never reimplement the engine.
-3. For framework adapters, implement the SSR policy (`getServerSnapshot` returns `true`) in the adapter, not the signal (`hydration.ts:22-25`).
+3. For framework adapters, implement the SSR policy (`getServerSnapshot` returns `true`) in the adapter, not the signal (`src/core/hydration.ts:22-25`).
 
 ## B.3 Missing adapters
 
 ### Storage backends
 
-| Adapter                                                          | Effort | Demand | Justification                                                                                                                                                                                                                                                                                         |
-| ---------------------------------------------------------------- | ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **sessionStorage** wrapper (`createSessionStorage` / doc recipe) | S      | med    | Already works today via `createJSONStorage(() => sessionStorage)` — but no named factory or SKILL entry. Cross-tab caveat is documented (`skills/tanstack-store/SKILL.md:116`). Low payoff; mostly a DX/ discoverability gap.                                                                         |
-| **OPFS** (Origin Private File System)                            | M      | med    | High-volume structured state in browsers; async, file-backed. Fits `StateStorage<TRaw>` naturally. Growing demand as localStorage hits quota.                                                                                                                                                         |
-| **Node fs / file**                                               | S      | med    | Server/SSR/CLI persistence. Trivial `StateStorage` over `fs.readFileSync`/`writeFileSync` (or async). Unblocks Node usage entirely — currently the lib is browser-flavored.                                                                                                                           |
-| **memory** (test/fixture storage)                                | S      | low    | Already hand-rolled in every test file (`persist-seroval.test.ts:7-25`, `persist-tanstack.test.ts:10-28`, `use-hydrated.test.ts:25-39`). Shipping one would dedupe ~3 copies.                                                                                                                         |
-| **Redis**                                                        | M      | med    | Server-side persistent state; async. Pairs with Node fs entry for a real backend story.                                                                                                                                                                                                               |
-| **SQLite WASM** (wa-sqlite / sqlite-wasm)                        | L      | med    | Structured-clone mode like IDB; powerful but heavy. Better as a community recipe than a shipped peer.                                                                                                                                                                                                 |
-| **expo-secure-store**                                            | S      | high   | React Native secure persistence is a top requested feature for any persist lib; small surface.                                                                                                                                                                                                        |
-| **MMKV** (react-native-mmkv)                                     | S      | high   | RN default fast KV; synchronous, drops straight into `StateStorage`. Very high RN demand signal.                                                                                                                                                                                                      |
-| **AsyncStorage** (RN)                                            | S      | high   | Legacy RN fallback; still widely used.                                                                                                                                                                                                                                                                |
-| **Chrome `storage.area`** (`local`/`sync`/`session`)             | S      | med    | Extension developers — `localStorage` is forbidden in MV3 service workers. Strong niche demand.                                                                                                                                                                                                       |
-| **cookies**                                                      | M      | low    | Server-rendered hydration story; awkward (size limits, HTTP coupling). Better as recipe.                                                                                                                                                                                                              |
-| **Cloudflare KV / Durable Objects**                              | M      | med    | Edge runtime persistence; async `StateStorage`. Growing with Workers adoption.                                                                                                                                                                                                                        |
-| **BroadcastChannel bridge** for IDB cross-tab                    | S      | high   | Explicitly called out as missing (`persist-idb.ts:62-64`, `skills/tanstack-store/SKILL.md:116`) — IDB fires no `storage` events, so `crossTab` is broken on IDB without a `crossTabEventTarget` bridge. The seam exists (`CrossTabEventTarget`, `persist-core.ts:113-122`); only the adapter doesn't. |
+| Adapter                                                          | Effort | Demand | Justification                                                                                                                                                                                                                                                                                                                |
+| ---------------------------------------------------------------- | ------ | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **sessionStorage** wrapper (`createSessionStorage` / doc recipe) | S      | med    | Already works today via `createJSONStorage(() => sessionStorage)` — but no named factory or SKILL entry. Cross-tab caveat is documented (`skills/tanstack-store/SKILL.md:116`). Low payoff; mostly a DX/ discoverability gap.                                                                                                |
+| **OPFS** (Origin Private File System)                            | M      | med    | High-volume structured state in browsers; async, file-backed. Fits `StateStorage<TRaw>` naturally. Growing demand as localStorage hits quota.                                                                                                                                                                                |
+| **Node fs / file**                                               | S      | med    | Server/SSR/CLI persistence. Trivial `StateStorage` over `fs.readFileSync`/`writeFileSync` (or async). Unblocks Node usage entirely — currently the lib is browser-flavored.                                                                                                                                                  |
+| **memory** (test/fixture storage)                                | S      | low    | Already hand-rolled in every test file (`src/adapters/codecs/seroval.test.ts:7-25`, `src/adapters/sources/tanstack-store.test.ts:10-28`, `src/adapters/frameworks/react.test.ts:25-39`). Shipping one would dedupe ~3 copies.                                                                                                |
+| **Redis**                                                        | M      | med    | Server-side persistent state; async. Pairs with Node fs entry for a real backend story.                                                                                                                                                                                                                                      |
+| **SQLite WASM** (wa-sqlite / sqlite-wasm)                        | L      | med    | Structured-clone mode like IDB; powerful but heavy. Better as a community recipe than a shipped peer.                                                                                                                                                                                                                        |
+| **expo-secure-store**                                            | S      | high   | React Native secure persistence is a top requested feature for any persist lib; small surface.                                                                                                                                                                                                                               |
+| **MMKV** (react-native-mmkv)                                     | S      | high   | RN default fast KV; synchronous, drops straight into `StateStorage`. Very high RN demand signal.                                                                                                                                                                                                                             |
+| **AsyncStorage** (RN)                                            | S      | high   | Legacy RN fallback; still widely used.                                                                                                                                                                                                                                                                                       |
+| **Chrome `storage.area`** (`local`/`sync`/`session`)             | S      | med    | Extension developers — `localStorage` is forbidden in MV3 service workers. Strong niche demand.                                                                                                                                                                                                                              |
+| **cookies**                                                      | M      | low    | Server-rendered hydration story; awkward (size limits, HTTP coupling). Better as recipe.                                                                                                                                                                                                                                     |
+| **Cloudflare KV / Durable Objects**                              | M      | med    | Edge runtime persistence; async `StateStorage`. Growing with Workers adoption.                                                                                                                                                                                                                                               |
+| **BroadcastChannel bridge** for IDB cross-tab                    | S      | high   | Explicitly called out as missing (`src/adapters/backends/idb.ts:62-64`, `skills/tanstack-store/SKILL.md:116`) — IDB fires no `storage` events, so `crossTab` is broken on IDB without a `crossTabEventTarget` bridge. The seam exists (`CrossTabEventTarget`, `src/core/persist-core.ts:113-122`); only the adapter doesn't. |
 
 ### Codecs
 
-| Codec                                                        | Effort | Demand | Justification                                                                                                                                                                                                          |
-| ------------------------------------------------------------ | ------ | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **JSON**                                                     | —      | —      | Already default (`jsonCodec`, `persist-core.ts:407-412`).                                                                                                                                                              |
-| **seroval**                                                  | —      | —      | Shipped.                                                                                                                                                                                                               |
-| **structuredClone** codec                                    | S      | low    | Largely subsumed by IDB identity mode; marginal value as a codec.                                                                                                                                                      |
-| **MessagePack / cbor-x / CBOR**                              | S      | med    | Compact binary wire format; `cbor-x` is very fast. Drops into `StorageCodec<S, TRaw=Uint8Array>` — needs `TRaw` plumbing already in the seam.                                                                          |
-| **zod-validated encode/decode**                              | S      | high   | Schema-gated persistence is a frequently-requested feature; `decode` runs in the existing try/catch corrupt-payload path (`persist-core.ts:473-488`), so validation errors map cleanly to `clearCorruptOnFailure`.     |
-| **protobuf**                                                 | L      | low    | Strongly-typed but heavy toolchain; better as recipe.                                                                                                                                                                  |
-| **encryption-at-rest** (WebCrypto + codec)                   | M      | high   | Explicitly framed as the canonical "custom codec" use case (`persist-core.ts:69-70`, `persist-idb.ts:52-58`, `skills/tanstack-store/SKILL.md:155`). No shipped adapter despite being the headline composition example. |
-| **compression** (gzip/brotli via WASM / `CompressionStream`) | M      | med    | Native `CompressionStream` makes this a ~S now; pairs with binary `TRaw`.                                                                                                                                              |
-| **superjson / devalue**                                      | S      | med    | Already name-dropped as drop-ins (`persist-core.ts:69`, `persist-core.ts:437-440`); seroval covers the same niche so demand is partial.                                                                                |
-| **immutable-hamt**                                           | L      | low    | Niche; structural sharing for huge state. Better as external lib.                                                                                                                                                      |
+| Codec                                                        | Effort | Demand | Justification                                                                                                                                                                                                                                 |
+| ------------------------------------------------------------ | ------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **JSON**                                                     | —      | —      | Already default (`jsonCodec`, `src/core/persist-core.ts:407-412`).                                                                                                                                                                            |
+| **seroval**                                                  | —      | —      | Shipped.                                                                                                                                                                                                                                      |
+| **structuredClone** codec                                    | S      | low    | Largely subsumed by IDB identity mode; marginal value as a codec.                                                                                                                                                                             |
+| **MessagePack / cbor-x / CBOR**                              | S      | med    | Compact binary wire format; `cbor-x` is very fast. Drops into `StorageCodec<S, TRaw=Uint8Array>` — needs `TRaw` plumbing already in the seam.                                                                                                 |
+| **zod-validated encode/decode**                              | S      | high   | Schema-gated persistence is a frequently-requested feature; `decode` runs in the existing try/catch corrupt-payload path (`src/core/persist-core.ts:473-488`), so validation errors map cleanly to `clearCorruptOnFailure`.                   |
+| **protobuf**                                                 | L      | low    | Strongly-typed but heavy toolchain; better as recipe.                                                                                                                                                                                         |
+| **encryption-at-rest** (WebCrypto + codec)                   | M      | high   | Explicitly framed as the canonical "custom codec" use case (`src/core/persist-core.ts:69-70`, `src/adapters/backends/idb.ts:52-58`, `skills/tanstack-store/SKILL.md:155`). No shipped adapter despite being the headline composition example. |
+| **compression** (gzip/brotli via WASM / `CompressionStream`) | M      | med    | Native `CompressionStream` makes this a ~S now; pairs with binary `TRaw`.                                                                                                                                                                     |
+| **superjson / devalue**                                      | S      | med    | Already name-dropped as drop-ins (`src/core/persist-core.ts:69`, `src/core/persist-core.ts:437-440`); seroval covers the same niche so demand is partial.                                                                                     |
+| **immutable-hamt**                                           | L      | low    | Niche; structural sharing for huge state. Better as external lib.                                                                                                                                                                             |
 
 ### Framework integrations
 
-| Adapter                                                       | Effort | Demand | Justification                                                                                                                                                                                                                                     |
-| ------------------------------------------------------------- | ------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **React `useHydrated`**                                       | —      | —      | Shipped.                                                                                                                                                                                                                                          |
-| **Solid** `from(signal)` adapter                              | S      | high   | The `HydrationSignal` contract (`hydration.ts:8-10`) explicitly names Solid `from` as a target. Trivial one-liner; high Solid demand.                                                                                                             |
-| **Vue** (`shallowRef` + watch)                                | S      | high   | Also explicitly named in the signal JSDoc (`hydration.ts:10`).                                                                                                                                                                                    |
-| **Svelte** (`createSubscriber` / readable store)              | S      | med    | Also named (`hydration.ts:9`).                                                                                                                                                                                                                    |
-| **Preact**                                                    | S      | med    | `useSyncExternalStore` compatible — near-clone of React adapter.                                                                                                                                                                                  |
-| **Angular signals**                                           | S      | med    | `signal` + `effect`-based hydration gate; growing signals userbase.                                                                                                                                                                               |
-| **TanStack Query** persister bridge                           | M      | high   | Natural cross-sell (the JSDoc repeatedly cites TanStack Query as the reference design, e.g. `persist-core.ts:12`, `persist-core.ts:263-264`, `persist-core.ts:88`). A `persistQueryClient`-shaped adapter would be a flagship integration.        |
-| **React provider/context/auto-binding**                       | M      | high   | See §B.5 — React users get only a hook, no ergonomics layer.                                                                                                                                                                                      |
-| **Zustand / Jotai / Valtio / MobX / signals** source adapters | S each | med    | All reduce to `PersistableSource` (the skill explicitly says "pass a custom implementation to persist anything else", `skills/tanstack-store/SKILL.md:135-139`). Each is ~10 lines; the question is whether to ship them or keep them as recipes. |
+| Adapter                                                       | Effort | Demand | Justification                                                                                                                                                                                                                                                         |
+| ------------------------------------------------------------- | ------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **React `useHydrated`**                                       | —      | —      | Shipped.                                                                                                                                                                                                                                                              |
+| **Solid** `from(signal)` adapter                              | S      | high   | The `HydrationSignal` contract (`src/core/hydration.ts:8-10`) explicitly names Solid `from` as a target. Trivial one-liner; high Solid demand.                                                                                                                        |
+| **Vue** (`shallowRef` + watch)                                | S      | high   | Also explicitly named in the signal JSDoc (`src/core/hydration.ts:10`).                                                                                                                                                                                               |
+| **Svelte** (`createSubscriber` / readable store)              | S      | med    | Also named (`src/core/hydration.ts:9`).                                                                                                                                                                                                                               |
+| **Preact**                                                    | S      | med    | `useSyncExternalStore` compatible — near-clone of React adapter.                                                                                                                                                                                                      |
+| **Angular signals**                                           | S      | med    | `signal` + `effect`-based hydration gate; growing signals userbase.                                                                                                                                                                                                   |
+| **TanStack Query** persister bridge                           | M      | high   | Natural cross-sell (the JSDoc repeatedly cites TanStack Query as the reference design, e.g. `src/core/persist-core.ts:12`, `src/core/persist-core.ts:263-264`, `src/core/persist-core.ts:88`). A `persistQueryClient`-shaped adapter would be a flagship integration. |
+| **React provider/context/auto-binding**                       | M      | high   | See §B.5 — React users get only a hook, no ergonomics layer.                                                                                                                                                                                                          |
+| **Zustand / Jotai / Valtio / MobX / signals** source adapters | S each | med    | All reduce to `PersistableSource` (the skill explicitly says "pass a custom implementation to persist anything else", `skills/tanstack-store/SKILL.md:135-139`). Each is ~10 lines; the question is whether to ship them or keep them as recipes.                     |
 
 **Highest-leverage gaps (rough ranking):** MMKV/AsyncStorage/expo-secure-store (RN block), BroadcastChannel IDB cross-tab bridge (completes a documented-but-missing feature), encryption-at-rest codec (the headline example with no implementation), zod-validated codec, Solid/Vue framework adapters, TanStack Query bridge.
 
@@ -575,25 +575,25 @@ Adapter contract (`hydration.ts:14-27`): multiple concurrent subscribers, idempo
 **None.** No `examples/`, `example/`, `demo/`, `playground/`, `snippets/`, or `sandboxes/` directory exists (Glob returned 0). The only runnable artefacts beyond `src/*.test.ts` and `tests-dom/*.test.tsx` are:
 
 - `skills/tanstack-store/SKILL.md` — the single shipped skill (the `skills` dir contains only `tanstack-store/`, confirmed by `ls`).
-- Inline `@example` JSDoc blocks in each adapter module (`persist-idb.ts:67-72`, `persist-seroval.ts:29-35`, `persist-tanstack.ts:13-22`, `use-hydrated.ts:25-35`).
+- Inline `@example` JSDoc blocks in each adapter module (`src/adapters/backends/idb.ts:67-72`, `src/adapters/codecs/seroval.ts:29-35`, `src/adapters/sources/tanstack-store.ts:13-22`, `src/adapters/frameworks/react.ts:25-35`).
 - `README.md` and `docs/architecture.md` prose snippets.
 
 The `package.json:25-29` `files` array ships `dist` + `skills` only — no examples are published either. There is no end-to-end runnable app demonstrating wiring (store + storage + codec + hydration gate) outside the test suite.
 
-## B.5 `./react` entry nuance
+## B.5 `./frameworks/react` entry nuance
 
-`useHydrated` is the **entire** React surface. Confirmed: `exports` maps `./react` → only `./dist/use-hydrated.{d.,}mts` (`package.json:49-52`), and `use-hydrated.ts` exports one function (`use-hydrated.ts:37`).
+`useHydrated` is the **entire** React surface. Confirmed: `exports` maps `./frameworks/react` → only `./dist/frameworks/react.{d.,}mts` in `package.json`, and `src/adapters/frameworks/react.ts` exports one function (`src/adapters/frameworks/react.ts:37`).
 
 **What React users do NOT get:**
 
-- **No provider / context.** No `<PersistProvider>`, no React context, no Devtools. Each component manually threads a `HydrationSignal` to `useHydrated` (`use-hydrated.ts:32-34`).
-- **No automatic store binding.** The hook returns _only_ `hydrated` (`use-hydrated.ts:5-11`); state reads are explicitly the caller's job via `useSelector` from `@tanstack/store` (the JSDoc is emphatic: "Returns ONLY `hydrated` — state reads go through `useSelector`", `use-hydrated.ts:18-19`). There is no `usePersisted(store)` or selector-binding helper.
-- **No `persistStore`-aware React hook.** The TanStack adapter (`./tanstack-store`) and the React adapter (`./react`) are decoupled — a React user imports `persistStore` from one subpath, `toHydrationSignal` from `.` core, and `useHydrated` from another, wiring them by hand (the canonical 3-line recipe at `skills/tanstack-store/SKILL.md:75-82`).
+- **No provider / context.** No `<PersistProvider>`, no React context, no Devtools. Each component manually threads a `HydrationSignal` to `useHydrated` (`src/adapters/frameworks/react.ts:32-34`).
+- **No automatic store binding.** The hook returns _only_ `hydrated` (`src/adapters/frameworks/react.ts:5-11`); state reads are explicitly the caller's job via `useSelector` from `@tanstack/store` (the JSDoc is emphatic: "Returns ONLY `hydrated` — state reads go through `useSelector`", `src/adapters/frameworks/react.ts:18-19`). There is no `usePersisted(store)` or selector-binding helper.
+- **No `persistStore`-aware React hook.** The TanStack adapter (`./sources/tanstack-store`) and the React adapter (`./frameworks/react`) are decoupled — a React user imports `persistStore` from one subpath, `toHydrationSignal` from `.` core, and `useHydrated` from another, wiring them by hand (the canonical 3-line recipe at `skills/tanstack-store/SKILL.md:75-82`).
 - **No automatic `destroy()` on unmount.** Teardown is manual — the skill documents the `useEffect` cleanup pattern as user responsibility (`skills/tanstack-store/SKILL.md:96-101`).
 - **No hydration-aware `<Suspense>`/`use()` integration, no `useSyncExternalStore` selector helper, no SSR helper beyond the implicit server-snapshot policy.**
 - **No React Native-specific entry** (no MMKV/AsyncStorage/expo-secure-store wiring — see §B.3).
 
-The design is deliberately minimal — `use-hydrated.ts:22-24` states the hook is "the reference" implementation of the framework-agnostic `HydrationSignal` adapter contract, signaling that richer React ergonomics (provider, auto-binding, Devtools) are intentionally left to consumers or a future higher-layer package.
+The design is deliberately minimal — `src/adapters/frameworks/react.ts:22-24` states the hook is "the reference" implementation of the framework-agnostic `HydrationSignal` adapter contract, signaling that richer React ergonomics (provider, auto-binding, Devtools) are intentionally left to consumers or a future higher-layer package.
 
 ---
 
@@ -620,17 +620,17 @@ The design is deliberately minimal — `use-hydrated.ts:22-24` states the hook i
 
 ### `@stainless-code/persist` (core)
 
-| Export                                                                                                                                                                                                      | Status | Where                                                                                                                                                                                                                                                                                                      |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `persistSource`                                                                                                                                                                                             | ✅     | README:117, skill:131–139                                                                                                                                                                                                                                                                                  |
-| `PersistApi` (interface: `rehydrate`, `hasHydrated`, `onHydrate`, `onFinishHydration`, `setOptions`, `clearStorage`, `getOptions`, `destroy`)                                                               | 🟡     | Lifecycle paragraph README:183 mentions `rehydrate`/`destroy`/`onError`; full surface only enumerated in skill:164. README never lists `setOptions`/`getOptions`/`clearStorage`/`onHydrate`/`onFinishHydration`.                                                                                           |
-| `createStorage`                                                                                                                                                                                             | ✅     | README:120, 125, 131                                                                                                                                                                                                                                                                                       |
-| `createJSONStorage`                                                                                                                                                                                         | 🟡     | Only appears in README:75 inside a backend example; never explained as a public factory.                                                                                                                                                                                                                   |
-| `jsonCodec`                                                                                                                                                                                                 | ✅     | README:95                                                                                                                                                                                                                                                                                                  |
-| `identityCodec`                                                                                                                                                                                             | ✅     | README:97, skill:144                                                                                                                                                                                                                                                                                       |
-| `registry` / `createPersistRegistry` / `PersistRegistry`                                                                                                                                                    | ❌     | `createPersistRegistry` is exported in `persist-core.ts:384` but **not mentioned anywhere in consumer docs**. The skill:163 lists `registry` as an option and skill:166 mentions `registry.clearAll()` once, but there is no example, no "clear-all-on-logout" recipe, no link to `createPersistRegistry`. |
-| `HydrationSignal` / `toHydrationSignal` / `alwaysHydratedSignal` / `HydrationSource`                                                                                                                        | 🟡     | `toHydrationSignal` in quick-start README:40 and skill:79. `HydrationSignal` named in adapter section README:156. **`alwaysHydratedSignal` is undocumented** in any consumer doc — only in JSDoc. `HydrationSource` not mentioned.                                                                         |
-| Types: `StateStorage`, `StorageValue`, `PersistStorage`, `StorageCodec`, `JsonStorageOptions`, `CreateStorageOptions`, `CrossTabStorageEvent`, `CrossTabEventTarget`, `PersistOptions`, `PersistableSource` | 🟡     | `StateStorage`/`StorageCodec`/`PersistableSource` named in README:70–106. `CrossTabEventTarget` mentioned README:149. `StorageValue`, `PersistStorage`, `CreateStorageOptions`, `JsonStorageOptions`, `CrossTabStorageEvent` not surfaced in prose (only JSDoc + typedoc).                                 |
+| Export                                                                                                                                                                                                      | Status | Where                                                                                                                                                                                                                                                                                                               |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `persistSource`                                                                                                                                                                                             | ✅     | README:117, skill:131–139                                                                                                                                                                                                                                                                                           |
+| `PersistApi` (interface: `rehydrate`, `hasHydrated`, `onHydrate`, `onFinishHydration`, `setOptions`, `clearStorage`, `getOptions`, `destroy`)                                                               | 🟡     | Lifecycle paragraph README:183 mentions `rehydrate`/`destroy`/`onError`; full surface only enumerated in skill:164. README never lists `setOptions`/`getOptions`/`clearStorage`/`onHydrate`/`onFinishHydration`.                                                                                                    |
+| `createStorage`                                                                                                                                                                                             | ✅     | README:120, 125, 131                                                                                                                                                                                                                                                                                                |
+| `createJSONStorage`                                                                                                                                                                                         | 🟡     | Only appears in README:75 inside a backend example; never explained as a public factory.                                                                                                                                                                                                                            |
+| `jsonCodec`                                                                                                                                                                                                 | ✅     | README:95                                                                                                                                                                                                                                                                                                           |
+| `identityCodec`                                                                                                                                                                                             | ✅     | README:97, skill:144                                                                                                                                                                                                                                                                                                |
+| `registry` / `createPersistRegistry` / `PersistRegistry`                                                                                                                                                    | ❌     | `createPersistRegistry` is exported in `src/core/persist-core.ts:384` but **not mentioned anywhere in consumer docs**. The skill:163 lists `registry` as an option and skill:166 mentions `registry.clearAll()` once, but there is no example, no "clear-all-on-logout" recipe, no link to `createPersistRegistry`. |
+| `HydrationSignal` / `toHydrationSignal` / `alwaysHydratedSignal` / `HydrationSource`                                                                                                                        | 🟡     | `toHydrationSignal` in quick-start README:40 and skill:79. `HydrationSignal` named in adapter section README:156. **`alwaysHydratedSignal` is undocumented** in any consumer doc — only in JSDoc. `HydrationSource` not mentioned.                                                                                  |
+| Types: `StateStorage`, `StorageValue`, `PersistStorage`, `StorageCodec`, `JsonStorageOptions`, `CreateStorageOptions`, `CrossTabStorageEvent`, `CrossTabEventTarget`, `PersistOptions`, `PersistableSource` | 🟡     | `StateStorage`/`StorageCodec`/`PersistableSource` named in README:70–106. `CrossTabEventTarget` mentioned README:149. `StorageValue`, `PersistStorage`, `CreateStorageOptions`, `JsonStorageOptions`, `CrossTabStorageEvent` not surfaced in prose (only JSDoc + typedoc).                                          |
 
 ### `@stainless-code/persist/seroval`
 
@@ -681,7 +681,7 @@ Documented in skill:163 list, but in the **README** only a subset is shown in pr
 - **`createPersistRegistry` + `registry` clear-all-on-logout** — fully undocumented in README; the only "logout wipes everything" path is invisible to a new reader.
 - **`alwaysHydratedSignal`** — exported, undocumented in prose.
 - **`partialize` / `merge` / `onRehydrateStorage`** — core projection/merge hooks, absent from the README entirely (only in skill).
-- **`retryWrite`** — has a great JSDoc example (`persist-core.ts:290–299`) but no README recipe; the quota-shrink story is a selling point and is buried.
+- **`retryWrite`** — has a great JSDoc example (`src/core/persist-core.ts:290–299`) but no README recipe; the quota-shrink story is a selling point and is buried.
 - **`setOptions` / `getOptions` / `clearStorage`** on `PersistApi` — never enumerated in README.
 - **The generated API site** (`docs/api/`) — built, validated, but **never linked from the README** and is git-ignored so consumers can't browse it in-repo; they must run `bun run docs:api` or read hovers.
 
@@ -732,9 +732,9 @@ Counting copy-pasteable code blocks across README + skill:
 | `partialize`                                                  | ❌            | no example anywhere                                                                             |
 | `merge` custom                                                | ❌            | no example                                                                                      |
 | `migrate`                                                     | ✅            | skill:122–129                                                                                   |
-| `retryWrite`                                                  | ✅ JSDoc only | `persist-core.ts:290–299` — not in README/skill                                                 |
+| `retryWrite`                                                  | ✅ JSDoc only | `src/core/persist-core.ts:290–299` — not in README/skill                                        |
 | `registry` / `clearAll`                                       | ❌            | no example                                                                                      |
-| `skipPersist`                                                 | ✅            | skill (via persistStore JSDoc `persist-tanstack.ts:18`), README mentions                        |
+| `skipPersist`                                                 | ✅            | skill (via persistStore JSDoc `src/adapters/sources/tanstack-store.ts:18`), README mentions     |
 | `throttleMs`                                                  | ❌            | no example, only prose                                                                          |
 | `maxAge` / `buster`                                           | ❌            | no example, only prose                                                                          |
 | Svelte / Solid / Vue adapter                                  | 🟡            | README:161–178 Svelte sketch only                                                               |
@@ -748,7 +748,7 @@ Counting copy-pasteable code blocks across README + skill:
 
 - **Docs site (VitePress / MkDocs / Astro Starlight).** Currently the consumer surface is one giant README. A multi-page site with sidebar nav would fix the "wall of text" problem and let the generated `docs/api/` be hosted and linked.
 - **"Getting Started" guide** — progressive (install → 30-sec localStorage → IDB + hydration gate → SSR), distinct from the reference-dense README.
-- **"Adapters" catalog page** — one page per entry (`./seroval`, `./idb`, `./tanstack-store`, `./react`) with install, API, and a complete example each.
+- **"Adapters" catalog page** — one page per entry (`./codecs/seroval`, `./backends/idb`, `./sources/tanstack-store`, `./frameworks/react`) with install, API, and a complete example each.
 - **"Choose your storage" decision matrix** — localStorage vs sessionStorage vs IndexedDB vs AsyncStorage vs custom: sync/async, cross-tab support, structured-clone, size limits, when to gate UI. The skill has a 4-row version (skill:150–155); a fuller one belongs in consumer docs.
 - **"Choose your codec" matrix** — jsonCodec vs serovalCodec vs identityCodec vs custom: Set/Map/Date support, wire type, backend compatibility, perf notes. Currently scattered across README:95–103.
 - **Recipes section** (separate page) — encryption-at-rest, cross-tab IDB via BroadcastChannel, partialize+merge, retryWrite quota-shrink, registry clear-all-on-logout, SSR/Next.js, React Native AsyncStorage, throttled high-frequency writes, schema migration chains. Most of these have no example today.
@@ -764,7 +764,7 @@ Counting copy-pasteable code blocks across README + skill:
 
 - **Value proposition:** Crisp at the seam/structure level ("every 'can it do X?' is a one-line composition instead of a feature request", README:3). But it leads with mechanism (seams, `PersistableSource`) before outcome (your prefs survive reload, no UI flash, works with any store). A new user learns _how it's built_ before _what it does for them_. The headline should answer "what do I get?" first.
 - **"Hydration-aware":** **Not explained.** The word appears in the title (`README.md:1`), in `package.json` description, and ~20 times in the README, but is never defined. A reader who knows "hydration" only from React/Next.js SSR will be confused — here it means _"has the persisted state finished loading from storage yet,"_ a completely different concept. README:152 says "gate UI on `useHydrated`" but never shows _what_ flashes (the default state rendering briefly before stored state lands). **This is the single biggest tone gap.**
-- **TanStack intent:** Clear in `skills/tanstack-store/SKILL.md` and `docs/plans/upstream-tanstack-pitch.md`, but **opaque in the README**. The README never says "this is meant to become TanStack Persist" or that `./tanstack-store` is the primary adapter. A reader sees five equal-weight subpaths and doesn't know `@tanstack/store` is the blessed path. The "Relationship to TanStack Persist / zustand persist" section (README:46) frames it as a _competitor/alternative_ rather than a _collaboration target_, which undersells the TanStack intent.
+- **TanStack intent:** Clear in `skills/tanstack-store/SKILL.md` and `docs/plans/upstream-tanstack-pitch.md`, but **opaque in the README**. The README never says "this is meant to become TanStack Persist" or that `./sources/tanstack-store` is the primary adapter. A reader sees five equal-weight subpaths and doesn't know `@tanstack/store` is the blessed path. The "Relationship to TanStack Persist / zustand persist" section (README:46) frames it as a _competitor/alternative_ rather than a _collaboration target_, which undersells the TanStack intent.
 - **Density vs audience mismatch:** The README is one document trying to serve "give me 5 minutes" (quick start) and "I want the full seam theory" (Extensibility guide) and "I'm writing a Svelte adapter" (adapter section). All three audiences get one scroll. Progressive disclosure (a Getting Started page → Extensibility guide → Adapter authoring) would serve each without overwhelming the others.
 - **Voice:** Confident and opinionated (good — "deliberate divergence", "no barrel", "prefs shouldn't silently expire"). This is a strength; preserve it in any restructure.
 - **`bun`-centrism:** README assumes Bun (`bun add`). Engines field supports Node ≥20.19. The install command should show npm/pnpm/yarn too, or a note that any package manager works.
