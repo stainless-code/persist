@@ -140,6 +140,9 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      - name: Build
+        run: bun run build
+
       - name: Run pack validation
         run: bun run check:pack
 
@@ -154,6 +157,9 @@ jobs:
 
       - name: Setup
         uses: ./.github/actions/setup
+
+      - name: Build
+        run: bun run build
 
       - name: Run size limit
         run: bun run size
