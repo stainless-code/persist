@@ -1,11 +1,12 @@
 # Roadmap
 
-Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [README.md](./README.md). **Design / seams:** [architecture.md](./architecture.md). Shipped features (core, codecs, backends, TanStack adapters, React/Solid/Vue/Svelte hydration adapters) live in `src/` and the root [README.md](../README.md) — not enumerated here.
+Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [README.md](./README.md). **Design / seams:** [architecture.md](./architecture.md). Shipped features live in `src/` and the root [README.md](../README.md) — not enumerated here.
 
 ---
 
 ## Next
 
+- **Remaining ROI work** — actionable items not yet shipped from the [2026-07-04 audit](./audits/2026-07-04-docs-adapters-roi.md): TanStack Query bridge, `examples/` workspace, docs site, npm provenance, real-browser + SSR test matrix, migration-chain helper, React ergonomics layer, OPFS/SQLite/Cloudflare adapters, playground. Plan: [`plans/remaining-roi.md`](./plans/remaining-roi.md).
 - **Upstream TanStack Persist collaboration** — pitch the `persistSource` middleware model (structural `PersistableSource` + first-class hydration lifecycle) to the TanStack Persist maintainers as a merge target, after the stainless-code publish stabilises. Draft: [`plans/upstream-tanstack-pitch.md`](./plans/upstream-tanstack-pitch.md).
 
 ---

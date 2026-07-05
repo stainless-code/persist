@@ -1,0 +1,120 @@
+# Remaining ROI work
+
+Actionable items not yet shipped from the [2026-07-04 ROI audit](../audits/2026-07-04-docs-adapters-roi.md). Shipped items are ✅-marked in the audit; this plan tracks the rest. When an item ships, lift its durable bits to `docs/architecture.md` / `docs/roadmap.md` / a rule and strike it here; when the list is empty, delete this file (per [docs-governance § Closing a plan](../../.agents/skills/docs-governance/LIFECYCLE.md)).
+
+## Context (read this first)
+
+`@stainless-code/persist` is a hydration-aware persistence middleware for any reactive store. The agnostic core is `persistSource(source, options)` (`src/core/persist-core.ts`) plus `HydrationSignal` (`src/core/hydration.ts`). Three seams compose every backend × codec cell:
+
+- **Backend** — `StateStorage<TRaw>`: `getItem` / `setItem` / `removeItem`, sync or Promise (async detected via `instanceof Promise`, not thenable duck-typing).
+- **Codec** — `StorageCodec<S, TRaw>`: pure `encode` / `decode` between the `StorageValue<S>` envelope and the backend's wire type. Sync by design — async transforms (encryption, compression) are backend **wrappers**, not codecs.
+- **Source** — `PersistableSource<TState>`: `getState` / `setState` / `subscribe`. Structural, store-agnostic.
+
+Framework adapters mount `HydrationSignal` into each framework's external-store mechanism (React `useSyncExternalStore`, Solid `from`, Vue `shallowRef` + `onScopeDispose`, Svelte runes `createSubscriber` / stores `readable`, Angular `signal` + `effect`, Preact `useSyncExternalStore` via `preact/compat`).
+
+**Layout:** `src/core/` (zero-dep engine) + `src/adapters/<seam>/` (`codecs/`, `backends/`, `transport/`, `sources/`, `frameworks/`). One subpath per optional peer, mirroring `src/` → `dist/` → `./<seam>/<name>` 1:1. No barrel — importing a subpath is the dependency opt-in. Each adapter imports only from `core/` (enforced by a per-entry self-check test). Full seam model + entry-point table + test matrix: [`docs/architecture.md`](../architecture.md). Consumer guide + recipes: root [`README.md`](../../README.md).
+
+**Source-adapter naming:** shape-based, not library-based — `persistStore` / `persistAtom` / `persistProxy` / `persistObservable`. Same persistable shape → same name → same merge semantics (Store/Proxy/Observable shallow-spread; Atom replace); the subpath carries the library. Alias when importing two same-shape adapters into one module.
+
+## Conventions (apply to every item)
+
+- **New subpath** = add to `package.json` `exports` + `peerDependencies` + `peerDependenciesMeta` (optional) + `tsdown.config.ts` `entry` + `deps.neverBundle` + `typedoc.json` `entryPoints`. Mirror `src/` → `dist/` → subpath 1:1.
+- **Adapter isolation** — imports only from `core/`; co-locate a `*.test.ts` "dependency isolation" block asserting every relative import resolves into `../../core/`.
+- **Zero-dep core gate** — `src/core/persist-core.ts` has no value imports (enforced by `src/core/persist-core.test.ts`).
+- **Changeset** — `.changeset/<slug>.md` with `@stainless-code/persist: minor` (or `major` for breaking) for any public-surface change.
+- **Verify after each step** — `bun run lint:changes`, `bun run format:changes`, `bun test <co-located pair>`, `bun run typecheck`; use `bun run format` / `lint:fix` (pinned `oxfmt` / `oxlint`), not `bunx`.
+- **Pre-commit** runs format/lint/typecheck/tests on staged files — never `--no-verify`. Run the per-file checks first so the hook passes first try (stash/restore can eat untracked files).
+
+## Remaining items (ROI-ordered)
+
+### 1. TanStack Query persister bridge — Tier 2, M
+
+- **What:** a `./sources/tanstack-query` (or `./integrations/tanstack-query`) subpath exposing a `persistQueryClient`-shaped adapter over `persistSource`. Supply a cache-shaped `PersistableSource` (`getState` → `queryClient.getQueryCache().getAll()`; `setState` → `setQueryData` per entry; `subscribe` → `getQueryCache().subscribe`).
+- **Why:** the JSDoc repeatedly cites `@tanstack/query-persist-client` as the reference design (`src/core/persist-core.ts:12,263`); the README migration guide already maps the option names (`maxAge`, `buster`, `retryWrite` ↔ `retry`, `throttleMs` ↔ `throttleTime`). Flagship integration — converts the cache-bound incumbent's users.
+- **Acceptance:** subpath ships + co-located test + README recipe; `persistQueryClient`-shaped call works against a mock `QueryClient`. Verify the cache-shaped source round-trips through `persistSource` with `createJSONStorage` + `maxAge`/`buster`.
+- **Lands:** README "Wrapping your store" / a new "Integrations" section; changeset.
+
+### 2. `examples/` monorepo workspace — Tier 2, M
+
+- **What:** a top-level `examples/` workspace with runnable apps: `tanstack-idb-react`, `tanstack-localstorage-react`, `nextjs-ssr`, `react-native-mmkv`. Each wires store + storage + codec + hydration gate end-to-end.
+- **Why:** zero runnable demos today — the only executable artefacts are `src/*.test.ts` and `tests-dom/*.test.tsx`. The headline use case (IDB + React + `useHydrated` + `destroy()`) exists only as README prose.
+- **Acceptance:** each example `bun install && bun dev` runs; the IDB example demonstrates the hydrate flash + `useHydrated` gate; the Next.js example demonstrates the SSR `true` snapshot; the RN example uses `./backends/mmkv` (sync, no gate). Exclude from the published package (`package.json` `files` keeps `dist` + `skills`).
+- **Lands:** stays in-repo as `examples/` (not a doc); README links to it. Changeset: `minor` (dev-only, no public-surface change → possibly no changeset needed).
+
+### 3. Docs site — Tier 2, M
+
+- **What:** a VitePress or Astro Starlight site splitting the wall-of-text README into Getting Started → Adapters → Recipes → Adapter authoring → Reference; host the generated `docs/api/` under it. The README stays as the landing-page digest.
+- **Why:** the README is one document serving "give me 5 minutes", "I want the seam theory", and "I'm writing a Svelte adapter" — all three audiences get one scroll. The generated `docs/api/` site is built but git-ignored and unlinked.
+- **Acceptance:** site builds (`bun run docs:site` or equivalent), deployed to GitHub Pages (`.nojekyll` already present); README links to it; `docs/api/` reachable from the site nav. No content duplication — the site pulls from the same source prose where possible.
+- **Lands:** `docs/site/` (or a `docs/` restructure); README trimmed to landing digest. Changeset: `minor`.
+
+### 4. npm provenance + signing — Tier 3, S
+
+- **What:** add `id-token: write` permission + `--provenance` to the changeset publish step in `.github/workflows/release.yml`.
+- **Why:** the release flow lacks npm provenance/signing — supply-chain integrity gap. Low effort, high integrity payoff.
+- **Acceptance:** a release publishes with provenance (verifiable on npmjs.com); the workflow run shows `id-token: write` in effect.
+- **Lands:** `.github/workflows/release.yml`. No changeset (infra-only).
+
+### 5. Real-browser + SSR test matrix — Tier 3, M
+
+- **What:** add a Playwright job covering the React `useHydrated` rerender/detach path in a real browser (Chromium + WebKit/Safari); add a Next.js SSR smoke that asserts the server renders `hydrated: true` and the client hydrates without a flash. The `tests-dom` vitest/jsdom suite stays (fast); Playwright is the slow, real-environment gate.
+- **Why:** today the matrix is jsdom only — no real browser, no Safari, no SSR-framework. `useSyncExternalStore` reactivity and SSR snapshot policy are the constraint-critical paths; jsdom can diverge from real browsers.
+- **Acceptance:** CI `Test (Browser)` job runs Playwright green; `Test (SSR)` job runs a Next.js app green; both gated by `CI complete`. Co-locate fixtures under `tests-browser/` and `tests-ssr/` (outside `bun test ./src`'s scan, like `tests-dom/`).
+- **Lands:** `.github/workflows/ci.yml` + new test dirs; `docs/architecture.md` § Test matrix updated. No changeset (test-only).
+
+### 6. Migration-chain helper — Tier 4, M
+
+- **What:** a `createMigrationChain({ 0: fn, 1: fn, 2: fn })` helper (in `core/` or a `./codecs/`-style utility subpath) that walks v0→v1→…→current, feeding each step's output to the next, and produces a single `migrate` callback for `persistSource`.
+- **Why:** today `migrate` is a single callback receiving the stored version; multi-step v0→v1→v2 chaining is user-written and error-prone (off-by-one on the stored version, skipped steps).
+- **Acceptance:** helper ships with tests covering forward chaining + skip-from-older-than-chain + a throwing step; README recipe under "Recipes". Decide core vs subpath: if it stays zero-dep it can live in `core/`; if it needs no peer, a `core/` export is fine (no new subpath).
+- **Lands:** `src/core/persist-core.ts` (or a new utility) + JSDoc + README recipe. Changeset: `minor` (new public export).
+
+### 7. React ergonomics layer — Tier 4, M-L
+
+- **What:** a `./frameworks/react` ergonomics companion (or a new `./frameworks/react-context` subpath) — `<PersistProvider>` + React context + `usePersisted(store, selector)` selector binding + auto-`destroy()` on unmount. The existing `useHydrated` stays the reference primitive.
+- **Why:** `useHydrated` is the entire React surface today — no provider, no auto store binding, no auto-teardown. Each consumer manually threads a `HydrationSignal` + `useEffect` cleanup (`src/adapters/frameworks/react.ts:22` signals this is intentionally deferred).
+- **Acceptance:** subpath ships + `tests-dom` coverage for mount/unmount teardown + selector rerender + provider scoping; README "React ergonomics" section. Keep it optional — the bare `useHydrated` path must remain valid.
+- **Lands:** `src/adapters/frameworks/react-context.ts` (new subpath) + README section. Changeset: `minor`. **Decision needed:** ship in-repo or as a separate package (the JSDoc deferral hints at a higher-layer package).
+
+### 8. OPFS + SQLite-WASM + Cloudflare KV/Durable Objects adapters — Tier 4, M-L
+
+- **What:** three new `./backends/` subpaths: `opfs` (Origin Private File System, async, file-backed, high-volume structured state), `sqlite-wasm` (wa-sqlite / sqlite-wasm, structured-clone mode like IDB), `cloudflare-kv` + `cloudflare-do` (edge runtime, async `StateStorage`).
+- **Why:** extends the backend surface to high-volume browser state, structured-query WASM storage, and edge runtimes. All fit `StateStorage<TRaw>` cleanly; no core rework.
+- **Acceptance:** each ships as its own subpath with optional peer + co-located test (mock the runtime, like the MMKV/AsyncStorage tests) + README backend decision-matrix row. `sqlite-wasm` may be better as a community recipe than a shipped peer (heavy) — decide per-adapter.
+- **Lands:** `src/adapters/backends/<name>.ts` + README "Choosing a storage" row + changeset (one per adapter).
+
+### 9. StackBlitz / CodeSandbox playground — Tier 4, M
+
+- **What:** an embedded live-editable example (StackBlitz or CodeSandbox) linked from the docs site (item 3) and README — the fastest on-ramp for a new user.
+- **Why:** no playground today; a new user can't try a wiring without cloning. Pairs with the docs site (item 3) and `examples/` (item 2).
+- **Acceptance:** a one-click playground loads with a working TanStack + IDB + React wiring; the README + docs site link to it.
+- **Deps:** item 2 (`examples/`) or item 3 (docs site) should land first so the playground has a source app.
+- **Lands:** README + docs site link. Changeset: `minor` (dev/docs-only).
+
+## Backlog (lower-priority, brainstormed — not ROI-tiered)
+
+From audit Appendix B.3. Each is a one-line composition over an existing seam; ship only if demand surfaces.
+
+- **sessionStorage named factory** (S) — already works via `createJSONStorage(() => sessionStorage)`; a named factory is pure DX/discoverability. Cross-tab is meaningless (per-tab).
+- **memory test-fixture adapter** (S) — dedupes the `MemoryStorage` class copy-pasted across test files. Test-only; not published.
+- **Redis backend** (M) — server-side persistent state; async `StateStorage`. Pairs with `./backends/node-fs` for a real server story.
+- **Chrome `storage.area`** (S) — `local` / `sync` / `session` for MV3 extensions (`localStorage` is forbidden in MV3 service workers).
+- **cookies backend** (M) — server-rendered hydration; size limits + HTTP coupling make it awkward — likely a recipe, not a shipped peer.
+- **Codecs** — MessagePack / cbor-x / CBOR (S, compact binary wire — needs `TRaw = Uint8Array`), superjson / devalue (S, class-instance round-trip), structuredClone (S, largely subsumed by IDB identity mode), protobuf (L, heavy toolchain — recipe).
+
+## Sequencing
+
+1. **#4 (provenance)** — S, unblocks supply-chain integrity; do first.
+2. **#1 (Query bridge) + #6 (migration-chain)** — M each, pure code, high adoption payoff, no deps.
+3. **#5 (real-browser + SSR matrix)** — M, de-risks the hydration-critical paths before more surface lands.
+4. **#2 (examples/) → #3 (docs site) → #9 (playground)** — the docs/demo arc; sequence so each builds on the prior.
+5. **#7 (React ergonomics) + #8 (OPFS/SQLite/Cloudflare)** — strategic; decide ship-vs-recipe per item.
+
+## Reference
+
+- [Audit (full findings + shipped ✅ marks)](../audits/2026-07-04-docs-adapters-roi.md)
+- [Architecture — seams, entry points, test matrix](../architecture.md)
+- [Roadmap](../roadmap.md)
+- [Upstream TanStack pitch](./upstream-tanstack-pitch.md)
+- Root [README](../../README.md) — install, quick start, recipes, decision matrices
+- [.agents/skills/docs-governance](../../.agents/skills/docs-governance/SKILL.md) — plan lifecycle (close = lift + delete)
