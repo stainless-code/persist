@@ -159,14 +159,11 @@ jobs:
         run: bun run size
 
   audit:
-    # Non-blocking — known-CVE visibility only; does not catch supply-chain malware.
-    # Team policy: if this job is red on a dep/lockfile PR, triage before merge
-    # (overrides, fork swaps, or accepted risk with issue) even though CI stays green.
-    # Promote to blocking (drop continue-on-error) after main stays clean for a
-    # few weeks — Dependabot handles action bumps; dep bumps are intentional via bun update -i.
-    name: 🛡 Audit (non-blocking)
+    # `bun audit` exits 0 regardless of severity — the scan below decides.
+    # An advisory-API outage doesn't block; malware is out of scope
+    # (provenance + frozen lockfile cover that).
+    name: 🛡 Audit
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -174,8 +171,16 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
-      - name: bun audit
-        run: bun audit
+      - name: bun audit (block on high/critical)
+        run: |
+          set +e
+          # bun emits ANSI color even when piped — strip it or the severity grep misses it.
+          NO_COLOR=1 bun audit 2>&1 | sed -E 's/\x1b\[[0-9;]*m//g' > /tmp/bun-audit.log
+          cat /tmp/bun-audit.log
+          if grep -E '(^|[[:space:]])(high|critical):[[:space:]]' /tmp/bun-audit.log; then
+            echo "::error::high or critical vulnerabilities found — blocking"
+            exit 1
+          fi
 
   ci-complete:
     name: CI complete
@@ -190,6 +195,7 @@ jobs:
         build,
         check-pack,
         size,
+        audit,
       ]
     if: always()
     runs-on: ubuntu-latest
@@ -204,7 +210,8 @@ jobs:
             needs['test-dom'].result != 'success' ||
             needs.build.result != 'success' ||
             needs['check-pack'].result != 'success' ||
-            needs.size.result != 'success'
+            needs.size.result != 'success' ||
+            needs.audit.result != 'success'
           )
         run: exit 1
 
