@@ -3,6 +3,7 @@
   "version": "0.1.1",
   "description": "Hydration-aware persistence for any reactive store — zero-dep persistSource core; codecs, backends, cross-tab transport, source + framework hydration adapters ship as opt-in recipes",
   "keywords": [
+    "angular",
     "broadcastchannel",
     "codec",
     "compression",
@@ -10,9 +11,13 @@
     "encryption",
     "hydration",
     "indexeddb",
+    "jotai",
     "localstorage",
     "middleware",
+    "mmkv",
+    "mobx",
     "persistence",
+    "preact",
     "react",
     "react-native",
     "reactive",
@@ -22,10 +27,12 @@
     "store",
     "svelte",
     "tanstack",
-    "tanstack-intent",
     "tanstack-store",
+    "typescript",
+    "valtio",
     "vue",
-    "zod"
+    "zod",
+    "zustand"
   ],
   "homepage": "https://github.com/stainless-code/persist#readme",
   "bugs": {
