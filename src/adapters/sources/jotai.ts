@@ -4,7 +4,7 @@ import type { Atom, WritableAtom } from "jotai";
 import type { PersistApi, PersistOptions } from "../../core/persist-core";
 import { persistSource } from "../../core/persist-core";
 
-// jotai's Store type — structural to avoid importing internals.
+/** jotai's Store type — structural to avoid importing internals. */
 interface JotaiStore {
   get: <T>(atom: Atom<T>) => T;
   set: <T>(
