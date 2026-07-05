@@ -6,5 +6,7 @@
     "vitest.config.ts",
     "tsdown.config.ts",
     "lint-staged.config.js"
-  ]
+  ],
+  "ignore": [".codemap/**"],
+  "ignoreDependencies": ["@stainless-code/codemap"]
 }
