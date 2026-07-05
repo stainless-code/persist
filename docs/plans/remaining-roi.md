@@ -48,12 +48,13 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 - **Acceptance:** site builds (`bun run docs:site` or equivalent), deployed to GitHub Pages (`.nojekyll` already present); README links to it; `docs/api/` reachable from the site nav. No content duplication — the site pulls from the same source prose where possible.
 - **Lands:** `docs/site/` (or a `docs/` restructure); README trimmed to landing digest. Changeset: `minor`.
 
-### 4. npm provenance + signing — Tier 3, S
+### 4. npm provenance + signing — Tier 3, S ✅ implemented (verify on next release)
 
-- **What:** add `id-token: write` permission + `--provenance` to the changeset publish step in `.github/workflows/release.yml`.
-- **Why:** the release flow lacks npm provenance/signing — supply-chain integrity gap. Low effort, high integrity payoff.
-- **Acceptance:** a release publishes with provenance (verifiable on npmjs.com); the workflow run shows `id-token: write` in effect.
-- **Lands:** `.github/workflows/release.yml`. No changeset (infra-only).
+- **What:** npm **trusted publishing** (GitHub OIDC) — no long-lived `NPM_TOKEN`. `.github/workflows/release.yml`: add `id-token: write` + `environment: release` (matches the npm trusted-publisher binding's environment claim); remove `NPM_TOKEN` from the changesets step env. `package.json`: `publishConfig.provenance: true`. Provenance is auto-generated under trusted publishing (no `--provenance` flag); `changesets/action@v1` detects OIDC and skips the `.npmrc` token write, and `changeset publish` routes through `npm publish` (non-pnpm → npm) which does the OIDC exchange.
+- **Why:** eliminates the long-lived token secret (the biggest supply-chain risk) + ships Sigstore provenance. Low effort, high integrity payoff.
+- **Implemented:** `ci(release): switch to npm trusted publishing` — workflow + `package.json` committed. npm side configured: trusted publisher = `stainless-code/persist` + `release.yml` + environment `release` + `Allow npm publish`; publishing access = "require 2FA and disallow tokens".
+- **Acceptance (remaining):** the next changeset merge to `main` publishes with provenance — verify the npm version page shows the Provenance badge, or `npm view @stainless-code/persist@<ver> --json` includes `dist.attestations`. Then revoke + delete the old `NPM_TOKEN` repo secret. Strike this item once verified.
+- **Lands:** `.github/workflows/release.yml` + `package.json`. No changeset (infra-only).
 
 ### 5. Real-browser + SSR test matrix — Tier 3, M
 
