@@ -5,7 +5,8 @@ import { renderToString } from "react-dom/server";
 
 import { alwaysHydratedSignal, toHydrationSignal } from "../../core/hydration";
 import { createJSONStorage, persistSource } from "../../core/persist-core";
-import type { PersistableSource, StateStorage } from "../../core/persist-core";
+import type { PersistableSource } from "../../core/persist-core";
+import { MemoryStorage } from "../../testing/memory-storage";
 import { useHydrated } from "./react";
 
 /**
@@ -21,22 +22,6 @@ import { useHydrated } from "./react";
  *     a DOM renderer and is not exercised here; `hydration.test.ts` pins the
  *     subscribe/notify contract that wiring rides on.
  */
-
-class MemoryStorage implements StateStorage {
-  private store = new Map<string, string>();
-  clear() {
-    this.store.clear();
-  }
-  getItem(key: string) {
-    return this.store.get(key) ?? null;
-  }
-  removeItem(key: string) {
-    this.store.delete(key);
-  }
-  setItem(key: string, value: string) {
-    this.store.set(key, value);
-  }
-}
 
 function createMockSource<T>(initial: T): PersistableSource<T> & { state: T } {
   let state = initial;

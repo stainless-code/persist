@@ -1,25 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
+import { MemoryStorage } from "../testing/memory-storage";
 import { alwaysHydratedSignal, toHydrationSignal } from "./hydration";
 import type { HydrationSource } from "./hydration";
 import { createJSONStorage, persistSource } from "./persist-core";
-import type { PersistableSource, StateStorage } from "./persist-core";
-
-class MemoryStorage implements StateStorage {
-  private store = new Map<string, string>();
-  clear() {
-    this.store.clear();
-  }
-  getItem(key: string) {
-    return this.store.get(key) ?? null;
-  }
-  removeItem(key: string) {
-    this.store.delete(key);
-  }
-  setItem(key: string, value: string) {
-    this.store.set(key, value);
-  }
-}
+import type { PersistableSource } from "./persist-core";
 
 function createMockSource<T>(initial: T): PersistableSource<T> & { state: T } {
   let state = initial;

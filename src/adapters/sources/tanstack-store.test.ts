@@ -4,28 +4,8 @@ import { createAtom, Store } from "@tanstack/store";
 import type { Atom } from "@tanstack/store";
 
 import { createJSONStorage } from "../../core/persist-core";
-import type { StateStorage } from "../../core/persist-core";
+import { MemoryStorage } from "../../testing/memory-storage";
 import { persistAtom, persistStore } from "./tanstack-store";
-
-class MemoryStorage implements StateStorage {
-  private store = new Map<string, string>();
-
-  clear() {
-    this.store.clear();
-  }
-
-  getItem(key: string) {
-    return this.store.get(key) ?? null;
-  }
-
-  removeItem(key: string) {
-    this.store.delete(key);
-  }
-
-  setItem(key: string, value: string) {
-    this.store.set(key, value);
-  }
-}
 
 function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
   return new Promise<void>((resolve, reject) => {

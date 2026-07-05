@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 
+import { MemoryStorage } from "../testing/memory-storage";
 import {
   createJSONStorage,
   createPersistRegistry,
@@ -43,26 +44,6 @@ describe("persist-core zero-dep gate", () => {
     expect(storeValueImports).toEqual([]);
   });
 });
-
-class MemoryStorage implements StateStorage {
-  private store = new Map<string, string>();
-
-  clear() {
-    this.store.clear();
-  }
-
-  getItem(key: string) {
-    return this.store.get(key) ?? null;
-  }
-
-  removeItem(key: string) {
-    this.store.delete(key);
-  }
-
-  setItem(key: string, value: string) {
-    this.store.set(key, value);
-  }
-}
 
 function createMockSource<T>(initial: T): PersistableSource<T> & { state: T } {
   let state = initial;

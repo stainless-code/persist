@@ -3,28 +3,8 @@ import { beforeEach, describe, expect, it } from "bun:test";
 import type { WritableAtom } from "jotai";
 
 import { createJSONStorage } from "../../core/persist-core";
-import type { StateStorage } from "../../core/persist-core";
+import { MemoryStorage } from "../../testing/memory-storage";
 import { persistAtom } from "./jotai";
-
-class MemoryStorage implements StateStorage {
-  private store = new Map<string, string>();
-
-  clear() {
-    this.store.clear();
-  }
-
-  getItem(key: string) {
-    return this.store.get(key) ?? null;
-  }
-
-  removeItem(key: string) {
-    this.store.delete(key);
-  }
-
-  setItem(key: string, value: string) {
-    this.store.set(key, value);
-  }
-}
 
 function createMockJotaiStore<T>(initialValue: T) {
   let value = initialValue;

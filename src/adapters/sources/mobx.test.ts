@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
-import type { StateStorage } from "../../core/persist-core";
+import { MemoryStorage } from "../../testing/memory-storage";
 
 const observableMap = new WeakMap<object, Set<() => void>>();
 
@@ -18,26 +18,6 @@ mock.module("mobx", () => ({
 
 const { createJSONStorage } = await import("../../core/persist-core");
 const { persistObservable } = await import("./mobx");
-
-class MemoryStorage implements StateStorage {
-  private store = new Map<string, string>();
-
-  clear() {
-    this.store.clear();
-  }
-
-  getItem(key: string) {
-    return this.store.get(key) ?? null;
-  }
-
-  removeItem(key: string) {
-    this.store.delete(key);
-  }
-
-  setItem(key: string, value: string) {
-    this.store.set(key, value);
-  }
-}
 
 function createMockObservable<T extends object>(initial: T): T {
   const listeners = new Set<() => void>();

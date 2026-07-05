@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 
-import type { StateStorage } from "../../core/persist-core";
+import { MemoryStorage } from "../../testing/memory-storage";
 
 type MockProxy<T extends object> = T & {
   __listeners: Set<() => void>;
@@ -21,26 +21,6 @@ mock.module("valtio", () => ({
 
 const { createJSONStorage } = await import("../../core/persist-core");
 const { persistProxy } = await import("./valtio");
-
-class MemoryStorage implements StateStorage {
-  private store = new Map<string, string>();
-
-  clear() {
-    this.store.clear();
-  }
-
-  getItem(key: string) {
-    return this.store.get(key) ?? null;
-  }
-
-  removeItem(key: string) {
-    this.store.delete(key);
-  }
-
-  setItem(key: string, value: string) {
-    this.store.set(key, value);
-  }
-}
 
 function createMockProxy<T extends object>(initial: T): MockProxy<T> {
   const listeners = new Set<() => void>();
