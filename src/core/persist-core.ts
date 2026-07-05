@@ -416,14 +416,16 @@ export interface CreateMigrationChainOptions<S> {
    * Stored payload's version is *newer* than {@link version} (a downgrade).
    * `"throw"` (default) → the returned `migrate` throws → persist-core
    * routes it to `onError` phase `"migrate"`. `"discard"` → `migrate`
-   * resolves `undefined` → hydrate keeps the current/initial state.
+   * resolves `undefined` → hydrate keeps the current/initial state and
+   * writes it back, replacing the stored payload.
    */
   onNewer?: "discard" | "throw";
   /**
    * Stored payload's version is older than the chain's earliest step
    * (`minKey > 0` — you dropped support for that version). `"discard"`
-   * (default) → hydrate keeps the current/initial state. `"throw"` →
-   * `onError` phase `"migrate"`.
+   * (default) → hydrate keeps the current/initial state and writes it
+   * back, replacing the stored payload. `"throw"` → `onError` phase
+   * `"migrate"`.
    */
   onOlder?: "discard" | "throw";
 }
@@ -467,17 +469,17 @@ export function createMigrationChain<S>(
     );
   }
 
-  const fromKeys = Object.keys(steps)
-    .map(Number)
-    .filter((n) => Number.isInteger(n))
-    .sort((a, b) => a - b);
-  for (const from of fromKeys) {
-    if (from < 0 || from >= version) {
+  const fromKeys: number[] = [];
+  for (const key of Object.keys(steps)) {
+    const from = Number(key);
+    if (!Number.isInteger(from) || from < 0 || from >= version) {
       throw new Error(
-        `[createMigrationChain] step key ${from} is out of range [0, ${version - 1}]`,
+        `[createMigrationChain] step key must be a non-negative integer in [0, ${version - 1}], got "${key}"`,
       );
     }
+    fromKeys.push(from);
   }
+  fromKeys.sort((a, b) => a - b);
   // The covered range is [minKey, version-1]; no gaps within it.
   const minKey = fromKeys.length ? fromKeys[0] : 0;
   for (let from = minKey; from < version; from++) {
@@ -489,6 +491,11 @@ export function createMigrationChain<S>(
   }
 
   return async (state, fromVersion) => {
+    if (!Number.isInteger(fromVersion)) {
+      throw new Error(
+        `[createMigrationChain] stored version must be an integer, got ${fromVersion}`,
+      );
+    }
     if (fromVersion > version) {
       if (onNewer === "throw") {
         throw new Error(

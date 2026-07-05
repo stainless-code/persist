@@ -2,7 +2,7 @@
 import { createMMKV } from "react-native-mmkv";
 import type { MMKV } from "react-native-mmkv";
 
-import type { StateStorage } from "../../core/persist-core";
+import type { PersistStorage, StateStorage } from "../../core/persist-core";
 import { createJSONStorage } from "../../core/persist-core";
 
 /**
@@ -48,7 +48,9 @@ export interface MmkvStorageOptions {
  * persistStore(store, { name: "app:prefs:v1", storage });
  * ```
  */
-export function createMmkvStorage<S>(options: MmkvStorageOptions) {
+export function createMmkvStorage<S>(
+  options: MmkvStorageOptions,
+): PersistStorage<S> | undefined {
   const instance = createMMKV({
     id: options.id,
     path: options.path,

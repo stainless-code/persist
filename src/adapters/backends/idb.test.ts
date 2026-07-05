@@ -76,7 +76,7 @@ function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
   });
 }
 
-describe("persist-idb", () => {
+describe("createIdbStorage", () => {
   beforeEach(() => {
     defaultStore.clear();
   });

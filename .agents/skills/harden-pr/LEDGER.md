@@ -14,6 +14,8 @@ By-design or false-positive findings — do not re-raise.
 - **[correctness]** `src/core/persist-core.ts:147` — sync-first read path: by-design — sync backends settle pre-paint; async rides the same getItem Promise branch.
 -->
 
+- **[docs]** `docs/audits/2026-07-04-docs-adapters-roi.md` — "5 subpath entries" / historical-state counts: by-design — dated audit record (2026-07-04); counts are accurate to the audit date; the doc header carries the date.
+
 ## Deferred
 
 Capped or out-of-scope-for-now — reconcile re-vets; remove lines when fixed.
@@ -21,3 +23,8 @@ Capped or out-of-scope-for-now — reconcile re-vets; remove lines when fixed.
 ```markdown
 - **[severity]** `file:line` — finding (deferred: out of scope | cap | blocked)
 ```
+
+- **[info]** `src/adapters/transport/crosstab.test.ts` — no test for `removeItem` broadcast → receiving-tab `onCrossTabRemove` (deferred: coverage gap, not blocking; the setItem-broadcast path is covered).
+- **[nit]** `src/adapters/**/*.ts` `@example` blocks — reference symbols (e.g. `createJSONStorage`) without importing them (deferred: large surface; the `@example` import _paths_ resolve per the repo's stated bar; importing every used symbol is a stricter standard beyond it).
+- **[info]** `package.json` peerDependencies — `./frameworks/svelte` declares `svelte >=5.0.0` in source/README but `package.json` has `svelte >=3.0.0` shared with `./frameworks/svelte-store` (deferred: out of bounds — peer deps are package-level, not subpath-level; can't fix without splitting the svelte subpath into a separate package).
+- **[info]** `src/adapters/**/*.test.ts` — `createMockSource` + `waitForHydration` still copy-pasted per file (deferred: out of scope for this PR — not a regression; same dedup pattern as the shipped `MemoryStorage` fixture).

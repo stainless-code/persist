@@ -426,7 +426,7 @@ export interface HydrationSource {
 
 ## B.1 Current adapters / entry points
 
-The `exports` map in `package.json` ships 5 subpath entries. Each optional peer is isolated behind its own subpath entry — importing the subpath IS the dep opt-in (enforced by a test at `src/adapters/backends/idb.test.ts:175-199`).
+The `exports` map in `package.json` ships 5 subpath entries. Each optional peer is isolated behind its own subpath entry — importing the subpath IS the dep opt-in (enforced by a per-entry dependency-isolation test, e.g. `src/adapters/backends/idb.test.ts`).
 
 ### `.` (the core entry)
 
@@ -578,7 +578,7 @@ Adapter contract (`src/core/hydration.ts:14-27`): multiple concurrent subscriber
 - Inline `@example` JSDoc blocks in each adapter module (`src/adapters/backends/idb.ts:67-72`, `src/adapters/codecs/seroval.ts:29-35`, `src/adapters/sources/tanstack-store.ts:13-22`, `src/adapters/frameworks/react.ts:25-35`).
 - `README.md` and `docs/architecture.md` prose snippets.
 
-The `package.json:25-29` `files` array ships `dist` + `skills` only — no examples are published either. There is no end-to-end runnable app demonstrating wiring (store + storage + codec + hydration gate) outside the test suite.
+The `package.json` `files` array ships `dist` + `skills` only — no examples are published either. There is no end-to-end runnable app demonstrating wiring (store + storage + codec + hydration gate) outside the test suite.
 
 ## B.5 `./frameworks/react` entry nuance
 

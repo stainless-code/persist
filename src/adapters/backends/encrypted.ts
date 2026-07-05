@@ -9,9 +9,11 @@ export interface CreateEncryptedStorageOptions {
 /**
  * AES-GCM encryption over a string-wire `StateStorage` (WebCrypto). Each
  * stored value is `base64(iv).base64(ciphertext)` (12-byte IV prepended); the
- * auth tag means a wrong key or tampered ciphertext throws on decrypt →
- * persist-core's corrupt-payload path returns `null` (or `clearCorruptOnFailure`
- * removes the key).
+ * AES-GCM auth tag means a wrong key or tampered ciphertext throws on decrypt.
+ * That throw surfaces in the backend's async `getItem` → persist-core reports
+ * it via `onError` phase `"hydrate"` (NOT the corrupt-payload self-heal —
+ * `clearCorruptOnFailure` only fires when the *codec* throws parsing a
+ * non-corrupt raw, not when the *backend* rejects reading it).
  *
  * A backend **wrapper**, not a sync `StorageCodec`, because `crypto.subtle`
  * is async — the codec serializes (sync), this encrypts the string (async).

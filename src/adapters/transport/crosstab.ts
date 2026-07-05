@@ -85,27 +85,39 @@ export function createBroadcastCrossTab<S>(
         raw: storage.raw,
         setItem(name, value) {
           const result = storage.setItem(name, value);
-          Promise.resolve(result).then(() => {
-            postMessage({
-              key: name,
-              newValue: 1 as unknown as string,
-              storageArea: null,
+          Promise.resolve(result)
+            .then(() => {
+              postMessage({
+                key: name,
+                newValue: 1 as unknown as string,
+                storageArea: null,
+              });
+            })
+            .catch(() => {
+              // write failed — persist-core handles the error via `result`;
+              // don't broadcast a write that didn't land (and don't leak the rejection).
             });
-          });
           return result;
         },
         removeItem(name) {
           const result = storage.removeItem(name);
-          Promise.resolve(result).then(() => {
-            postMessage({ key: name, newValue: null, storageArea: null });
-          });
+          Promise.resolve(result)
+            .then(() => {
+              postMessage({ key: name, newValue: null, storageArea: null });
+            })
+            .catch(() => {
+              // remove failed — don't broadcast a removal that didn't land.
+            });
           return result;
         },
       };
     },
     close() {
-      channel.close();
+      for (const handler of handlerMap.values()) {
+        channel.removeEventListener("message", handler);
+      }
       handlerMap.clear();
+      channel.close();
     },
   };
 }

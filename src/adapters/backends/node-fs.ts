@@ -25,8 +25,17 @@ export function nodeFsStateStorage(
 ): StateStorage<string> {
   const { dir } = options;
 
-  const pathFor = (name: string) =>
-    join(dir, name.replace(/[^a-zA-Z0-9._-]/g, "_"));
+  const pathFor = (name: string) => {
+    const safe = name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    // `.` survives the sanitizer, so `name === ".."` / `"."` would resolve
+    // outside `dir` (parent / self). Refuse rather than EISDIR at I/O time.
+    if (safe === ".." || safe === "." || safe === "") {
+      throw new Error(
+        `[nodeFsStateStorage] key "${name}" sanitizes to "${safe}" — refusing to resolve outside dir`,
+      );
+    }
+    return join(dir, safe);
+  };
 
   return {
     getItem: async (name) => {

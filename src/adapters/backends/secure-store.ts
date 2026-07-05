@@ -1,7 +1,7 @@
 // expo-secure-store backend — peer `expo-secure-store` >=12.0.0. ~2KB/key limit — for small secrets.
 import * as SecureStore from "expo-secure-store";
 
-import type { StateStorage } from "../../core/persist-core";
+import type { PersistStorage, StateStorage } from "../../core/persist-core";
 import { createJSONStorage } from "../../core/persist-core";
 
 /**
@@ -37,6 +37,6 @@ export function secureStoreStateStorage(): StateStorage {
  * persistStore(store, { name: "auth:token:v1", storage, partialize: (s) => s.token });
  * ```
  */
-export function createSecureStoreStorage<S>() {
+export function createSecureStoreStorage<S>(): PersistStorage<S> | undefined {
   return createJSONStorage<S>(() => secureStoreStateStorage());
 }

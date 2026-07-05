@@ -2188,7 +2188,7 @@ describe("createMigrationChain", () => {
         version: 3,
         steps: { 0: (s) => s, 1: (s) => s, 2: (s) => s, 3: (s) => s }, // 3 >= version
       }),
-    ).toThrow(/out of range/);
+    ).toThrow(/step key must be a non-negative integer/);
   });
 
   it("eagerly throws at construction on a non-integer / negative version", () => {
@@ -2278,5 +2278,57 @@ describe("createMigrationChain", () => {
     });
     await waitForHydration(persist.hasHydrated);
     expect(errors).toContainEqual({ phase: "migrate", message: "bad step" });
+  });
+
+  it("fromVersion === version is a no-op (state returned unchanged)", async () => {
+    const migrate = createMigrationChain<{ x?: number }>({
+      version: 3,
+      steps: { 0: (s) => s, 1: (s) => s, 2: (s) => s },
+    });
+    // persist-core only calls migrate on a version mismatch, but the returned
+    // function must handle the equal-version case (zero iterations) cleanly.
+    expect(await migrate({ x: 7 }, 3)).toEqual({ x: 7 });
+  });
+
+  it("version: 0 with empty steps constructs and is a no-op", async () => {
+    const migrate = createMigrationChain<{ x?: number }>({
+      version: 0,
+      steps: {},
+    });
+    expect(await migrate({ x: 7 }, 0)).toEqual({ x: 7 });
+  });
+
+  it("propagates an async step rejection", async () => {
+    const migrate = createMigrationChain<{ x?: number }>({
+      version: 2,
+      steps: {
+        0: (s) => s,
+        1: () => Promise.reject(new Error("async step failed")),
+      },
+    });
+    await expect(migrate({}, 0)).rejects.toThrow("async step failed");
+  });
+
+  it("rejects a non-integer step key at construction", () => {
+    expect(() =>
+      createMigrationChain<{ x?: number }>({
+        version: 3,
+        steps: {
+          0: (s) => s,
+          1.5: (s) => s,
+          2: (s) => s,
+        } as Record<number, (state: { x?: number }) => { x?: number }>,
+      }),
+    ).toThrow(/step key must be a non-negative integer/);
+  });
+
+  it("rejects a non-integer stored version at runtime", async () => {
+    const migrate = createMigrationChain<{ x?: number }>({
+      version: 3,
+      steps: { 0: (s) => s, 1: (s) => s, 2: (s) => s },
+    });
+    await expect(migrate({}, 2.5)).rejects.toThrow(
+      /stored version must be an integer/,
+    );
   });
 });

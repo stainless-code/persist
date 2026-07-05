@@ -31,7 +31,7 @@ _Examples in this repo_: the three seams in `docs/architecture.md` — **backend
 
 **Adapter**
 A concrete thing that satisfies an interface at a seam. Describes _role_ (what slot it fills), not substance (what's inside).
-_Examples in this repo_: each backend (`localStorage` adapter, `idb-keyval` adapter) is an adapter at the `StateStorage<TRaw>` seam; each codec (`persist-seroval`, a JSON passthrough) is an adapter at the `StorageCodec` seam; `useHydrated` is the React adapter at the `HydrationSignal` seam. Two adapters per seam = real seam (sync backend + async backend); one adapter = hypothetical.
+_Examples in this repo_: each backend (`localStorage` adapter, `idb-keyval` adapter) is an adapter at the `StateStorage<TRaw>` seam; each codec (`seroval`, a JSON passthrough) is an adapter at the `StorageCodec` seam; `useHydrated` is the React adapter at the `HydrationSignal` seam. Two adapters per seam = real seam (sync backend + async backend); one adapter = hypothetical.
 
 **Leverage**
 What callers get from depth. More capability per unit of interface they have to learn. One implementation pays back across N call sites and M tests.

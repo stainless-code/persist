@@ -2,13 +2,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AsyncStorage as AsyncStorageInstance } from "@react-native-async-storage/async-storage";
 
-import type { StateStorage } from "../../core/persist-core";
+import type { PersistStorage, StateStorage } from "../../core/persist-core";
 import { createJSONStorage } from "../../core/persist-core";
 
 /**
  * `StateStorage` over React Native `AsyncStorage` — fully async, string-wire.
- * Pass a custom instance (e.g. `getLegacyStorage()`, or `createAsyncStorage(name)`)
- * to namespace away from the default; defaults to the module singleton.
+ * Pass a custom `AsyncStorage` instance (e.g. `getLegacyStorage()`) to
+ * namespace away from the default; defaults to the module singleton.
  *
  * @example
  * ```ts
@@ -38,6 +38,6 @@ export function asyncStorageStateStorage(
  */
 export function createAsyncStorage<S>(
   storage: AsyncStorageInstance = AsyncStorage,
-) {
+): PersistStorage<S> | undefined {
   return createJSONStorage<S>(() => asyncStorageStateStorage(storage));
 }

@@ -55,7 +55,7 @@ function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
   });
 }
 
-describe("persist-securestore", () => {
+describe("createSecureStoreStorage", () => {
   beforeEach(() => store.clear());
 
   it("secureStoreStateStorage maps the async backend", async () => {

@@ -6,18 +6,18 @@ Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [READM
 
 ## Next
 
-- **Remaining ROI work** — actionable items not yet shipped from the [2026-07-04 audit](./audits/2026-07-04-docs-adapters-roi.md): TanStack Query bridge, `examples/` workspace, docs site, npm provenance, real-browser + SSR test matrix, migration-chain helper, React ergonomics layer, OPFS/SQLite/Cloudflare adapters, playground. Plan: [`plans/remaining-roi.md`](./plans/remaining-roi.md).
+- **Remaining ROI work** — actionable items not yet shipped from the [2026-07-04 audit](./audits/2026-07-04-docs-adapters-roi.md): TanStack Query bridge, `examples/` workspace, docs site, real-browser + SSR test matrix, React ergonomics layer, OPFS/SQLite/Cloudflare adapters, playground. Plan: [`plans/remaining-roi.md`](./plans/remaining-roi.md).
 - **Upstream TanStack Persist collaboration** — pitch the `persistSource` middleware model (structural `PersistableSource` + first-class hydration lifecycle) to the TanStack Persist maintainers as a merge target, after the stainless-code publish stabilises. Draft: [`plans/upstream-tanstack-pitch.md`](./plans/upstream-tanstack-pitch.md).
 
 ---
 
 ## Strategy
 
-| Layer                                   | Role                                                                                                                                                          |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Core** (`persist-core` + `hydration`) | Zero-dep middleware: `persistSource`, `createStorage`, codecs, registry, hydration signal. No value imports (gate-test enforced).                             |
-| **Codec / backend subpaths**            | Own their optional peer (`seroval`, `idb-keyval`); compose into `createStorage`.                                                                              |
-| **Framework adapters**                  | One entry per framework (`./sources/tanstack-store`, `./frameworks/react`); each adapter is ~20 lines over `HydrationSignal`. React/Solid/Vue/Svelte shipped. |
+| Layer                                   | Role                                                                                                                              |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Core** (`persist-core` + `hydration`) | Zero-dep middleware: `persistSource`, `createStorage`, codecs, registry, hydration signal. No value imports (gate-test enforced). |
+| **Codec / backend subpaths**            | Own their optional peer (`seroval`, `idb-keyval`); compose into `createStorage`.                                                  |
+| **Framework adapters**                  | One entry per framework (`./frameworks/<fw>`); each is ~20 lines over `HydrationSignal`.                                          |
 
 ## Non-goals (v1)
 

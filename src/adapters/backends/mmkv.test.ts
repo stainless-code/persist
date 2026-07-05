@@ -71,7 +71,7 @@ function waitForHydration(hasHydrated: () => boolean, maxTicks = 10_000) {
   });
 }
 
-describe("persist-mmkv", () => {
+describe("createMmkvStorage", () => {
   beforeEach(() => instances.clear());
 
   it("mmkvStateStorage round-trips synchronously", () => {
