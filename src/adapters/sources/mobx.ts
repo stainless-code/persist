@@ -1,5 +1,5 @@
 // mobx source adapter — peer `mobx` >=6.0.0.
-import { observe, toJS } from "mobx";
+import { observe, runInAction, toJS } from "mobx";
 
 import type { PersistApi, PersistOptions } from "../../core/persist-core";
 import { persistSource } from "../../core/persist-core";
@@ -27,8 +27,12 @@ export function persistObservable<
     {
       getState: () => toJS(observable) as TState,
       setState: (updater) => {
-        const next = updater(toJS(observable) as TState);
-        Object.assign(observable, next);
+        // runInAction — Object.assign on an observable throws under
+        // `configure({ enforceActions: "always" })` outside an action.
+        runInAction(() => {
+          const next = updater(toJS(observable) as TState);
+          Object.assign(observable, next);
+        });
       },
       subscribe: (listener) => {
         const unsub = observe(observable, () => listener());

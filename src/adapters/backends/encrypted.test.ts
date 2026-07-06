@@ -6,6 +6,7 @@ import { MemoryStorage } from "../../testing/memory-storage";
 import { createMockSource } from "../../testing/mock-source";
 import { waitForHydration } from "../../testing/wait-for-hydration";
 import { serovalCodec } from "../codecs/seroval";
+import { createCompressedStorage } from "./compressed";
 import { createEncryptedStorage } from "./encrypted";
 
 async function makeKey(): Promise<CryptoKey> {
@@ -176,6 +177,22 @@ describe("createEncryptedStorage", () => {
     await expect(storage.getItem("malformed")).rejects.toThrow(
       /invalid ciphertext payload/,
     );
+  });
+
+  it("compress-then-encrypt stack round-trips (the documented recipe)", async () => {
+    const key = await makeKey();
+    const memory = new MemoryStorage();
+    const encrypted = createEncryptedStorage(() => memory, { key })!;
+    const compressed = createCompressedStorage(() => encrypted)!;
+
+    const plaintext = "hello world hello world hello world";
+    await compressed.setItem("stack", plaintext);
+
+    const raw = memory.getItem("stack")!;
+    expect(raw).toContain(".");
+    expect(raw).not.toContain("hello world");
+
+    expect(await compressed.getItem("stack")).toBe(plaintext);
   });
 
   itImportsOnlyFromCore(new URL("./encrypted.ts", import.meta.url));

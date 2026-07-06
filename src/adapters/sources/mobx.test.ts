@@ -16,6 +16,7 @@ mock.module("mobx", () => ({
     if (obj && typeof obj === "object") return { ...obj } as T;
     return obj;
   },
+  runInAction: (fn: () => void) => fn(),
 }));
 
 const { createJSONStorage } = await import("../../core/persist-core");

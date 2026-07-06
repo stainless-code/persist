@@ -96,9 +96,8 @@ async function decompress(
 }
 
 function toBase64(bytes: Uint8Array): string {
-  let bin = "";
-  for (const b of bytes) bin += String.fromCharCode(b);
-  return btoa(bin);
+  // Array.from + join — O(n), not the O(n²) of per-byte string concat.
+  return btoa(Array.from(bytes, (b) => String.fromCharCode(b)).join(""));
 }
 
 function fromBase64(s: string): Uint8Array<ArrayBuffer> {

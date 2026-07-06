@@ -34,5 +34,11 @@
     "path": "dist/codecs/zod.mjs",
     "limit": "2 KB",
     "gzip": true
+  },
+  {
+    "name": "crosstab",
+    "path": "dist/transport/crosstab.mjs",
+    "limit": "2 KB",
+    "gzip": true
   }
 ]
