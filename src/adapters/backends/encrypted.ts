@@ -31,8 +31,9 @@ export interface CreateEncryptedStorageOptions {
  * const storage = createStorage<Prefs>(
  *   () => createEncryptedStorage(() => localStorage, { key })!,
  *   serovalCodec(),
+ *   { clearCorruptOnFailure: true },
  * );
- * persistStore(store, { name: "app:prefs:v1", storage, clearCorruptOnFailure: true });
+ * persistStore(store, { name: "app:prefs:v1", storage });
  * ```
  */
 export function createEncryptedStorage(

@@ -60,5 +60,34 @@ describe("createSecureStoreStorage", () => {
     persist2.destroy();
   });
 
+  it("sanitizes colon-style persist names for SecureStore key charset", async () => {
+    const storage = createSecureStoreStorage<{ token: string }>()!;
+    const name = "auth:token:v1";
+    const sanitizedKey = "auth_token_v1";
+
+    const source = createMockSource({ token: "" });
+    const persist = persistSource(source, { name, storage });
+    await waitForHydration(persist.hasHydrated);
+
+    source.setState(() => ({ token: "secret" }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(store.has(sanitizedKey)).toBe(true);
+    expect(store.has(name)).toBe(false);
+    expect(JSON.parse(store.get(sanitizedKey)!).state.token).toBe("secret");
+
+    const source2 = createMockSource({ token: "" });
+    const persist2 = persistSource(source2, {
+      name,
+      storage,
+      skipHydration: true,
+    });
+    await persist2.rehydrate();
+    expect(source2.state.token).toBe("secret");
+
+    persist.destroy();
+    persist2.destroy();
+  });
+
   itImportsOnlyFromCore(new URL("./secure-store.ts", import.meta.url));
 });

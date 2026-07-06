@@ -111,7 +111,7 @@ Ordered by ROI = impact ÷ effort. **Effort:** S / M / L. **Status as of 2026-07
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
 | ✅ 1 | Define "hydration-aware" in the README — one paragraph + a "what flashes without it" diagram. Fixes the single biggest tone gap.                                                                                                                            | S      |
 | ✅ 2 | Add a complete IDB + React + `useHydrated` + `destroy()` walkthrough to the README. Closes the gap that justifies the library's existence.                                                                                                                  | S      |
-| ✅ 3 | Link the generated `docs/api/` site from the README + publish to GitHub Pages (`.nojekyll` already present).                                                                                                                                                | S      |
+| 3    | Link the generated `docs/api/` site from the README + publish to GitHub Pages (`.nojekyll` already present).                                                                                                                                                | S      |
 | ✅ 4 | Document `createPersistRegistry` + clear-all-on-logout with a recipe.                                                                                                                                                                                       | S      |
 | ✅ 5 | Add recipes for `partialize`, `merge`, `retryWrite`, `throttleMs`, `maxAge`, `buster` — six hidden powers, one short block each.                                                                                                                            | S      |
 | ✅ 6 | BroadcastChannel → `CrossTabEventTarget` bridge adapter for IDB cross-tab. Seam exists (`src/core/persist-core.ts:113`); IDB fires no `storage` events so `crossTab` is silently broken on IDB without it (`src/adapters/backends/idb.ts:62`, `skill:116`). | S      |
@@ -140,7 +140,7 @@ Ordered by ROI = impact ÷ effort. **Effort:** S / M / L. **Status as of 2026-07
 
 | #     | Action                                                                                                  | Effort |
 | ----- | ------------------------------------------------------------------------------------------------------- | ------ |
-| 20    | npm provenance + signing in `release.yml` (`id-token: write` + `--provenance`).                         | S      |
+| ✅ 20 | npm provenance + signing in `release.yml` (`id-token: write` + `--provenance`).                         | S      |
 | 21    | Test matrix — real browser (Playwright) + Safari + SSR-framework (Next.js hydration). Today jsdom only. | M      |
 | ✅ 22 | Coverage gate.                                                                                          | S      |
 | ✅ 23 | Bundle-size badge + `size-limit` gate.                                                                  | S      |
@@ -155,7 +155,7 @@ Ordered by ROI = impact ÷ effort. **Effort:** S / M / L. **Status as of 2026-07
 | 28    | React ergonomics layer — `<PersistProvider>` + context + `usePersisted(store)` selector binding + auto-`destroy()`. `src/adapters/frameworks/react.ts:22` signals this is intentionally deferred. | M-L     |
 | 29    | StackBlitz / CodeSandbox playground embedded in docs site.                                                                                                                                        | M       |
 | 30    | OPFS + SQLite-WASM + Cloudflare KV/Durable Objects storage adapters.                                                                                                                              | M-L     |
-| 31    | Migration-chain helper — `createMigrationChain({...})`; today `migrate` is a single callback, v0→v1→v2 chaining is user-written.                                                                  | M       |
+| ✅ 31 | Migration-chain helper — `createMigrationChain({...})`; today `migrate` is a single callback, v0→v1→v2 chaining is user-written.                                                                  | M       |
 | ✅ 32 | Continue the TanStack upstream pitch (`docs/plans/upstream-tanstack-pitch.md`) — adapter breadth (#13, #9) + docs polish (#1, #2, #12) are the leverage. Ongoing.                                 | ongoing |
 
 ---

@@ -21,7 +21,7 @@ const alwaysTrue: { readonly current: boolean } = {
  * @example
  * ```ts
  * const hydrated = hydratedRune(prefsHydration);
- * // {#if hydrated.current}<Skeleton />{:else}<Prefs />{/if}
+ * // {#if !hydrated.current}<Skeleton />{:else}<Prefs />{/if}
  * ```
  */
 export function hydratedRune(signal: HydrationSignal | null | undefined): {

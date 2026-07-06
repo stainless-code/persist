@@ -499,12 +499,12 @@ Pick by sync-vs-async (does it gate UI?), cross-tab needs, and whether you want 
 | MMKV (RN)            | ✓     | ✗         | ✗                | large              | ✗        | `./backends/mmkv`          |
 | Secure Store (Expo)  | ✗     | ✗         | ✗                | ~2KB/key           | ✓        | `./backends/secure-store`  |
 | Node fs              | ✗     | ✗         | ✗                | disk               | ✓        | `./backends/node-fs`       |
-| Encrypted (wrapper)  | ✗     | inherits  | ✗                | inherits           | ✓        | `./backends/encrypted`     |
-| Compressed (wrapper) | ✗     | inherits  | ✗                | inherits (smaller) | ✓        | `./backends/compressed`    |
+| Encrypted (wrapper)  | ✗     | ✗         | ✗                | inherits           | ✓        | `./backends/encrypted`     |
+| Compressed (wrapper) | ✗     | ✗         | ✗                | inherits (smaller) | ✓        | `./backends/compressed`    |
 | localStorage         | ✓     | ✓         | ✗                | ~5MB               | ✗        | core `createJSONStorage`   |
 | sessionStorage       | ✓     | ✗         | ✗                | ~5MB               | ✗        | core `createJSONStorage`   |
 
-IDB has no storage events — pair `./transport/crosstab` for cross-tab sync.
+IDB has no storage events — pair `./transport/crosstab` for cross-tab sync. Encrypted/compressed wrappers over `localStorage` also don't receive native `storage` events (`raw` is the wrapper, not `localStorage`) — use `./transport/crosstab` for cross-tab there too.
 
 ## Choosing a codec
 

@@ -4,6 +4,8 @@ import * as SecureStore from "expo-secure-store";
 import type { PersistStorage, StateStorage } from "../../core/persist-core";
 import { createJSONStorage } from "../../core/persist-core";
 
+const sanitizeKey = (name: string): string => name.replace(/[^\w.-]/g, "_");
+
 /**
  * `StateStorage` over `expo-secure-store` — fully async, string-wire, backed
  * by the platform keychain/keystore. Values are encrypted at rest by the OS.
@@ -11,6 +13,10 @@ import { createJSONStorage } from "../../core/persist-core";
  * **~2KB value limit per key** (platform-imposed) — use this for small secrets
  * (auth tokens, short prefs), not large state. Oversized writes reject; pair
  * `partialize` to persist only a small slice.
+ *
+ * SecureStore keys must match `/^[\w.-]+$/`. Persist names using colons (e.g.
+ * `auth:token:v1`) are sanitized — characters outside that set become `_` — so
+ * colon-style names round-trip consistently across get/set/remove.
  *
  * @example
  * ```ts
@@ -21,9 +27,10 @@ import { createJSONStorage } from "../../core/persist-core";
  */
 export function secureStoreStateStorage(): StateStorage {
   return {
-    getItem: (name) => SecureStore.getItemAsync(name),
-    setItem: (name, value) => SecureStore.setItemAsync(name, value),
-    removeItem: (name) => SecureStore.deleteItemAsync(name),
+    getItem: (name) => SecureStore.getItemAsync(sanitizeKey(name)),
+    setItem: (name, value) =>
+      SecureStore.setItemAsync(sanitizeKey(name), value),
+    removeItem: (name) => SecureStore.deleteItemAsync(sanitizeKey(name)),
   };
 }
 

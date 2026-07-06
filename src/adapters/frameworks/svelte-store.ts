@@ -13,7 +13,7 @@ import type { HydrationSignal } from "../../core/hydration";
  * @example
  * ```ts
  * const hydrated = hydratedStore(prefsHydration);
- * // {#if $hydrated}<Skeleton />{:else}<Prefs />{/if}
+ * // {#if !$hydrated}<Skeleton />{:else}<Prefs />{/if}
  * ```
  */
 export function hydratedStore(

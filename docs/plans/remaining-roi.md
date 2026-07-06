@@ -45,7 +45,7 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 
 - **What:** a VitePress or Astro Starlight site splitting the wall-of-text README into Getting Started → Adapters → Recipes → Adapter authoring → Reference; host the generated `docs/api/` under it. The README stays as the landing-page digest.
 - **Why:** the README is one document serving "give me 5 minutes", "I want the seam theory", and "I'm writing a Svelte adapter" — all three audiences get one scroll. The generated `docs/api/` site is built but git-ignored and unlinked.
-- **Acceptance:** site builds (`bun run docs:site` or equivalent), deployed to GitHub Pages (`.nojekyll` already present); README links to it; `docs/api/` reachable from the site nav. No content duplication — the site pulls from the same source prose where possible.
+- **Acceptance:** site builds (`bun run docs:site` or equivalent), deployed to GitHub Pages (add `.nojekyll` at publish time); README links to it; `docs/api/` reachable from the site nav. No content duplication — the site pulls from the same source prose where possible.
 - **Lands:** `docs/site/` (or a `docs/` restructure); README trimmed to landing digest. Changeset: `minor`.
 
 ### 4. npm provenance + signing — Tier 3, S ✅ implemented (verify on next release)
@@ -63,21 +63,21 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 - **Acceptance:** CI `Test (Browser)` job runs Playwright green; `Test (SSR)` job runs a Next.js app green; both gated by `CI complete`. Co-locate fixtures under `tests-browser/` and `tests-ssr/` (outside `bun test ./src`'s scan, like `tests-dom/`).
 - **Lands:** `.github/workflows/ci.yml` + new test dirs; `docs/architecture.md` § Test matrix updated. No changeset (test-only).
 
-### 7. React ergonomics layer — Tier 4, M-L
+### 6. React ergonomics layer — Tier 4, M-L
 
 - **What:** a `./frameworks/react` ergonomics companion (or a new `./frameworks/react-context` subpath) — `<PersistProvider>` + React context + `usePersisted(store, selector)` selector binding + auto-`destroy()` on unmount. The existing `useHydrated` stays the reference primitive.
 - **Why:** `useHydrated` is the entire React surface today — no provider, no auto store binding, no auto-teardown. Each consumer manually threads a `HydrationSignal` + `useEffect` cleanup (`src/adapters/frameworks/react.ts:22` signals this is intentionally deferred).
 - **Acceptance:** subpath ships + `tests-dom` coverage for mount/unmount teardown + selector rerender + provider scoping; README "React ergonomics" section. Keep it optional — the bare `useHydrated` path must remain valid.
 - **Lands:** `src/adapters/frameworks/react-context.ts` (new subpath) + README section. Changeset: `minor`. **Decision needed:** ship in-repo or as a separate package (the JSDoc deferral hints at a higher-layer package).
 
-### 8. OPFS + SQLite-WASM + Cloudflare KV/Durable Objects adapters — Tier 4, M-L
+### 7. OPFS + SQLite-WASM + Cloudflare KV/Durable Objects adapters — Tier 4, M-L
 
 - **What:** three new `./backends/` subpaths: `opfs` (Origin Private File System, async, file-backed, high-volume structured state), `sqlite-wasm` (wa-sqlite / sqlite-wasm, structured-clone mode like IDB), `cloudflare-kv` + `cloudflare-do` (edge runtime, async `StateStorage`).
 - **Why:** extends the backend surface to high-volume browser state, structured-query WASM storage, and edge runtimes. All fit `StateStorage<TRaw>` cleanly; no core rework.
 - **Acceptance:** each ships as its own subpath with optional peer + co-located test (mock the runtime, like the MMKV/AsyncStorage tests) + README backend decision-matrix row. `sqlite-wasm` may be better as a community recipe than a shipped peer (heavy) — decide per-adapter.
 - **Lands:** `src/adapters/backends/<name>.ts` + README "Choosing a storage" row + changeset (one per adapter).
 
-### 9. StackBlitz / CodeSandbox playground — Tier 4, M
+### 8. StackBlitz / CodeSandbox playground — Tier 4, M
 
 - **What:** an embedded live-editable example (StackBlitz or CodeSandbox) linked from the docs site (item 3) and README — the fastest on-ramp for a new user.
 - **Why:** no playground today; a new user can't try a wiring without cloning. Pairs with the docs site (item 3) and `examples/` (item 2).
@@ -101,8 +101,8 @@ From audit Appendix B.3. Each is a one-line composition over an existing seam; s
 
 1. **#1 (Query bridge)** — M, pure code, high adoption payoff, no deps. Best next pick.
 2. **#5 (real-browser + SSR matrix)** — M, de-risks the hydration-critical paths before more surface lands.
-3. **#2 (examples/) → #3 (docs site) → #9 (playground)** — the docs/demo arc; sequence so each builds on the prior.
-4. **#7 (React ergonomics) + #8 (OPFS/SQLite/Cloudflare)** — strategic; decide ship-vs-recipe per item.
+3. **#2 (examples/) → #3 (docs site) → #8 (playground)** — the docs/demo arc; sequence so each builds on the prior.
+4. **#6 (React ergonomics) + #7 (OPFS/SQLite/Cloudflare)** — strategic; decide ship-vs-recipe per item.
 
 ## Reference
 

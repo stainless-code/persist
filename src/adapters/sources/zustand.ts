@@ -11,6 +11,7 @@ import { persistSource } from "../../core/persist-core";
  * @example
  * ```ts
  * import { create } from "zustand";
+ * import { createJSONStorage } from "@stainless-code/persist";
  * import { persistStore } from "@stainless-code/persist/sources/zustand";
  * const store = create(() => ({ count: 0 }));
  * const persist = persistStore(store, { name: "count", storage: createJSONStorage(() => localStorage) });
