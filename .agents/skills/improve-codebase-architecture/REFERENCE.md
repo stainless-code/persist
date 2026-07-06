@@ -89,13 +89,7 @@ Example leaf for a directional rule (keep `persist-core` / `hydration` free of p
       {
         "patterns": [
           {
-            "group": [
-              "seroval",
-              "idb-keyval",
-              "@tanstack/store",
-              "react",
-              "react-dom"
-            ],
+            "group": ["seroval", "idb-keyval", "@tanstack/store", "react"],
             "message": "Zero-dep core: peer deps are subpath opt-in, not core imports. Use the matching subpath entry."
           }
         ]

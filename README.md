@@ -599,7 +599,7 @@ async function logout() {
 ### Partialize
 
 ```ts
-// Persist only prefs — ephemeral fields (scroll, modal) changing alone never write
+// Persist only prefs — ephemeral fields (scroll, modal) are excluded from the payload
 persistStore(store, {
   name: "app:state",
   storage,
@@ -806,7 +806,7 @@ import { createStorage } from "@stainless-code/persist";
 import { nodeFsStateStorage } from "@stainless-code/persist/backends/node-fs";
 import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
 
-// One file per key under ./persist — async (fs.promises); gate UI on useHydrated in SSR
+// One file per key under ./.persist — async (fs.promises); gate UI on useHydrated in SSR
 const storage = createStorage<Prefs>(
   () => nodeFsStateStorage({ dir: "./.persist" }),
   serovalCodec(),
