@@ -2291,3 +2291,85 @@ describe("createMigrationChain", () => {
     );
   });
 });
+
+describe("persistApi.clearStorage pending-write cancellation", () => {
+  let memory: MemoryStorage;
+
+  beforeEach(() => {
+    memory = new MemoryStorage();
+  });
+
+  it("clearStorage cancels a pending throttled write — the key stays cleared (no resurrection)", async () => {
+    const jsonStorage = createJSONStorage<{ count: number }>(() => memory)!;
+    const source = createMockSource({ count: 0 });
+    const persist = persistSource(source, {
+      name: "clear-pending",
+      storage: jsonStorage,
+      throttleMs: 20,
+    });
+    await waitForHydration(persist.hasHydrated);
+    source.setState(() => ({ count: 5 })); // pending in the 20ms window
+    await persist.clearStorage(); // cancels pending + removes
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    expect(memory.getItem("clear-pending")).toBeNull();
+    persist.destroy();
+  });
+
+  it("registry.clearAll cancels a pending throttled write (logout wipe survives a pending write)", async () => {
+    const jsonStorage = createJSONStorage<{ count: number }>(() => memory)!;
+    const registry = createPersistRegistry();
+    const source = createMockSource({ count: 0 });
+    const persist = persistSource(source, {
+      name: "clear-all-pending",
+      storage: jsonStorage,
+      throttleMs: 20,
+      registry,
+    });
+    await waitForHydration(persist.hasHydrated);
+    source.setState(() => ({ count: 5 }));
+    await registry.clearAll();
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    expect(memory.getItem("clear-all-pending")).toBeNull();
+    persist.destroy();
+  });
+});
+
+describe("persistSource write-during-async-hydrate", () => {
+  let memory: MemoryStorage;
+
+  beforeEach(() => {
+    memory = new MemoryStorage();
+  });
+
+  it("a setState during an async hydrate is re-scheduled after settle (not silently lost on reload)", async () => {
+    let resolveGet: ((value: string | null) => void) | undefined;
+    const delayedStorage: StateStorage = {
+      getItem: () =>
+        new Promise((resolve) => {
+          resolveGet = resolve;
+        }),
+      setItem: (name, value) => memory.setItem(name, value),
+      removeItem: (name) => memory.removeItem(name),
+    };
+    const jsonStorage = createJSONStorage<{ count: number }>(
+      () => delayedStorage,
+    )!;
+    const source = createMockSource({ count: 0 });
+    const persist = persistSource(source, {
+      name: "skip-during-hydrate",
+      storage: jsonStorage,
+    });
+    // Hydrate getItem is unresolved; a user setState lands during the window.
+    source.setState(() => ({ count: 9 }));
+    // Resolve the hydrate with NO usable payload → no merge → state stays 9.
+    resolveGet?.(null);
+    await waitForHydration(persist.hasHydrated);
+    expect(source.state.count).toBe(9);
+    // The skipped write was re-scheduled after settle → storage has count:9.
+    await new Promise((resolve) => queueMicrotask(resolve));
+    const stored = memory.getItem("skip-during-hydrate");
+    expect(stored).not.toBeNull();
+    expect(JSON.parse(stored!).state.count).toBe(9);
+    persist.destroy();
+  });
+});

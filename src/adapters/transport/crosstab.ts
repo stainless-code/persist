@@ -104,14 +104,24 @@ export function createBroadcastCrossTab<S>(
           return result;
         },
         removeItem(name) {
+          // Probe presence before removing so a no-op remove (key already
+          // absent in a shared backend — IDB, localStorage) doesn't broadcast
+          // and echo across tabs (skipPersist reset → onCrossTabRemove → …).
+          const present = Promise.resolve(storage.getItem(name)).then(
+            (v) => v != null,
+            () => true, // probe failed — assume present so a real remove still broadcasts
+          );
           const result = storage.removeItem(name);
-          Promise.resolve(result)
-            .then(() => {
-              postMessage({ key: name, newValue: null, storageArea: null });
-            })
-            .catch(() => {
-              // remove failed — don't broadcast a removal that didn't land.
-            });
+          present.then((wasPresent) => {
+            if (!wasPresent) return;
+            Promise.resolve(result)
+              .then(() => {
+                postMessage({ key: name, newValue: null, storageArea: null });
+              })
+              .catch(() => {
+                // remove failed — don't broadcast a removal that didn't land.
+              });
+          });
           return result;
         },
       };

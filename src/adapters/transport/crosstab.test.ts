@@ -198,5 +198,65 @@ describe("createBroadcastCrossTab", () => {
     expect(fired).toBe(false);
   });
 
+  it("skipPersist reset + onCrossTabRemove: no remove-echo loop across tabs", async () => {
+    const shared = new Map<string, StorageValue<{ count: number }>>();
+    shared.set("echo", { state: { count: 5 }, version: 0 });
+    const channelName = `echo-${Math.random()}`;
+    const bridgeA = createBroadcastCrossTab<{ count: number }>({
+      channelName,
+    })!;
+    const bridgeB = createBroadcastCrossTab<{ count: number }>({
+      channelName,
+    })!;
+
+    let removeCallsA = 0;
+    let removeCallsB = 0;
+    const sourceA = createMockSource({ count: 0 });
+    const sourceB = createMockSource({ count: 0 });
+
+    const persistA = persistSource(sourceA, {
+      name: "echo",
+      storage: bridgeA.wrap(createSharedAsyncStorage(shared)),
+      crossTab: true,
+      crossTabEventTarget: bridgeA.crossTabEventTarget,
+      skipPersist: (s) => s.count === 0,
+      onCrossTabRemove: () => {
+        removeCallsA++;
+        sourceA.setState(() => ({ count: 0 }));
+      },
+    });
+    const persistB = persistSource(sourceB, {
+      name: "echo",
+      storage: bridgeB.wrap(createSharedAsyncStorage(shared)),
+      crossTab: true,
+      crossTabEventTarget: bridgeB.crossTabEventTarget,
+      skipPersist: (s) => s.count === 0,
+      onCrossTabRemove: () => {
+        removeCallsB++;
+        sourceB.setState(() => ({ count: 0 }));
+      },
+    });
+
+    await waitForHydration(persistA.hasHydrated);
+    await waitForHydration(persistB.hasHydrated);
+    expect(sourceA.state.count).toBe(5);
+    expect(sourceB.state.count).toBe(5);
+
+    // Tab A resets to default → skipPersist removes + broadcasts. Tab B's
+    // onCrossTabRemove resets → its skipPersist removeItem finds the key already
+    // absent in the shared backend → must NOT re-broadcast (would loop).
+    sourceA.setState(() => ({ count: 0 }));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(removeCallsB).toBe(1); // tab A's removal reached tab B once
+    expect(removeCallsA).toBe(0); // tab B never echoed back
+    expect(shared.get("echo")).toBeUndefined();
+
+    persistA.destroy();
+    persistB.destroy();
+    bridgeA.close();
+    bridgeB.close();
+  });
+
   itImportsOnlyFromCore(new URL("./crosstab.ts", import.meta.url));
 });

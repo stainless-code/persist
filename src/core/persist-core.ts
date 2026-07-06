@@ -753,6 +753,14 @@ export function persistSource<TState, TPersistedState = TState>(
 
   let hasHydratedFlag = false;
   let hydrationVersion = 0;
+  // True while persist-core is driving `source.setState` itself (the hydrate
+  // merge) so the subscribe gate can distinguish that notification from a user
+  // `setState` during the hydrate window (see `writeSkippedDuringHydrate`).
+  let internalSetState = false;
+  // A user `setState` landed during an async hydrate — the subscribe gate drops
+  // it (a stale flush would race the storage read). Re-scheduled after settle so
+  // the change isn't silently lost on reload with no follow-up write.
+  let writeSkippedDuringHydrate = false;
   const hydrationListeners = new Set<PersistListener<TState>>();
   const finishHydrationListeners = new Set<PersistListener<TState>>();
 
@@ -951,7 +959,13 @@ export function persistSource<TState, TPersistedState = TState>(
   // mount/scope) leaks a subscription + registry entry per mount and keeps
   // writing after unmount.
   const sourceSubscription = source.subscribe(() => {
-    if (!hasHydratedFlag) return;
+    if (!hasHydratedFlag) {
+      // A user setState during an async hydrate — the gate drops it (a stale
+      // flush would race the storage read); re-scheduled after settle. Skip the
+      // persist-core-driven merge (`internalSetState`) — not a user write to recover.
+      if (!internalSetState) writeSkippedDuringHydrate = true;
+      return;
+    }
     scheduleWrite();
   });
 
@@ -1068,7 +1082,14 @@ export function persistSource<TState, TPersistedState = TState>(
   const applyResolvedState = (migratedState: TPersistedState | undefined) => {
     if (migratedState === undefined) return;
     const merge = options.merge ?? shallowSpreadMerge;
-    source.setState(() => merge(migratedState, source.getState()));
+    // Mark this as persist-core's own setState so the subscribe gate doesn't
+    // record it as a user write to re-schedule (the merge is not a write event).
+    internalSetState = true;
+    try {
+      source.setState(() => merge(migratedState, source.getState()));
+    } finally {
+      internalSetState = false;
+    }
   };
 
   // Shared finish/fail epilogue: settle the post-rehydration callback, flip
@@ -1104,6 +1125,7 @@ export function persistSource<TState, TPersistedState = TState>(
 
     const currentVersion = ++hydrationVersion;
     hasHydratedFlag = false;
+    writeSkippedDuringHydrate = false;
     // A pending throttled write predates this hydrate — cancel it (a stale
     // flush must not race the storage read), but REMEMBER it: if this
     // hydrate wins, the state it captured is still current post-merge and
@@ -1162,10 +1184,11 @@ export function persistSource<TState, TPersistedState = TState>(
       if (currentVersion !== hydrationVersion) return;
 
       settleHydration(postRehydrationCallback);
-      // Re-schedule the write this hydrate cancelled on entry: the state it
-      // captured is still the current state (post-merge), and dropping it
-      // would leave storage stale until the next setState.
-      if (hadPendingWrite) scheduleWrite();
+      // Re-schedule the write this hydrate cancelled on entry, OR a user
+      // setState that the subscribe gate dropped during the async window: the
+      // state it captured is still the current state (post-merge), and dropping
+      // it would leave storage stale until the next setState.
+      if (hadPendingWrite || writeSkippedDuringHydrate) scheduleWrite();
     } catch (error: unknown) {
       if (currentVersion !== hydrationVersion) return;
       reportError(error, errorPhase);
@@ -1180,7 +1203,7 @@ export function persistSource<TState, TPersistedState = TState>(
       } catch (settleError) {
         reportError(settleError, "hydrate");
       } finally {
-        if (hadPendingWrite) scheduleWrite();
+        if (hadPendingWrite || writeSkippedDuringHydrate) scheduleWrite();
       }
     }
   };
@@ -1205,6 +1228,11 @@ export function persistSource<TState, TPersistedState = TState>(
       }
     },
     clearStorage() {
+      // Cancel any pending throttled write + supersede in-flight retryWrite
+      // before removing the key — otherwise a pending timer or retry loop
+      // resurrects the key after the clear (also affects registry.clearAll()).
+      cancelPendingWrite();
+      writeGeneration++;
       return storage?.removeItem(options.name);
     },
     rehydrate: hydrate,
