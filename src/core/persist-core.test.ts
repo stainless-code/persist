@@ -7,6 +7,7 @@ import {
   createJSONStorage,
   createMigrationChain,
   createPersistRegistry,
+  createSessionStorage,
   createStorage,
   identityCodec,
   jsonCodec,
@@ -160,6 +161,48 @@ describe("createJSONStorage codec seam", () => {
     expect(objects.get("obj")?.state.tags instanceof Set).toBe(true);
     const stored = await storage.getItem("obj");
     expect(stored?.state.tags).toEqual(new Set(["x"]));
+  });
+});
+
+describe("createSessionStorage", () => {
+  it("returns undefined when sessionStorage is defined but broken (Node 22+ half-built global)", () => {
+    const saved = globalThis.sessionStorage;
+    globalThis.sessionStorage = {
+      getItem: undefined,
+      setItem: undefined,
+      removeItem: undefined,
+    } as unknown as typeof globalThis.sessionStorage;
+    try {
+      expect(createSessionStorage<{ count: number }>()).toBeUndefined();
+    } finally {
+      if (saved === undefined) {
+        // @ts-expect-error restore the undefined global
+        delete globalThis.sessionStorage;
+      } else {
+        globalThis.sessionStorage = saved;
+      }
+    }
+  });
+
+  it("round-trips JSON values over a stubbed sessionStorage", async () => {
+    const stub = new MemoryStorage();
+    const saved = globalThis.sessionStorage;
+    // @ts-expect-error — MemoryStorage satisfies the 3-method shape createJSONStorage checks
+    globalThis.sessionStorage = stub;
+    try {
+      const storage = createSessionStorage<{ count: number }>()!;
+      await storage.setItem("s", { state: { count: 5 }, version: 0 });
+      const stored = await storage.getItem("s");
+      expect(stored?.state.count).toBe(5);
+      expect(stub.getItem("s")).not.toBeNull();
+    } finally {
+      if (saved === undefined) {
+        // @ts-expect-error
+        delete globalThis.sessionStorage;
+      } else {
+        globalThis.sessionStorage = saved;
+      }
+    }
   });
 });
 

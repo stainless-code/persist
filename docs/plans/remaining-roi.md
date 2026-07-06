@@ -81,7 +81,6 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 
 From audit Appendix B.3. Each is a one-line composition over an existing seam; ship only if demand surfaces.
 
-- **sessionStorage named factory** (S) — already works via `createJSONStorage(() => sessionStorage)`; a named factory is pure DX/discoverability. Cross-tab is meaningless (per-tab).
 - **Redis backend** (M) — server-side persistent state; async `StateStorage`. Pairs with `./backends/node-fs` for a real server story.
 - **Chrome `storage.area`** (S) — `local` / `sync` / `session` for MV3 extensions (`localStorage` is forbidden in MV3 service workers).
 - **cookies backend** (M) — server-rendered hydration; size limits + HTTP coupling make it awkward — likely a recipe, not a shipped peer.

@@ -646,6 +646,17 @@ export function createJSONStorage<S>(
 }
 
 /**
+ * Build a JSON-encoded `PersistStorage` over `sessionStorage` — per-tab, so
+ * `crossTab` is meaningless.
+ */
+export function createSessionStorage<S>(
+  options?: JsonStorageOptions,
+): PersistStorage<S> | undefined {
+  if (typeof sessionStorage === "undefined") return;
+  return createJSONStorage<S>(() => sessionStorage, options);
+}
+
+/**
  * Default merge: shallow-spread persisted over current. Single definition
  * referenced by both the options initializer and the hydrate fallback.
  */
