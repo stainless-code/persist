@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "bun:test";
 import { z } from "zod";
 
 import { createStorage, persistSource } from "../../core/persist-core";
+import { itImportsOnlyFromCore } from "../../testing/assert-core-only-imports";
 import { MemoryStorage } from "../../testing/memory-storage";
 import { createMockSource } from "../../testing/mock-source";
 import { waitForHydration } from "../../testing/wait-for-hydration";
@@ -97,13 +98,5 @@ describe("zodCodec direct seam", () => {
 });
 
 describe("zod dependency isolation", () => {
-  it("imports only from core (no cross-adapter coupling)", async () => {
-    const source = await Bun.file(new URL("./zod.ts", import.meta.url)).text();
-    const relativeImports = [
-      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
-    ].map((match) => match[1]);
-    for (const importPath of relativeImports) {
-      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
-    }
-  });
+  itImportsOnlyFromCore(new URL("./zod.ts", import.meta.url));
 });

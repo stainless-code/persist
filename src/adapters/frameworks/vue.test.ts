@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { effect, effectScope } from "vue";
 
+import { itImportsOnlyFromCore } from "../../testing/assert-core-only-imports";
 import { useHydrated } from "./vue";
 
 function createFakeSignal() {
@@ -50,7 +51,7 @@ describe("useHydrated (vue)", () => {
     scope.run(() => {
       hydratedRef = useHydrated(signal);
       effect(() => {
-        hydratedRef!.value;
+        void hydratedRef!.value;
       });
     });
     expect(signal.listenerCount()).toBe(1);
@@ -61,13 +62,5 @@ describe("useHydrated (vue)", () => {
     expect(hydratedRef!.value).toBe(lastValue);
   });
 
-  it("imports only from core (no cross-adapter coupling)", async () => {
-    const source = await Bun.file(new URL("./vue.ts", import.meta.url)).text();
-    const relativeImports = [
-      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
-    ].map((match) => match[1]);
-    for (const importPath of relativeImports) {
-      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
-    }
-  });
+  itImportsOnlyFromCore(new URL("./vue.ts", import.meta.url));
 });

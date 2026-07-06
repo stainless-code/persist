@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "bun:test";
 
 import { createStorage, persistSource } from "../../core/persist-core";
 import type { StateStorage } from "../../core/persist-core";
+import { itImportsOnlyFromCore } from "../../testing/assert-core-only-imports";
 import { MemoryStorage } from "../../testing/memory-storage";
 import { createMockSource } from "../../testing/mock-source";
 import { waitForHydration } from "../../testing/wait-for-hydration";
@@ -121,15 +122,5 @@ describe("serovalCodec direct seam", () => {
 });
 
 describe("seroval dependency isolation", () => {
-  it("imports only from core (no cross-adapter coupling)", async () => {
-    const source = await Bun.file(
-      new URL("./seroval.ts", import.meta.url),
-    ).text();
-    const relativeImports = [
-      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
-    ].map((match) => match[1]);
-    for (const importPath of relativeImports) {
-      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
-    }
-  });
+  itImportsOnlyFromCore(new URL("./seroval.ts", import.meta.url));
 });

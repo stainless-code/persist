@@ -1,5 +1,7 @@
 import { beforeAll, describe, expect, it, mock } from "bun:test";
 
+import { itImportsOnlyFromCore } from "../../testing/assert-core-only-imports";
+
 // Bun resolves `solid-js` to the SSR build (`createEffect` is a no-op). Point
 // both the test and `solid` at the client build for reactive coverage.
 mock.module(
@@ -90,15 +92,5 @@ describe("useHydrated", () => {
 });
 
 describe("solid dependency isolation", () => {
-  it("imports only from core (no cross-adapter coupling)", async () => {
-    const source = await Bun.file(
-      new URL("./solid.ts", import.meta.url),
-    ).text();
-    const relativeImports = [
-      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
-    ].map((match) => match[1]);
-    for (const importPath of relativeImports) {
-      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
-    }
-  });
+  itImportsOnlyFromCore(new URL("./solid.ts", import.meta.url));
 });

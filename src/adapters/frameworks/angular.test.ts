@@ -1,5 +1,7 @@
 import { beforeAll, describe, expect, it, mock } from "bun:test";
 
+import { itImportsOnlyFromCore } from "../../testing/assert-core-only-imports";
+
 // Minimal Angular signals stub — signal() + effect() without an injection
 // context. effect() runs immediately + registers cleanup via its callback arg.
 const cleanups: Array<() => void> = [];
@@ -82,15 +84,5 @@ describe("useHydrated", () => {
 });
 
 describe("angular dependency isolation", () => {
-  it("imports only from core (no cross-adapter coupling)", async () => {
-    const source = await Bun.file(
-      new URL("./angular.ts", import.meta.url),
-    ).text();
-    const relativeImports = [
-      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
-    ].map((match) => match[1]);
-    for (const importPath of relativeImports) {
-      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
-    }
-  });
+  itImportsOnlyFromCore(new URL("./angular.ts", import.meta.url));
 });

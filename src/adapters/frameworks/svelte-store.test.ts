@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { get } from "svelte/store";
 
+import { itImportsOnlyFromCore } from "../../testing/assert-core-only-imports";
 import { hydratedStore } from "./svelte-store";
 
 function createFakeSignal() {
@@ -59,15 +60,5 @@ describe("hydratedStore (svelte 3+ stores)", () => {
 });
 
 describe("svelte-store dependency isolation", () => {
-  it("imports only from core (no cross-adapter coupling)", async () => {
-    const source = await Bun.file(
-      new URL("./svelte-store.ts", import.meta.url),
-    ).text();
-    const relativeImports = [
-      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
-    ].map((match) => match[1]);
-    for (const importPath of relativeImports) {
-      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
-    }
-  });
+  itImportsOnlyFromCore(new URL("./svelte-store.ts", import.meta.url));
 });

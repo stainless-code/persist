@@ -5,6 +5,7 @@ import { renderToString } from "react-dom/server";
 
 import { alwaysHydratedSignal, toHydrationSignal } from "../../core/hydration";
 import { createJSONStorage, persistSource } from "../../core/persist-core";
+import { itImportsOnlyFromCore } from "../../testing/assert-core-only-imports";
 import { MemoryStorage } from "../../testing/memory-storage";
 import { createMockSource } from "../../testing/mock-source";
 import { waitForHydration } from "../../testing/wait-for-hydration";
@@ -115,15 +116,5 @@ describe("useHydrated", () => {
 });
 
 describe("react dependency isolation", () => {
-  it("imports only from core (no cross-adapter coupling)", async () => {
-    const source = await Bun.file(
-      new URL("./react.ts", import.meta.url),
-    ).text();
-    const relativeImports = [
-      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
-    ].map((match) => match[1]);
-    for (const importPath of relativeImports) {
-      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
-    }
-  });
+  itImportsOnlyFromCore(new URL("./react.ts", import.meta.url));
 });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
+import { itImportsOnlyFromCore } from "../../testing/assert-core-only-imports";
 import { hydratedRune } from "./svelte";
 
 function createFakeSignal() {
@@ -43,15 +44,5 @@ describe("hydratedRune (svelte 5 runes)", () => {
 });
 
 describe("svelte dependency isolation", () => {
-  it("imports only from core (no cross-adapter coupling)", async () => {
-    const source = await Bun.file(
-      new URL("./svelte.ts", import.meta.url),
-    ).text();
-    const relativeImports = [
-      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
-    ].map((match) => match[1]);
-    for (const importPath of relativeImports) {
-      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
-    }
-  });
+  itImportsOnlyFromCore(new URL("./svelte.ts", import.meta.url));
 });

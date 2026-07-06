@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "bun:test";
 import type { StoreApi } from "zustand";
 
 import { createJSONStorage } from "../../core/persist-core";
+import { itImportsOnlyFromCore } from "../../testing/assert-core-only-imports";
 import { MemoryStorage } from "../../testing/memory-storage";
 import { waitForHydration } from "../../testing/wait-for-hydration";
 import { persistStore } from "./zustand";
@@ -87,15 +88,5 @@ describe("persistStore", () => {
 });
 
 describe("zustand dependency isolation", () => {
-  it("imports only from core (no cross-adapter coupling)", async () => {
-    const source = await Bun.file(
-      new URL("./zustand.ts", import.meta.url),
-    ).text();
-    const relativeImports = [
-      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
-    ].map((match) => match[1]);
-    for (const importPath of relativeImports) {
-      expect(importPath).toMatch(/^\.\.\/\.\.\/core\//);
-    }
-  });
+  itImportsOnlyFromCore(new URL("./zustand.ts", import.meta.url));
 });

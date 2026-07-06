@@ -1,5 +1,7 @@
 import { describe, expect, it, mock } from "bun:test";
 
+import { itImportsOnlyFromCore } from "../../testing/assert-core-only-imports";
+
 mock.module("preact/compat", () => ({
   useSyncExternalStore: (
     _subscribe: (listener: () => void) => () => void,
@@ -44,15 +46,5 @@ describe("useHydrated", () => {
 });
 
 describe("preact dependency isolation", () => {
-  it("imports only from core (no cross-adapter coupling)", async () => {
-    const source = await Bun.file(
-      new URL("./preact.ts", import.meta.url),
-    ).text();
-    const relativeImports = [
-      ...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g),
-    ].map((m) => m[1]);
-    for (const imp of relativeImports) {
-      expect(imp).toMatch(/^\.\.\/\.\.\/core\//);
-    }
-  });
+  itImportsOnlyFromCore(new URL("./preact.ts", import.meta.url));
 });
