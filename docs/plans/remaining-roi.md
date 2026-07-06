@@ -1,6 +1,6 @@
 # Remaining ROI work
 
-Actionable items not yet shipped from the [2026-07-04 ROI audit](../audits/2026-07-04-docs-adapters-roi.md). Shipped items are ✅-marked in the audit; this plan tracks the rest. When an item ships, lift its durable bits to `docs/architecture.md` / `docs/roadmap.md` / a rule and strike it here; when the list is empty, delete this file (per [docs-governance § Closing a plan](../../.agents/skills/docs-governance/LIFECYCLE.md)).
+Actionable items not yet shipped from the docs-adapters ROI work. When an item ships, lift its durable bits to `docs/architecture.md` / `docs/roadmap.md` / a rule and strike it here; when the list is empty, delete this file (per [docs-governance § Closing a plan](../../.agents/skills/docs-governance/LIFECYCLE.md)).
 
 ## Context (read this first)
 
@@ -106,8 +106,7 @@ From audit Appendix B.3. Each is a one-line composition over an existing seam; s
 
 ## Reference
 
-- [Audit (full findings + shipped ✅ marks)](../audits/2026-07-04-docs-adapters-roi.md)
-- [Architecture — seams, entry points, test matrix](../architecture.md)
+- [Architecture — seams, entry points, test matrix, limitations](../architecture.md)
 - [Roadmap](../roadmap.md)
 - [Upstream TanStack pitch](./upstream-tanstack-pitch.md)
 - Root [README](../../README.md) — install, quick start, recipes, decision matrices

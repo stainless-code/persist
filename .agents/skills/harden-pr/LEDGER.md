@@ -14,8 +14,6 @@ By-design or false-positive findings — do not re-raise.
 - **[correctness]** `src/core/persist-core.ts:147` — sync-first read path: by-design — sync backends settle pre-paint; async rides the same getItem Promise branch.
 -->
 
-- **[docs]** `docs/audits/2026-07-04-docs-adapters-roi.md` — "5 subpath entries" / historical-state counts: by-design — dated audit record (2026-07-04); counts are accurate to the audit date; the doc header carries the date.
-
 ## Deferred
 
 Capped or out-of-scope-for-now — reconcile re-vets; remove lines when fixed.

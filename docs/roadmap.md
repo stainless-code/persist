@@ -6,7 +6,7 @@ Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [READM
 
 ## Next
 
-- **Remaining ROI work** — actionable items not yet shipped from the [2026-07-04 audit](./audits/2026-07-04-docs-adapters-roi.md): TanStack Query bridge, `examples/` workspace, docs site, real-browser + SSR test matrix, React ergonomics layer, OPFS/SQLite/Cloudflare adapters, playground. Plan: [`plans/remaining-roi.md`](./plans/remaining-roi.md).
+- **Remaining ROI work** — actionable items not yet shipped: TanStack Query bridge, `examples/` workspace, docs site, real-browser + SSR + framework-runtime test matrix, React ergonomics layer, OPFS/SQLite/Cloudflare adapters, playground. Plan: [`plans/remaining-roi.md`](./plans/remaining-roi.md).
 - **Upstream TanStack Persist collaboration** — pitch the `persistSource` middleware model (structural `PersistableSource` + first-class hydration lifecycle) to the TanStack Persist maintainers as a merge target, after the stainless-code publish stabilises. Draft: [`plans/upstream-tanstack-pitch.md`](./plans/upstream-tanstack-pitch.md).
 
 ---

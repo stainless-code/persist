@@ -70,6 +70,26 @@ One API. Sync backends (localStorage) settle hydration before first paint; async
 
 `buster` / `maxAge` / `throttleMs` / `retryWrite` ship alongside versioned `migrate`, cross-tab sync (`crossTab` + `onCrossTabRemove`), the hydration signal, and the codec seam — beyond what TanStack Query's `persistQueryClient` offers. **Deliberate `maxAge` default divergence:** prefs shouldn't silently expire, so `maxAge` is opt-in rather than default-on.
 
+## Limitations (by design)
+
+What the core deliberately does **not** do — the seams exist for these, but no shipped impl:
+
+- **No IndexedDB integration in core** — seam only (`StateStorage<TRaw>` + `identityCodec`); IDB lives in `./backends/idb` (idb-keyval peer). No transaction batching, key-range cursors, or IDB-specific error mapping in core.
+- **No multi-key batching** — one key per `persistSource`; no atomic multi-key write. `PersistRegistry.clearAll` is best-effort `allSettled`, not a transaction.
+- **No key-namespacing helper** — `name` is a raw string; no built-in prefix convention.
+- **Trailing-only throttle** — no leading edge; the first write waits out the window (explicit trade-off vs TanStack Query's leading+trailing).
+- **`retryWrite` uncapped by design** — no max-attempts / backoff; the callback owns termination (can spin forever).
+- **`setOptions` cannot re-wire structural options** — `registry`, `crossTab`, `crossTabEventTarget` are set at create time only.
+- **No selective / per-field hydrate** — `merge` is the only knob; no field-level hydration hooks.
+- **No built-in cross-tab payload diff** — full rehydrate on every matching event; no "only changed fields" optimization.
+- **No built-in size/quota introspection** — `retryWrite` reacts to failures; the core never probes quota.
+- **No SSR serialize-and-rehydrate** — the server renders `hydrated: true`; shipping server state to the client for first-paint is the framework adapter's job (`useHydrated` server snapshot).
+- **Async detection is native same-realm `Promise` only** — cross-realm / custom-thenable backends aren't supported (deliberate, so a stored value with a `then` property isn't mistaken for a pending read).
+- **Cross-tab `onCrossTabRemove` is the only removal primitive** — no symmetric "another tab wrote" callback distinct from `rehydrate()`.
+- **No telemetry / observability beyond `onError`** — no write-success / hydrate-success / retry-attempt events.
+- **`partialize` runs on every `setState`** — no memoization hook for expensive projections (consumer's responsibility).
+- **No built-in devtools / time-travel** — `setOptions` + `rehydrate` are the only runtime knobs.
+
 ## Publishing & API docs
 
 - **Public surface** — every export from an entry point is the public API and carries JSDoc that reads well in hovers and published typings. `@default` / `@example` tags survive into the shipped `.d.mts` (tsdown dts preserves JSDoc). No `@internal` tags are currently warranted — every export is part of the public surface; `stripInternal: true` is set in `tsconfig.json` as a forward-looking guard so any future `@internal`-marked member is dropped from the dts.
