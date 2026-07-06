@@ -29,6 +29,16 @@ jobs:
       - name: Setup Bun and install
         uses: ./.github/actions/setup
 
+      # npm trusted publishing (OIDC) needs npm ≥ 11.5.1 + Node ≥ 22.14
+      # (docs.npmjs.com/trusted-publishers). setup-bun leaves the runner's
+      # npm 10.x in PATH → `npm publish` can't detect OIDC → ENEEDAUTH.
+      # Node 24 ships npm 11.x; npm then auto-authenticates via OIDC (no token).
+      - name: Setup Node + npm for trusted publishing
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9f7362e8dae4041e # v6
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
       # Opens/updates the Version PR when `.changeset/*.md` exist. When there are none, the action
       # can still run `publish` (see changesets/action) so a just-merged Version PR can ship.
       # `changeset publish` should exit 0 when there is nothing new to publish. If this job fails,
