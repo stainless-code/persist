@@ -14,7 +14,7 @@ Persistence is bound to a structural `PersistableSource` (`getState` / `setState
 
 `createStorage(backend, codec, options)` composes a `PersistStorage`; `persistSource(source, options)` wires it to a store. **Factory policy:** codec factories take the backend as an argument; a backend earns its own factory only when it needs real adaptation (IndexedDB). Everything else composes — no factory-per-combination.
 
-## Entry points (one subpath = one optional peer)
+## Entry points (optional peer when the adapter needs one)
 
 | Entry                                             | Module                                      | Optional peer                                 |
 | ------------------------------------------------- | ------------------------------------------- | --------------------------------------------- |
@@ -42,7 +42,7 @@ Persistence is bound to a structural `PersistableSource` (`getState` / `setState
 | `@stainless-code/persist/frameworks/angular`      | `adapters/frameworks/angular`               | `@angular/core` (>=17)                        |
 | `@stainless-code/persist/frameworks/preact`       | `adapters/frameworks/preact`                | `preact` (>=10.19)                            |
 
-No barrel — importing a subpath is the dependency opt-in. Each subpath entry owns its peer dep, which stays external in the build (`tsdown.config.ts` `neverBundle`) so consumers tree-shake cleanly.
+No barrel — importing a subpath is the dependency opt-in. Each subpath entry owns its optional peer dep when the adapter needs one — the no-peer entries are the core, encrypted, compressed, node-fs, and crosstab subpaths — and the peer stays external in the build (`tsdown.config.ts` `neverBundle`) so consumers tree-shake cleanly.
 
 ## Folder layout
 
@@ -60,7 +60,7 @@ A per-entry self-check test pins the invariant: every adapter's relative imports
 
 ## Hydration lifecycle
 
-`persistSource` hydrates on create (skip with `skipHydration`; `rehydrate()` is awaitable), subscribe-writes on every `setState` (gated until hydrated; optional trailing `throttleMs`), and tears down via `destroy()`. The hydration signal (`HydrationSignal` from `hydration`) is observed from outside the store — framework adapters mount it into their external-store mechanism (React `useSyncExternalStore` via `./frameworks/react`, Solid `from` via `./frameworks/solid`, Vue `shallowRef` + `onScopeDispose` via `./frameworks/vue`, Svelte runes `createSubscriber` via `./frameworks/svelte` / stores `readable` via `./frameworks/svelte-store`) without coupling to the store's read path. SSR policy: render `hydrated = true` on the server; `null` signal = no persistence = hydrated.
+`persistSource` hydrates on create (skip with `skipHydration`; `rehydrate()` is awaitable), subscribe-writes on every `setState` (gated until hydrated; optional trailing `throttleMs`), and tears down via `destroy()`. The hydration signal (`HydrationSignal` from `hydration`) is observed from outside the store — framework adapters mount it into their external-store mechanism (React `useSyncExternalStore` via `./frameworks/react`, Solid `from` via `./frameworks/solid`, Vue `shallowRef` + `onScopeDispose` via `./frameworks/vue`, Svelte runes `createSubscriber` via `./frameworks/svelte` / stores `readable` via `./frameworks/svelte-store`, Angular `signal` + `effect` via `./frameworks/angular`, Preact `useSyncExternalStore` via `preact/compat` via `./frameworks/preact`) without coupling to the store's read path. SSR policy: render `hydrated = true` on the server; `null` signal = no persistence = hydrated.
 
 ## Sync vs async
 

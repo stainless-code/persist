@@ -398,31 +398,31 @@ Persistence middleware for any `getState`/`setState`/`subscribe` store (TanStack
 
 ## Entry points (one subpath = one optional peer)
 
-| Subpath                                           | Symbols                                                                                                                                                                             | Optional peer                               |
-| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| `@stainless-code/persist`                         | `persistSource`, `PersistApi`, `createStorage`, `createJSONStorage`, `createMigrationChain`, `jsonCodec`, `identityCodec`, `createPersistRegistry`, `HydrationSignal` (`hydration`) | none                                        |
-| `@stainless-code/persist/codecs/seroval`          | `serovalCodec`, `createSerovalStorage`                                                                                                                                              | `seroval`                                   |
-| `@stainless-code/persist/codecs/zod`              | `zodCodec`, `createZodStorage`                                                                                                                                                      | `zod`                                       |
-| `@stainless-code/persist/backends/idb`            | `idbStateStorage`, `createIdbStorage` (structured-clone mode)                                                                                                                       | `idb-keyval`                                |
-| `@stainless-code/persist/backends/async-storage`  | `asyncStorageStateStorage`, `createAsyncStorage`                                                                                                                                    | `@react-native-async-storage/async-storage` |
-| `@stainless-code/persist/backends/mmkv`           | `mmkvStateStorage`, `createMmkvStorage`                                                                                                                                             | `react-native-mmkv`                         |
-| `@stainless-code/persist/backends/secure-store`   | `secureStoreStateStorage`, `createSecureStoreStorage`                                                                                                                               | `expo-secure-store`                         |
-| `@stainless-code/persist/backends/encrypted`      | `createEncryptedStorage` (AES-GCM WebCrypto)                                                                                                                                        | none (web global)                           |
-| `@stainless-code/persist/backends/compressed`     | `createCompressedStorage` (gzip/deflate/deflate-raw)                                                                                                                                | none (web global)                           |
-| `@stainless-code/persist/backends/node-fs`        | `nodeFsStateStorage` (one file per key)                                                                                                                                             | none (Node built-in)                        |
-| `@stainless-code/persist/transport/crosstab`      | `createBroadcastCrossTab`                                                                                                                                                           | none (web global)                           |
-| `@stainless-code/persist/sources/tanstack-store`  | `persistStore`, `persistAtom`                                                                                                                                                       | `@tanstack/store` (types only)              |
-| `@stainless-code/persist/sources/zustand`         | `persistStore`                                                                                                                                                                      | `zustand`                                   |
-| `@stainless-code/persist/sources/jotai`           | `persistAtom`                                                                                                                                                                       | `jotai`                                     |
-| `@stainless-code/persist/sources/valtio`          | `persistProxy`                                                                                                                                                                      | `valtio`                                    |
-| `@stainless-code/persist/sources/mobx`            | `persistObservable`                                                                                                                                                                 | `mobx`                                      |
-| `@stainless-code/persist/frameworks/react`        | `useHydrated` React hook                                                                                                                                                            | `react`                                     |
-| `@stainless-code/persist/frameworks/solid`        | `useHydrated` (Solid `Accessor<boolean>`)                                                                                                                                           | `solid-js`                                  |
-| `@stainless-code/persist/frameworks/vue`          | `useHydrated` (Vue `Ref<boolean>`)                                                                                                                                                  | `vue`                                       |
-| `@stainless-code/persist/frameworks/svelte`       | `hydratedRune` (Svelte 5 runes `current`)                                                                                                                                           | `svelte` (>=5.7)                            |
-| `@stainless-code/persist/frameworks/svelte-store` | `hydratedStore` (Svelte `Readable<boolean>`)                                                                                                                                        | `svelte` (>=3)                              |
-| `@stainless-code/persist/frameworks/angular`      | `useHydrated` (Angular `Signal<boolean>`)                                                                                                                                           | `@angular/core` (>=17)                      |
-| `@stainless-code/persist/frameworks/preact`       | `useHydrated` (Preact `{ hydrated: boolean }`)                                                                                                                                      | `preact` (>=10.19)                          |
+| Subpath                                           | Symbols                                                                                                                                                                                         | Optional peer                               |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `@stainless-code/persist`                         | `persistSource`, `PersistApi`, `createStorage`, `createJSONStorage`, `createMigrationChain`, `jsonCodec`, `identityCodec`, `createPersistRegistry`, `toHydrationSignal`, `alwaysHydratedSignal` | none                                        |
+| `@stainless-code/persist/codecs/seroval`          | `serovalCodec`, `createSerovalStorage`                                                                                                                                                          | `seroval`                                   |
+| `@stainless-code/persist/codecs/zod`              | `zodCodec`, `createZodStorage`                                                                                                                                                                  | `zod`                                       |
+| `@stainless-code/persist/backends/idb`            | `idbStateStorage`, `createIdbStorage` (structured-clone mode)                                                                                                                                   | `idb-keyval`                                |
+| `@stainless-code/persist/backends/async-storage`  | `asyncStorageStateStorage`, `createAsyncStorage`                                                                                                                                                | `@react-native-async-storage/async-storage` |
+| `@stainless-code/persist/backends/mmkv`           | `mmkvStateStorage`, `createMmkvStorage`                                                                                                                                                         | `react-native-mmkv`                         |
+| `@stainless-code/persist/backends/secure-store`   | `secureStoreStateStorage`, `createSecureStoreStorage`                                                                                                                                           | `expo-secure-store`                         |
+| `@stainless-code/persist/backends/encrypted`      | `createEncryptedStorage` (AES-GCM WebCrypto)                                                                                                                                                    | none (web global)                           |
+| `@stainless-code/persist/backends/compressed`     | `createCompressedStorage` (gzip/deflate/deflate-raw)                                                                                                                                            | none (web global)                           |
+| `@stainless-code/persist/backends/node-fs`        | `nodeFsStateStorage` (one file per key)                                                                                                                                                         | none (Node built-in)                        |
+| `@stainless-code/persist/transport/crosstab`      | `createBroadcastCrossTab`                                                                                                                                                                       | none (web global)                           |
+| `@stainless-code/persist/sources/tanstack-store`  | `persistStore`, `persistAtom`                                                                                                                                                                   | `@tanstack/store` (types only)              |
+| `@stainless-code/persist/sources/zustand`         | `persistStore`                                                                                                                                                                                  | `zustand`                                   |
+| `@stainless-code/persist/sources/jotai`           | `persistAtom`                                                                                                                                                                                   | `jotai`                                     |
+| `@stainless-code/persist/sources/valtio`          | `persistProxy`                                                                                                                                                                                  | `valtio`                                    |
+| `@stainless-code/persist/sources/mobx`            | `persistObservable`                                                                                                                                                                             | `mobx`                                      |
+| `@stainless-code/persist/frameworks/react`        | `useHydrated` React hook                                                                                                                                                                        | `react`                                     |
+| `@stainless-code/persist/frameworks/solid`        | `useHydrated` (Solid `Accessor<boolean>`)                                                                                                                                                       | `solid-js`                                  |
+| `@stainless-code/persist/frameworks/vue`          | `useHydrated` (Vue `Ref<boolean>`)                                                                                                                                                              | `vue`                                       |
+| `@stainless-code/persist/frameworks/svelte`       | `hydratedRune` (Svelte 5 runes `current`)                                                                                                                                                       | `svelte` (>=5.7)                            |
+| `@stainless-code/persist/frameworks/svelte-store` | `hydratedStore` (Svelte `Readable<boolean>`)                                                                                                                                                    | `svelte` (>=3)                              |
+| `@stainless-code/persist/frameworks/angular`      | `useHydrated` (Angular `Signal<boolean>`)                                                                                                                                                       | `@angular/core` (>=17)                      |
+| `@stainless-code/persist/frameworks/preact`       | `useHydrated` (Preact `{ hydrated: boolean }`)                                                                                                                                                  | `preact` (>=10.19)                          |
 
 No barrel — importing a subpath is the dependency opt-in.
 
@@ -438,7 +438,7 @@ import { createJSONStorage } from "@stainless-code/persist";
 createSerovalStorage(() => localStorage); // durable prefs
 createSerovalStorage(() => sessionStorage); // per-visit state (dies with the tab)
 createIdbStorage(); // IndexedDB, structured-clone mode
-createJSONStorage(() => AsyncStorage); // React Native — or use ./backends/async-storage for the typed adapter
+createAsyncStorage(); // React Native AsyncStorage — ./backends/async-storage
 createAsyncStorage(); // React Native AsyncStorage — async, useHydrated gating
 createMmkvStorage({ id: "app-prefs" }); // React Native MMKV — sync, no gate needed
 createSecureStoreStorage(); // expo-secure-store — OS keychain, ~2KB/key, for secrets
@@ -510,13 +510,13 @@ IDB has no storage events — pair `./transport/crosstab` for cross-tab sync. En
 
 Pick by whether you need Set/Map/Date round-trips, schema-gated persistence, or a structured-clone backend. `identityCodec` only with structured-clone backends (IDB) — never string-wire.
 
-| Codec                 | Set/Map/Date         | Wire type                  | Schema validation | For backend                 | Subpath                  |
-| --------------------- | -------------------- | -------------------------- | ----------------- | --------------------------- | ------------------------ |
-| `jsonCodec`           | ✗                    | string                     | ✗                 | string-wire                 | core                     |
-| `serovalCodec`        | ✓                    | string (JSON-shaped)       | ✗                 | string-wire                 | `./codecs/seroval`       |
-| `zodCodec`            | ✓ (via schema)       | string                     | ✓                 | string-wire                 | `./codecs/zod`           |
-| `identityCodec`       | ✓ (structured clone) | `StorageValue<S>` (object) | ✗                 | structured-clone only (IDB) | core                     |
-| custom `StorageCodec` | yours                | yours                      | yours             | any                         | custom `encode`/`decode` |
+| Codec                 | Set/Map/Date                              | Wire type                  | Schema validation | For backend                 | Subpath                  |
+| --------------------- | ----------------------------------------- | -------------------------- | ----------------- | --------------------------- | ------------------------ |
+| `jsonCodec`           | ✗                                         | string                     | ✗                 | string-wire                 | core                     |
+| `serovalCodec`        | ✓                                         | string (JSON-shaped)       | ✗                 | string-wire                 | `./codecs/seroval`       |
+| `zodCodec`            | ✗ (JSON wire; only via schema transforms) | string                     | ✓                 | string-wire                 | `./codecs/zod`           |
+| `identityCodec`       | ✓ (structured clone)                      | `StorageValue<S>` (object) | ✗                 | structured-clone only (IDB) | core                     |
+| custom `StorageCodec` | yours                                     | yours                      | yours             | any                         | custom `encode`/`decode` |
 
 ## Recipes
 
@@ -561,6 +561,7 @@ createStorage(
 createStorage(() => idbStateStorage(), serovalCodec());
 
 // Namespaced IDB store away from other idb-keyval users
+import { createStore } from "idb-keyval";
 createIdbStorage({ store: createStore("my-db", "persist") });
 
 // Cross-tab sync (localStorage): pair crossTab with onCrossTabRemove when using skipPersist

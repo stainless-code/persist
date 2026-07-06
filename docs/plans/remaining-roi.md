@@ -19,8 +19,8 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 ## Conventions (apply to every item)
 
 - **New subpath** = add to `package.json` `exports` + `peerDependencies` + `peerDependenciesMeta` (optional) + `tsdown.config.ts` `entry` + `deps.neverBundle` + `typedoc.json` `entryPoints`. Mirror `src/` → `dist/` → subpath 1:1.
-- **Adapter isolation** — imports only from `core/`; co-locate a `*.test.ts` "dependency isolation" block asserting every relative import resolves into `../../core/`.
-- **Zero-dep core gate** — `src/core/persist-core.ts` has no value imports (enforced by `src/core/persist-core.test.ts`).
+- **Adapter isolation** — imports only from `core/`; call the shared `itImportsOnlyFromCore(sourceUrl)` helper (`src/testing/assert-core-only-imports.ts`) from each adapter's co-located test.
+- **Zero-dep core gate** — `src/core/persist-core.ts` + `src/core/hydration.ts` have no value imports (enforced by `src/core/persist-core.test.ts`).
 - **Changeset** — `.changeset/<slug>.md` with `@stainless-code/persist: minor` (or `major` for breaking) for any public-surface change.
 - **Verify after each step** — `bun run lint:changes`, `bun run format:changes`, `bun test <co-located pair>`, `bun run typecheck`; use `bun run format` / `lint:fix` (pinned `oxfmt` / `oxlint`), not `bunx`.
 - **Pre-commit** runs format/lint/typecheck/tests on staged files — never `--no-verify`. Run the per-file checks first so the hook passes first try (stash/restore can eat untracked files).
@@ -30,7 +30,7 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 ### 1. TanStack Query persister bridge — Tier 2, M
 
 - **What:** a `./sources/tanstack-query` (or `./integrations/tanstack-query`) subpath exposing a `persistQueryClient`-shaped adapter over `persistSource`. Supply a cache-shaped `PersistableSource` (`getState` → `queryClient.getQueryCache().getAll()`; `setState` → `setQueryData` per entry; `subscribe` → `getQueryCache().subscribe`).
-- **Why:** the JSDoc repeatedly cites `@tanstack/query-persist-client` as the reference design (`src/core/persist-core.ts:12,263`); the README migration guide already maps the option names (`maxAge`, `buster`, `retryWrite` ↔ `retry`, `throttleMs` ↔ `throttleTime`). Flagship integration — converts the cache-bound incumbent's users.
+- **Why:** the JSDoc cites TanStack Query persister patterns (`AsyncStorage`, throttle); the README migration guide already maps the option names (`maxAge`, `buster`, `retryWrite` ↔ `retry`, `throttleMs` ↔ `throttleTime`). Flagship integration — converts the cache-bound incumbent's users.
 - **Acceptance:** subpath ships + co-located test + README recipe; `persistQueryClient`-shaped call works against a mock `QueryClient`. Verify the cache-shaped source round-trips through `persistSource` with `createJSONStorage` + `maxAge`/`buster`.
 - **Lands:** README "Wrapping your store" / a new "Integrations" section; changeset.
 
@@ -66,13 +66,13 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 ### 6. React ergonomics layer — Tier 4, M-L
 
 - **What:** a `./frameworks/react` ergonomics companion (or a new `./frameworks/react-context` subpath) — `<PersistProvider>` + React context + `usePersisted(store, selector)` selector binding + auto-`destroy()` on unmount. The existing `useHydrated` stays the reference primitive.
-- **Why:** `useHydrated` is the entire React surface today — no provider, no auto store binding, no auto-teardown. Each consumer manually threads a `HydrationSignal` + `useEffect` cleanup (`src/adapters/frameworks/react.ts:22` signals this is intentionally deferred).
+- **Why:** `useHydrated` is the entire React surface today — no provider, no auto store binding, no auto-teardown. The bare `useHydrated` path stays the reference primitive; a richer ergonomics layer (provider + auto-binding + auto-teardown) is a separate concern.
 - **Acceptance:** subpath ships + `tests-dom` coverage for mount/unmount teardown + selector rerender + provider scoping; README "React ergonomics" section. Keep it optional — the bare `useHydrated` path must remain valid.
-- **Lands:** `src/adapters/frameworks/react-context.ts` (new subpath) + README section. Changeset: `minor`. **Decision needed:** ship in-repo or as a separate package (the JSDoc deferral hints at a higher-layer package).
+- **Lands:** `src/adapters/frameworks/react-context.ts` (new subpath) + README section. Changeset: `minor`. **Decision needed:** ship in-repo or as a separate package (the bare `useHydrated` path stays the reference primitive; a richer ergonomics layer (provider + auto-binding + auto-teardown) is a separate concern).
 
 ### 7. OPFS + SQLite-WASM + Cloudflare KV/Durable Objects adapters — Tier 4, M-L
 
-- **What:** three new `./backends/` subpaths: `opfs` (Origin Private File System, async, file-backed, high-volume structured state), `sqlite-wasm` (wa-sqlite / sqlite-wasm, structured-clone mode like IDB), `cloudflare-kv` + `cloudflare-do` (edge runtime, async `StateStorage`).
+- **What:** four new `./backends/` subpaths: `opfs` (Origin Private File System, async, file-backed, high-volume structured state), `sqlite-wasm` (wa-sqlite / sqlite-wasm, structured-clone mode like IDB), `cloudflare-kv` + `cloudflare-do` (edge runtime, async `StateStorage`).
 - **Why:** extends the backend surface to high-volume browser state, structured-query WASM storage, and edge runtimes. All fit `StateStorage<TRaw>` cleanly; no core rework.
 - **Acceptance:** each ships as its own subpath with optional peer + co-located test (mock the runtime, like the MMKV/AsyncStorage tests) + README backend decision-matrix row. `sqlite-wasm` may be better as a community recipe than a shipped peer (heavy) — decide per-adapter.
 - **Lands:** `src/adapters/backends/<name>.ts` + README "Choosing a storage" row + changeset (one per adapter).

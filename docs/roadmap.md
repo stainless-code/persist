@@ -17,7 +17,9 @@ Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [READM
 | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | **Core** (`persist-core` + `hydration`) | Zero-dep middleware: `persistSource`, `createStorage`, codecs, registry, hydration signal. No value imports (gate-test enforced). |
 | **Codec / backend subpaths**            | Own their optional peer (`seroval`, `idb-keyval`); compose into `createStorage`.                                                  |
-| **Framework adapters**                  | One entry per framework (`./frameworks/<fw>`); each is ~20 lines over `HydrationSignal`.                                          |
+| **Source adapters**                     | One entry per store library (`./sources/<lib>`); thin `persistSource` wrappers, shape-named.                                      |
+| **Transport**                           | Cross-tab transport adapters (`./transport/crosstab` — BroadcastChannel bridge).                                                  |
+| **Framework adapters**                  | One entry per framework (`./frameworks/<fw>`); each is ~30–45 lines over `HydrationSignal`.                                       |
 
 ## Non-goals (v1)
 

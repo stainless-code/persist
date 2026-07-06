@@ -4,13 +4,13 @@
 
 ## Seams
 
-| Term        | Definition                                                                                                                                                                    | Aliases / avoid                   |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| **backend** | The `StateStorage<TRaw>` seam — `getItem` / `setItem` / `removeItem` against a physical store (sync or Promise).                                                              | storage driver, engine            |
-| **codec**   | The `StorageCodec<S, TRaw>` seam — pure `encode` / `decode` between the persisted envelope and the backend's wire type.                                                       | serializer, (de)serializer        |
-| **source**  | The `PersistableSource<TState>` seam — the reactive store being persisted (`getState` / `setState` / `subscribe`), structural and store-agnostic.                             | store (avoid — overloaded)        |
-| **storage** | The composed `PersistStorage<S>` — a backend × codec cell produced by `createStorage`; the keyed store of envelopes `persistSource` reads/writes.                             | persisted storage, PersistStorage |
-| **entry**   | A subpath export in `package.json` `exports` — one entry = one optional peer opt-in (`./codecs/seroval`, `./backends/idb`, `./sources/tanstack-store`, `./frameworks/react`). | subpath, entry point              |
+| Term        | Definition                                                                                                                                                                                                         | Aliases / avoid                   |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| **backend** | The `StateStorage<TRaw>` seam — `getItem` / `setItem` / `removeItem` against a physical store (sync or Promise).                                                                                                   | storage driver, engine            |
+| **codec**   | The `StorageCodec<S, TRaw>` seam — pure `encode` / `decode` between the persisted envelope and the backend's wire type.                                                                                            | serializer, (de)serializer        |
+| **source**  | The `PersistableSource<TState>` seam — the reactive store being persisted (`getState` / `setState` / `subscribe`), structural and store-agnostic.                                                                  | store (avoid — overloaded)        |
+| **storage** | The composed `PersistStorage<S>` — a backend × codec cell produced by `createStorage`; the keyed store of envelopes `persistSource` reads/writes.                                                                  | persisted storage, PersistStorage |
+| **entry**   | A subpath export in `package.json` `exports`; one entry per seam — optional peer when the adapter needs an external dep. (`./codecs/seroval`, `./backends/idb`, `./sources/tanstack-store`, `./frameworks/react`). | subpath, entry point              |
 
 ## Envelope & wire
 
