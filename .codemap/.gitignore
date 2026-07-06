@@ -1,0 +1,8 @@
+# Managed by codemap — overwritten on next run.
+# Generated artifacts only; user-authored config (config.*, recipes/) stays tracked.
+index.db
+index.db-shm
+index.db-wal
+index.lock
+errors.log
+audit-cache/

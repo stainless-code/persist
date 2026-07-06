@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "codemap": {
+      "command": "bunx",
+      "args": ["codemap", "mcp", "--watch", "--root", "${workspaceFolder}"]
+    }
+  }
+}

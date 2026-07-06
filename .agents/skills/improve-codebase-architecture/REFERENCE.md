@@ -10,13 +10,13 @@ When assessing a candidate for deepening, classify its dependencies:
 
 Pure computation, in-memory state, no I/O. Always deepenable — just merge the modules and test directly.
 
-> **Examples in this repo.** Most of `persist-core.ts`: the hydration gate, the write/throttle loop, the registry, the `migrate`/`buster`/`maxAge` helpers. Codec `encode` / `decode` (pure transforms between `StorageValue` and `TRaw`). `hydration.ts` (`HydrationSignal` construction).
+> **Examples in this repo.** Most of `src/core/persist-core.ts`: the hydration gate, the write/throttle loop, the registry, the `migrate`/`buster`/`maxAge` helpers. Codec `encode` / `decode` (pure transforms between `StorageValue` and `TRaw`). `src/core/hydration.ts` (`HydrationSignal` construction).
 
 ### 2. Local-substitutable
 
 Dependencies that have local test stand-ins. Deepenable if the test substitute exists. The deepened module is tested with the local stand-in running in the test suite.
 
-> **Examples in this repo.** An in-memory `StateStorage` map doubles for `localStorage` / `idb-keyval` in `bun:test` (no DOM, no real storage). A hand-rolled `PersistableSource` (a plain object with `getState` / `setState` / `subscribe`) doubles for a TanStack Store — `persist-core.test.ts` exercises the whole middleware without `@tanstack/store`. The `HydrationSignal` is observed from outside the store, so framework adapters test against a synthetic signal, not a real React tree (the `tests-dom` suite covers the React rerender path separately).
+> **Examples in this repo.** An in-memory `StateStorage` map doubles for `localStorage` / `idb-keyval` in `bun:test` (no DOM, no real storage). A hand-rolled `PersistableSource` (a plain object with `getState` / `setState` / `subscribe`) doubles for a TanStack Store — `src/core/persist-core.test.ts` exercises the whole middleware without `@tanstack/store`. The `HydrationSignal` is observed from outside the store, so framework adapters test against a synthetic signal, not a real React tree (the `tests-dom` suite covers the React rerender path separately).
 
 ### 3. Remote but owned (Ports & Adapters)
 
@@ -30,7 +30,7 @@ Recommendation shape: "Define a `StateStorage<TRaw>` port (already the seam), im
 
 Third-party services you don't control (`idb-keyval`, `seroval`, `react`, `@tanstack/store`). Mock at the boundary. The deepened module takes the external dependency as an injected port, and tests provide a mock / stand-in.
 
-> **Examples in this repo.** `idb-keyval` (the `persist-idb` subpath is the adapter; tests use the in-memory `StateStorage`); `seroval` (the `persist-seroval` codec is the adapter; tests use a JSON passthrough codec); `react` (`use-hydrated.ts` is the adapter; `tests-dom` is the only place a real React renderer runs); `@tanstack/store` (`persist-tanstack.ts` is the adapter; core tests use a synthetic source).
+> **Examples in this repo.** `idb-keyval` (the `./backends/idb` subpath is the adapter; tests use the in-memory `StateStorage`); `seroval` (the `./codecs/seroval` codec is the adapter; tests use a JSON passthrough codec); `react` (`src/adapters/frameworks/react.ts` is the adapter; `tests-dom` is the only place a real React renderer runs); `@tanstack/store` (`src/adapters/sources/tanstack-store.ts` is the adapter; core tests use a synthetic source).
 
 ## Seam discipline
 
@@ -64,7 +64,7 @@ This repo runs **oxlint only** (no ESLint, no `eslint-plugin-boundaries`). Archi
 oxlint resolves the **nearest** `.oxlintrc.json` for each file and **does not auto-merge with parents**. That has three concrete consequences:
 
 1. **Always set `extends`.** Every nested config must extend a parent config that ultimately reaches the repo-root `.oxlintrc.json`, otherwise baseline plugins/rules silently disappear for the files it owns.
-2. **The `!` negation in `files` does not work** in oxlint. A `files: ["**", "!persist-idb/**"]` override matches `persist-idb` files too, which silently shadows any `persist-idb`-specific rule defined in another override.
+2. **The `!` negation in `files` does not work** in oxlint. A `files: ["**", "!backends/idb/**"]` override matches `backends/idb` files too, which silently shadows any `backends/idb`-specific rule defined in another override.
 3. **Same rule key in two `overrides[]` matching the same file → later replaces earlier.** Patterns do not merge across overrides. Combine all applicable patterns into a single `no-restricted-imports` rule per scope.
 
 Because of (2) and (3), the cleanest pattern is **one config file per scope** — the repo-root config plus a deeper config for any `src/` subfolder that needs different rules. Each leaf `extends` its parent and re-declares any rules it wants to carry alongside its own.
@@ -74,7 +74,7 @@ Canonical example layout (if `src/` ever grows a subfolder needing its own rule)
 ```text
 .oxlintrc.json                 ← baseline only
 src/.oxlintrc.json             ← extends root, core zero-dep value-import ban
-src/persist-idb/.oxlintrc.json ← extends ../, idb subpath-specific rules
+src/adapters/backends/.oxlintrc.json ← extends ../, backends-seam-specific rules
 ```
 
 Example leaf for a directional rule (keep `persist-core` / `hydration` free of peer-dep value imports — the zero-dep gate):
@@ -89,13 +89,7 @@ Example leaf for a directional rule (keep `persist-core` / `hydration` free of p
       {
         "patterns": [
           {
-            "group": [
-              "seroval",
-              "idb-keyval",
-              "@tanstack/store",
-              "react",
-              "react-dom"
-            ],
+            "group": ["seroval", "idb-keyval", "@tanstack/store", "react"],
             "message": "Zero-dep core: peer deps are subpath opt-in, not core imports. Use the matching subpath entry."
           }
         ]
@@ -173,6 +167,6 @@ Which category from `REFERENCE.md` applies and how dependencies are handled:
 - **File naming**: don't add a `-plan` suffix — the `plans/` folder provides context. `docs/plans/<short-kebab-name>.md`.
 - **Roadmap link format**: `[<title>](./plans/<file>.md)` under the appropriate section in `docs/roadmap.md`.
 - **Boundary candidates that need lint enforcement** should propose the exact `.oxlintrc.json` block in the same plan — see [Boundary enforcement](./REFERENCE.md#boundary-enforcement-oxlint) above.
-- **Public-surface changes**: when the candidate touches the package public API (an `exports` map entry, a shipped `.d.mts`, the root `README.md`), the plan must include the migration path for **every** consumer-reachable import (and a changeset entry). The published typings are the public surface — don't guess; enumerate via `package.json` `exports` + `src/index.ts` re-exports.
+- **Public-surface changes**: when the candidate touches the package public API (an `exports` map entry, a shipped `.d.mts`, the root `README.md`), the plan must include the migration path for **every** consumer-reachable import (and a changeset entry). The published typings are the public surface — don't guess; enumerate via `package.json` `exports` + `src/core/index.ts` re-exports.
 - **Pure dead-code removal is not a plan candidate.** Those go directly into `docs/roadmap.md`. This skill is for plans that need design discussion.
 - **Glossary cross-reference**: when the proposal renames or introduces a domain term, link to (and on the same PR, update) [`docs/glossary.md`](../../../docs/glossary.md). If there's no entry yet and the term is genuinely domain-bearing, recommend [`domain-modeling`](../domain-modeling/SKILL.md) first.

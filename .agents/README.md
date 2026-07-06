@@ -24,11 +24,7 @@ Source of truth for AI agent configuration. Cursor consumes via symlinks in `.cu
 
 ## Inventory
 
-9 rules + 18 skills. Discover on disk via `ls` + the frontmatter audit in [`agents-tier-system`](rules/agents-tier-system.md) — no hardcoded name lists.
-
-**Rules** — 7 Tier-1 (always-on): `agents-first-convention`, `tracer-bullets`, `no-bypass-hooks`, `verify-after-each-step`, `authoring-discipline`, `concise-reporting`, `architecture-priming`; plus `lessons.md`. 2 Tier-2 (globs): `agents-tier-system`, `docs-governance-priming`.
-
-**Skills** — `writing-great-skills` (meta vocabulary), `grilling` + `grill-me` + `grill-with-docs` (design stress-test), `teach` (multi-session learning), `ask-agents` (user-only router), `improve-codebase-architecture` (seam/boundary plans), `domain-modeling` (ubiquitous language), `docs-governance` + `docs-lifecycle-sweep` (docs lifecycle), `agents-tier-system` (tier assignments), `authoring-discipline` (prose depth), `verify-after-each-step` (per-file checks), `writing-agents-config` (persist deltas), `harden-pr` (branch-to-pristine), `diagnosing-bugs` (hard-bug loop), `tdd` (red-green-refactor), `pr-comment-fact-check` (reviewer/bot triage).
+Discover on disk via `ls` + the frontmatter audit in [`agents-tier-system`](rules/agents-tier-system.md) — no hardcoded name lists.
 
 ## Conventions
 

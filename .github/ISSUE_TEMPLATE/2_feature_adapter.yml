@@ -27,7 +27,7 @@ body:
     id: packaging
     attributes:
       label: Packaging preference
-      description: New subpath entries own their optional peer dep; framework hooks get their own entry (e.g. `./react`).
+      description: New subpath entries own their optional peer dep; framework hooks get their own entry (e.g. `./frameworks/react`).
       options:
         - New subpath entry in this repo (owns its optional peer)
         - Separate npm package (I can help maintain)

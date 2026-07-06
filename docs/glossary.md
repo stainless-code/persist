@@ -4,13 +4,13 @@
 
 ## Seams
 
-| Term        | Definition                                                                                                                                        | Aliases / avoid                   |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| **backend** | The `StateStorage<TRaw>` seam — `getItem` / `setItem` / `removeItem` against a physical store (sync or Promise).                                  | storage driver, engine            |
-| **codec**   | The `StorageCodec<S, TRaw>` seam — pure `encode` / `decode` between the persisted envelope and the backend's wire type.                           | serializer, (de)serializer        |
-| **source**  | The `PersistableSource<TState>` seam — the reactive store being persisted (`getState` / `setState` / `subscribe`), structural and store-agnostic. | store (avoid — overloaded)        |
-| **storage** | The composed `PersistStorage<S>` — a backend × codec cell produced by `createStorage`; the keyed store of envelopes `persistSource` reads/writes. | persisted storage, PersistStorage |
-| **entry**   | A subpath export in `package.json` `exports` — one entry = one optional peer opt-in (`./seroval`, `./idb`, `./tanstack-store`, `./react`).        | subpath, entry point              |
+| Term        | Definition                                                                                                                                                                                                         | Aliases / avoid                   |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| **backend** | The `StateStorage<TRaw>` seam — `getItem` / `setItem` / `removeItem` against a physical store (sync or Promise).                                                                                                   | storage driver, engine            |
+| **codec**   | The `StorageCodec<S, TRaw>` seam — pure `encode` / `decode` between the persisted envelope and the backend's wire type.                                                                                            | serializer, (de)serializer        |
+| **source**  | The `PersistableSource<TState>` seam — the reactive store being persisted (`getState` / `setState` / `subscribe`), structural and store-agnostic.                                                                  | store (avoid — overloaded)        |
+| **storage** | The composed `PersistStorage<S>` — a backend × codec cell produced by `createStorage`; the keyed store of envelopes `persistSource` reads/writes.                                                                  | persisted storage, PersistStorage |
+| **entry**   | A subpath export in `package.json` `exports`; one entry per seam — optional peer when the adapter needs an external dep. (`./codecs/seroval`, `./backends/idb`, `./sources/tanstack-store`, `./frameworks/react`). | subpath, entry point              |
 
 ## Envelope & wire
 
@@ -39,15 +39,15 @@
 
 ## Options (non-exhaustive — see JSDoc)
 
-| Term              | Definition                                                              |
-| ----------------- | ----------------------------------------------------------------------- |
-| **skipHydration** | Skip the on-create hydration read (consumer rehydrates manually).       |
-| **throttleMs**    | Trailing write throttle window.                                         |
-| **maxAge**        | Opt-in expiry (deliberate divergence: prefs shouldn't silently expire). |
-| **buster**        | Cache-busting key mixed into the storage key.                           |
-| **migrate**       | Versioned migration of a persisted envelope on read.                    |
-| **crossTab**      | Cross-tab sync via storage events; rehydrate on remote write.           |
-| **retryWrite**    | Retry loop for failed writes, guarded by the generation guard.          |
+| Term              | Definition                                                                                                                                                              |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **skipHydration** | Skip the on-create hydration read (consumer rehydrates manually).                                                                                                       |
+| **throttleMs**    | Trailing write throttle window.                                                                                                                                         |
+| **maxAge**        | Opt-in expiry (deliberate divergence: prefs shouldn't silently expire).                                                                                                 |
+| **buster**        | Cache-busting key mixed into the storage key.                                                                                                                           |
+| **migrate**       | Versioned migration of a persisted envelope on read.                                                                                                                    |
+| **crossTab**      | Cross-tab sync via `storage` events, or via a `BroadcastChannel` bridge (`createBroadcastCrossTab`) for backends that fire none (IndexedDB); rehydrate on remote write. |
+| **retryWrite**    | Retry loop for failed writes, guarded by the generation guard.                                                                                                          |
 
 ## Flagged ambiguities
 
@@ -58,4 +58,4 @@
 
 - [`docs/architecture.md`](./architecture.md) — the three-seam model and entry-point layout.
 - [`docs/README.md`](./README.md) — docs index.
-- `src/persist-core.ts`, `src/hydration.ts` — the JSDoc is the full contract.
+- `src/core/persist-core.ts`, `src/core/hydration.ts` — the JSDoc is the full contract.

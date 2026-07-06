@@ -1,22 +1,26 @@
 # Roadmap
 
-Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [README.md](./README.md). **Design / seams:** [architecture.md](./architecture.md). Shipped features (core, codecs, backends, TanStack adapters, React hook) live in `src/` and the root [README.md](../README.md) — not enumerated here.
+Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [README.md](./README.md). **Design / seams:** [architecture.md](./architecture.md). Shipped features live in `src/` and the root [README.md](../README.md) — not enumerated here.
 
 ---
 
 ## Next
 
+- **Remaining ROI work** — actionable items not yet shipped: TanStack Query bridge, `examples/` workspace, docs site, real-browser + SSR + framework-runtime test matrix, React ergonomics layer, OPFS/SQLite/Cloudflare adapters, playground. Plan: [`plans/remaining-roi.md`](./plans/remaining-roi.md).
+- **npm provenance — verify on next release** — trusted publishing + `publishConfig.provenance: true` shipped (`.github/workflows/release.yml`). On the next changeset merge to `main`, confirm the npm version page shows the Provenance badge (or `npm view @stainless-code/persist@<ver> --json` includes `dist.attestations`), then revoke + delete the legacy `NPM_TOKEN` repo secret.
 - **Upstream TanStack Persist collaboration** — pitch the `persistSource` middleware model (structural `PersistableSource` + first-class hydration lifecycle) to the TanStack Persist maintainers as a merge target, after the stainless-code publish stabilises. Draft: [`plans/upstream-tanstack-pitch.md`](./plans/upstream-tanstack-pitch.md).
 
 ---
 
 ## Strategy
 
-| Layer                                   | Role                                                                                                                                                       |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Core** (`persist-core` + `hydration`) | Zero-dep middleware: `persistSource`, `createStorage`, codecs, registry, hydration signal. No value imports (gate-test enforced).                          |
-| **Codec / backend subpaths**            | Own their optional peer (`seroval`, `idb-keyval`); compose into `createStorage`.                                                                           |
-| **Framework adapters**                  | One entry per framework (`./tanstack-store`, `./react`); each adapter is ~20 lines over `HydrationSignal` — the same shape scales to Svelte / Solid / Vue. |
+| Layer                                   | Role                                                                                                                              |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Core** (`persist-core` + `hydration`) | Zero-dep middleware: `persistSource`, `createStorage`, codecs, registry, hydration signal. No value imports (gate-test enforced). |
+| **Codec / backend subpaths**            | Own their optional peer (`seroval`, `idb-keyval`); compose into `createStorage`.                                                  |
+| **Source adapters**                     | One entry per store library (`./sources/<lib>`); thin `persistSource` wrappers, shape-named.                                      |
+| **Transport**                           | Cross-tab transport adapters (`./transport/crosstab` — BroadcastChannel bridge).                                                  |
+| **Framework adapters**                  | One entry per framework (`./frameworks/<fw>`); each is ~30–45 lines over `HydrationSignal`.                                       |
 
 ## Non-goals (v1)
 

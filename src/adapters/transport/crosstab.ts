@@ -1,0 +1,137 @@
+// BroadcastChannel cross-tab bridge — no peer dep (web global, browsers + Node 18+). For backends that fire no `storage` events (IndexedDB).
+import type {
+  CrossTabEventTarget,
+  CrossTabStorageEvent,
+  PersistStorage,
+} from "../../core/persist-core";
+
+export interface CreateBroadcastCrossTabOptions {
+  /** BroadcastChannel name — all tabs sharing this name sync. */
+  channelName: string;
+}
+
+export interface BroadcastCrossTab<S> {
+  /** Pass as `crossTabEventTarget`. Listens for `message` events and dispatches
+   *  storage-shaped events (storageArea: null → key-only matching in every tab). */
+  crossTabEventTarget: CrossTabEventTarget;
+  /** Wrap a base `PersistStorage` so writes/removes broadcast. Pass the result
+   *  as `storage`. Preserves `raw`. */
+  wrap: (storage: PersistStorage<S>) => PersistStorage<S>;
+  /** Close the underlying channel — call from the persist `destroy()` path. */
+  close: () => void;
+}
+
+/**
+ * Bridge a `BroadcastChannel` as the cross-tab transport for backends that
+ * fire no `storage` events (IndexedDB). Posts `storageArea: null` on every
+ * event so key-only matching applies in every tab (each tab owns its own
+ * backend instance — reference equality on `raw` would fail across tabs).
+ *
+ * @example
+ * ```ts
+ * import { createBroadcastCrossTab } from "@stainless-code/persist/transport/crosstab";
+ * import { createIdbStorage } from "@stainless-code/persist/backends/idb";
+ * import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+ *
+ * const bridge = createBroadcastCrossTab({ channelName: "app:prefs" })!;
+ * const persist = persistStore(store, {
+ *   name: "app:prefs:v1",
+ *   storage: bridge.wrap(createIdbStorage()!),
+ *   crossTab: true,
+ *   crossTabEventTarget: bridge.crossTabEventTarget,
+ * });
+ * // on teardown: persist.destroy(); bridge.close();
+ * ```
+ */
+export function createBroadcastCrossTab<S>(
+  options: CreateBroadcastCrossTabOptions,
+): BroadcastCrossTab<S> | undefined {
+  if (typeof BroadcastChannel === "undefined") {
+    return undefined;
+  }
+
+  const channel = new BroadcastChannel(options.channelName);
+  const handlerMap = new Map<
+    (event: CrossTabStorageEvent) => void,
+    (event: MessageEvent) => void
+  >();
+
+  const crossTabEventTarget: CrossTabEventTarget = {
+    addEventListener(_type, listener) {
+      const handler = (event: MessageEvent) => {
+        listener(event.data as CrossTabStorageEvent);
+      };
+      handlerMap.set(listener, handler);
+      channel.addEventListener("message", handler);
+    },
+    removeEventListener(_type, listener) {
+      const handler = handlerMap.get(listener);
+      if (handler) {
+        channel.removeEventListener("message", handler);
+        handlerMap.delete(listener);
+      }
+    },
+  };
+
+  function postMessage(message: CrossTabStorageEvent) {
+    try {
+      channel.postMessage(message);
+    } catch {
+      // closed channel — swallow so a settled write microtask doesn't throw
+    }
+  }
+
+  return {
+    crossTabEventTarget,
+    wrap(storage) {
+      return {
+        getItem: (name) => storage.getItem(name),
+        raw: storage.raw,
+        setItem(name, value) {
+          const result = storage.setItem(name, value);
+          Promise.resolve(result)
+            .then(() => {
+              postMessage({
+                key: name,
+                newValue: "1",
+                storageArea: null,
+              });
+            })
+            .catch(() => {
+              // write failed — persist-core handles the error via `result`;
+              // don't broadcast a write that didn't land (and don't leak the rejection).
+            });
+          return result;
+        },
+        removeItem(name) {
+          // Probe presence before removing so a no-op remove (key already
+          // absent in a shared backend — IDB, localStorage) doesn't broadcast
+          // and echo across tabs (skipPersist reset → onCrossTabRemove → …).
+          const present = Promise.resolve(storage.getItem(name)).then(
+            (v) => v != null,
+            () => true, // probe failed — assume present so a real remove still broadcasts
+          );
+          const result = storage.removeItem(name);
+          present.then((wasPresent) => {
+            if (!wasPresent) return;
+            Promise.resolve(result)
+              .then(() => {
+                postMessage({ key: name, newValue: null, storageArea: null });
+              })
+              .catch(() => {
+                // remove failed — don't broadcast a removal that didn't land.
+              });
+          });
+          return result;
+        },
+      };
+    },
+    close() {
+      for (const handler of handlerMap.values()) {
+        channel.removeEventListener("message", handler);
+      }
+      handlerMap.clear();
+      channel.close();
+    },
+  };
+}

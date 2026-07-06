@@ -8,10 +8,10 @@ Integration-style through the **public seams** (`persistSource`, `createStorage`
 
 ```ts
 import { describe, expect, it } from "bun:test";
-import { createStorage, jsonCodec, persistSource } from "./persist-core";
-import type { PersistableSource, StateStorage } from "./persist-core";
+import { createStorage, jsonCodec, persistSource } from "../core/persist-core";
+import type { PersistableSource, StateStorage } from "../core/persist-core";
 
-// Test doubles live in persist-core.test.ts — sketched here for the pattern.
+// Test doubles live in src/core/persist-core.test.ts — sketched here for the pattern.
 class MemoryStorage implements StateStorage {
   private store = new Map<string, string>();
   getItem(key: string) {

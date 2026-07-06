@@ -8,8 +8,8 @@ Shared vocabulary for every suggestion this skill makes. Use these terms exactly
 
 **Module**
 Anything with an interface and an implementation. Deliberately scale-agnostic — applies equally to a function, a class, a file with a public surface, or a subpath entry.
-_Avoid_: unit, component, service. ("Component" conflicts with React component; use "Module" even when the module is `use-hydrated.ts`.)
-_Examples in this repo_: a single factory (`createStorage`); a subpath entry (`persist-idb.ts`); the core entry (`persist-core.ts` + `hydration.ts` behind `src/index.ts`); a codec (`persist-seroval.ts`).
+_Avoid_: unit, component, service. ("Component" conflicts with React component; use "Module" even when the module is `src/adapters/frameworks/react.ts`.)
+_Examples in this repo_: a single factory (`createStorage`); a subpath entry (`src/adapters/backends/idb.ts`); the core entry (`src/core/persist-core.ts` + `src/core/hydration.ts` behind `src/core/index.ts`); a codec (`src/adapters/codecs/seroval.ts`).
 
 **Interface**
 Everything a caller must know to use the module correctly. Includes the type signature, but also: invariants, ordering constraints, error modes, required configuration, the wire-type contract it depends on, the `HydrationSignal` observation contract.
@@ -31,7 +31,7 @@ _Examples in this repo_: the three seams in `docs/architecture.md` — **backend
 
 **Adapter**
 A concrete thing that satisfies an interface at a seam. Describes _role_ (what slot it fills), not substance (what's inside).
-_Examples in this repo_: each backend (`localStorage` adapter, `idb-keyval` adapter) is an adapter at the `StateStorage<TRaw>` seam; each codec (`persist-seroval`, a JSON passthrough) is an adapter at the `StorageCodec` seam; `useHydrated` is the React adapter at the `HydrationSignal` seam. Two adapters per seam = real seam (sync backend + async backend); one adapter = hypothetical.
+_Examples in this repo_: each backend (`localStorage` adapter, `idb-keyval` adapter) is an adapter at the `StateStorage<TRaw>` seam; each codec (`seroval`, a JSON passthrough) is an adapter at the `StorageCodec` seam; `useHydrated` is the React adapter at the `HydrationSignal` seam. Two adapters per seam = real seam (sync backend + async backend); one adapter = hypothetical.
 
 **Leverage**
 What callers get from depth. More capability per unit of interface they have to learn. One implementation pays back across N call sites and M tests.

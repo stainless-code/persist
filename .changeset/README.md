@@ -9,4 +9,4 @@ We have a quick list of common questions to get you started engaging with this p
 
 ---
 
-**This repo:** How versioning, **`NPM_TOKEN`**, **`bun run version`** (includes **oxfmt** after **`changeset version`**), and the GitHub Release workflow fit together — see [`.github/CONTRIBUTING.md` § Releases](../.github/CONTRIBUTING.md#releases) (single place; don’t duplicate here). Run **`bun run changeset`** when your PR should bump the version, and commit the `.changeset/*.md` file it generates.
+**This repo:** How versioning, **`bun run version`** (includes **oxfmt** after **`changeset version`**), and the GitHub Release workflow fit together — see [`.github/CONTRIBUTING.md` § Releases](../.github/CONTRIBUTING.md#releases) (single place; don’t duplicate here). Run **`bun run changeset`** when your PR should bump the version, and commit the `.changeset/*.md` file it generates.

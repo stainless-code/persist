@@ -12,7 +12,7 @@ Vertical RED→GREEN cycles — **one behavior per loop**, not horizontal "all t
 - Runner split per `docs/architecture.md` § Test matrix:
   - `bun test <co-located *.test.ts>` — `src/**` unit tests (core, codecs, backends, TanStack adapters, `useHydrated` SSR/snapshot contracts). No DOM.
   - `bun run test:dom` — `tests-dom/**/*.test.tsx` (vitest + jsdom + @testing-library/react) for `useHydrated` rerender / unmount / `useSyncExternalStore` reactivity.
-- Co-locate tests next to the module (`persist-core.ts` → `persist-core.test.ts`).
+- Co-locate tests next to the module (`src/core/persist-core.ts` → `src/core/persist-core.test.ts`).
 - After each GREEN: format/lint/typecheck per [`verify-after-each-step`](../../rules/verify-after-each-step.md).
 - Mock at the **storage backend seam** (`StateStorage`), never inside `persist-core` or a codec. See [`PATTERNS.md`](./PATTERNS.md).
 

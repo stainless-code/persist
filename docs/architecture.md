@@ -14,21 +14,53 @@ Persistence is bound to a structural `PersistableSource` (`getState` / `setState
 
 `createStorage(backend, codec, options)` composes a `PersistStorage`; `persistSource(source, options)` wires it to a store. **Factory policy:** codec factories take the backend as an argument; a backend earns its own factory only when it needs real adaptation (IndexedDB). Everything else composes — no factory-per-combination.
 
-## Entry points (one subpath = one optional peer)
+## Entry points (optional peer when the adapter needs one)
 
-| Entry                                    | Module                       | Optional peer                                 |
-| ---------------------------------------- | ---------------------------- | --------------------------------------------- |
-| `@stainless-code/persist`                | `persist-core` + `hydration` | none (zero-dep core, enforced by a gate test) |
-| `@stainless-code/persist/seroval`        | `persist-seroval`            | `seroval`                                     |
-| `@stainless-code/persist/idb`            | `persist-idb`                | `idb-keyval`                                  |
-| `@stainless-code/persist/tanstack-store` | `persist-tanstack`           | `@tanstack/store` (types only)                |
-| `@stainless-code/persist/react`          | `use-hydrated`               | `react`                                       |
+| Entry                                             | Module                                      | Optional peer                                 |
+| ------------------------------------------------- | ------------------------------------------- | --------------------------------------------- |
+| `@stainless-code/persist`                         | `core/index` (`persist-core` + `hydration`) | none (zero-dep core, enforced by a gate test) |
+| `@stainless-code/persist/codecs/seroval`          | `adapters/codecs/seroval`                   | `seroval`                                     |
+| `@stainless-code/persist/codecs/zod`              | `adapters/codecs/zod`                       | `zod`                                         |
+| `@stainless-code/persist/backends/idb`            | `adapters/backends/idb`                     | `idb-keyval`                                  |
+| `@stainless-code/persist/backends/async-storage`  | `adapters/backends/async-storage`           | `@react-native-async-storage/async-storage`   |
+| `@stainless-code/persist/backends/mmkv`           | `adapters/backends/mmkv`                    | `react-native-mmkv`                           |
+| `@stainless-code/persist/backends/secure-store`   | `adapters/backends/secure-store`            | `expo-secure-store`                           |
+| `@stainless-code/persist/backends/encrypted`      | `adapters/backends/encrypted`               | none (web global)                             |
+| `@stainless-code/persist/backends/compressed`     | `adapters/backends/compressed`              | none (web global)                             |
+| `@stainless-code/persist/backends/node-fs`        | `adapters/backends/node-fs`                 | none (Node built-in)                          |
+| `@stainless-code/persist/transport/crosstab`      | `adapters/transport/crosstab`               | none (web global)                             |
+| `@stainless-code/persist/sources/tanstack-store`  | `adapters/sources/tanstack-store`           | `@tanstack/store` (types only)                |
+| `@stainless-code/persist/sources/zustand`         | `adapters/sources/zustand`                  | `zustand`                                     |
+| `@stainless-code/persist/sources/jotai`           | `adapters/sources/jotai`                    | `jotai`                                       |
+| `@stainless-code/persist/sources/valtio`          | `adapters/sources/valtio`                   | `valtio`                                      |
+| `@stainless-code/persist/sources/mobx`            | `adapters/sources/mobx`                     | `mobx`                                        |
+| `@stainless-code/persist/frameworks/react`        | `adapters/frameworks/react`                 | `react`                                       |
+| `@stainless-code/persist/frameworks/solid`        | `adapters/frameworks/solid`                 | `solid-js`                                    |
+| `@stainless-code/persist/frameworks/vue`          | `adapters/frameworks/vue`                   | `vue`                                         |
+| `@stainless-code/persist/frameworks/svelte`       | `adapters/frameworks/svelte`                | `svelte` (>=5.7 runes)                        |
+| `@stainless-code/persist/frameworks/svelte-store` | `adapters/frameworks/svelte-store`          | `svelte` (>=3 store)                          |
+| `@stainless-code/persist/frameworks/angular`      | `adapters/frameworks/angular`               | `@angular/core` (>=17)                        |
+| `@stainless-code/persist/frameworks/preact`       | `adapters/frameworks/preact`                | `preact` (>=10.19)                            |
 
-No barrel — importing a subpath is the dependency opt-in. Each subpath entry owns its peer dep, which stays external in the build (`tsdown.config.ts` `neverBundle`) so consumers tree-shake cleanly.
+No barrel — importing a subpath is the dependency opt-in. Each subpath entry owns its optional peer dep when the adapter needs one — the no-peer entries are the core, encrypted, compressed, node-fs, and crosstab subpaths — and the peer stays external in the build (`tsdown.config.ts` `neverBundle`) so consumers tree-shake cleanly.
+
+## Folder layout
+
+`src/` splits at the dependency-direction boundary:
+
+- **`core/`** — the zero-dep engine (`persist-core.ts`, `hydration.ts`) plus `index.ts` (the `.` entry that re-exports both). Nothing in `core/` imports an adapter.
+- **`adapters/<seam>/`** — opt-in entries that own an optional peer and import only from `core/`:
+  - `codecs/` — `StorageCodec` adapters (seroval, zod)
+  - `backends/` — `StateStorage` adapters + wrappers (idb, async-storage, mmkv, secure-store, encrypted, compressed, node-fs)
+  - `transport/` — `CrossTabEventTarget` adapters (crosstab — BroadcastChannel bridge)
+  - `sources/` — `PersistableSource` adapters (tanstack-store, zustand, jotai, valtio, mobx). Shape-named, not library-named — same persistable shape → same name → same merge semantics; the subpath carries the library. Alias when importing two same-shape adapters into one module.
+  - `frameworks/` — `HydrationSignal` framework adapters (react, solid, vue, svelte, svelte-store, angular, preact)
+
+A per-entry self-check test pins the invariant: every adapter's relative imports resolve into `core/` (no cross-adapter coupling). `dist/` mirrors `src/` (`dist/<seam>/<name>.mjs` via tsdown's record-form `entry` keyed by `<seam>/<name>`) — src folder → tsdown key → dist path → subpath, all 1:1.
 
 ## Hydration lifecycle
 
-`persistSource` hydrates on create (skip with `skipHydration`; `rehydrate()` is awaitable), subscribe-writes on every `setState` (gated until hydrated; optional trailing `throttleMs`), and tears down via `destroy()`. The hydration signal (`HydrationSignal` from `hydration`) is observed from outside the store — framework adapters mount it into their external-store mechanism (React `useSyncExternalStore` via `useHydrated`, Svelte `createSubscriber`, Solid `from`, Vue `shallowRef` + watch) without coupling to the store's read path. SSR policy: render `hydrated = true` on the server; `null` signal = no persistence = hydrated.
+`persistSource` hydrates on create (skip with `skipHydration`; `rehydrate()` is awaitable), subscribe-writes on every `setState` (gated until hydrated; optional trailing `throttleMs`), and tears down via `destroy()`. The hydration signal (`HydrationSignal` from `hydration`) is observed from outside the store — framework adapters mount it into their external-store mechanism (React `useSyncExternalStore` via `./frameworks/react`, Solid `from` via `./frameworks/solid`, Vue `shallowRef` + `onScopeDispose` via `./frameworks/vue`, Svelte runes `createSubscriber` via `./frameworks/svelte` / stores `readable` via `./frameworks/svelte-store`, Angular `signal` + `effect` via `./frameworks/angular`, Preact `useSyncExternalStore` via `preact/compat` via `./frameworks/preact`) without coupling to the store's read path. SSR policy: render `hydrated = true` on the server; `null` signal = no persistence = hydrated.
 
 ## Sync vs async
 
@@ -36,25 +68,45 @@ One API. Sync backends (localStorage) settle hydration before first paint; async
 
 ## Beyond Query-persister parity
 
-`buster` / `maxAge` / `throttleMs` / `retryWrite` ship alongside versioned `migrate`, cross-tab sync (`crossTab` + `onCrossTabRemove`), the hydration signal, and the codec seam — beyond what TanStack Query's `persistQuery_client` offers. **Deliberate `maxAge` default divergence:** prefs shouldn't silently expire, so `maxAge` is opt-in rather than default-on.
+`buster` / `maxAge` / `throttleMs` / `retryWrite` ship alongside versioned `migrate`, cross-tab sync (`crossTab` + `onCrossTabRemove`), the hydration signal, and the codec seam — beyond what TanStack Query's `persistQueryClient` offers. **Deliberate `maxAge` default divergence:** prefs shouldn't silently expire, so `maxAge` is opt-in rather than default-on.
+
+## Limitations (by design)
+
+What the core deliberately does **not** do — the seams exist for these, but no shipped impl:
+
+- **No IndexedDB integration in core** — seam only (`StateStorage<TRaw>` + `identityCodec`); IDB lives in `./backends/idb` (idb-keyval peer). No transaction batching, key-range cursors, or IDB-specific error mapping in core.
+- **No multi-key batching** — one key per `persistSource`; no atomic multi-key write. `PersistRegistry.clearAll` is best-effort `allSettled`, not a transaction.
+- **No key-namespacing helper** — `name` is a raw string; no built-in prefix convention.
+- **Trailing-only throttle** — no leading edge; the first write waits out the window (explicit trade-off vs TanStack Query's leading+trailing).
+- **`retryWrite` uncapped by design** — no max-attempts / backoff; the callback owns termination (can spin forever).
+- **`setOptions` cannot re-wire structural options** — `registry`, `crossTab`, `crossTabEventTarget` are set at create time only.
+- **No selective / per-field hydrate** — `merge` is the only knob; no field-level hydration hooks.
+- **No built-in cross-tab payload diff** — full rehydrate on every matching event; no "only changed fields" optimization.
+- **No built-in size/quota introspection** — `retryWrite` reacts to failures; the core never probes quota.
+- **No SSR serialize-and-rehydrate** — the server renders `hydrated: true`; shipping server state to the client for first-paint is the framework adapter's job (`useHydrated` server snapshot).
+- **Async detection is native same-realm `Promise` only** — cross-realm / custom-thenable backends aren't supported (deliberate, so a stored value with a `then` property isn't mistaken for a pending read).
+- **Cross-tab `onCrossTabRemove` is the only removal primitive** — no symmetric "another tab wrote" callback distinct from `rehydrate()`.
+- **No telemetry / observability beyond `onError`** — no write-success / hydrate-success / retry-attempt events.
+- **`partialize` runs on every `setState`** — no memoization hook for expensive projections (consumer's responsibility).
+- **No built-in devtools / time-travel** — `setOptions` + `rehydrate` are the only runtime knobs.
 
 ## Publishing & API docs
 
 - **Public surface** — every export from an entry point is the public API and carries JSDoc that reads well in hovers and published typings. `@default` / `@example` tags survive into the shipped `.d.mts` (tsdown dts preserves JSDoc). No `@internal` tags are currently warranted — every export is part of the public surface; `stripInternal: true` is set in `tsconfig.json` as a forward-looking guard so any future `@internal`-marked member is dropped from the dts.
 - **`PersistStorage.raw`** — stays **public** (semi-public seam): set by `createStorage` and identity-compared by cross-tab rehydrate; hand-rolled `PersistStorage` implementations may omit it. Typed `unknown` deliberately (only identity matters; typing it `StateStorage<TRaw>` would cascade the wire-type generic for no benefit).
 - **Internal aliases** — non-exported helper types (e.g. the listener alias) are kept out of public signatures: `PersistApi.onHydrate` / `onFinishHydration` inline `(state: TState) => void` so the shipped dts never leaks an unexported type name into a hover. The internal alias is reserved for the implementation's listener Sets.
-- **API reference** — `bun run docs:api` runs [TypeDoc](https://typedoc.org) (`typedoc.json`) over the five entry points to a static HTML site under `docs/api/` (git-ignored). `treatWarningsAsErrors` + `validation.invalidLink` gate unresolved `{@link}` targets; all current `{@link}` resolve within the `index` core entry (no cross-entry links).
+- **API reference** — `bun run docs:api` runs [TypeDoc](https://typedoc.org) (`typedoc.json`) over every entry point to a static HTML site under `docs/api/` (git-ignored). `treatWarningsAsErrors` + `validation.invalidLink` gate unresolved `{@link}` targets; all current `{@link}` resolve within the `index` core entry (no cross-entry links).
 
 ## Test matrix
 
 Two runners, split by what they need:
 
-| Runner                                    | Scope                     | Pattern            | Why                                                                                                                         |
-| ----------------------------------------- | ------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `bun:test`                                | `src/**/*.test.ts`        | `bun test ./src`   | No DOM — fast unit tests for the core, codecs, backends, TanStack adapters, and `useHydrated` SSR/snapshot contracts.       |
-| `vitest` + jsdom + @testing-library/react | `tests-dom/**/*.test.tsx` | `bun run test:dom` | The React `useHydrated` rerender + unmount-detach path needs a DOM + a client renderer (`useSyncExternalStore` reactivity). |
+| Runner                                    | Scope                          | Pattern            | Why                                                                                                                                    |
+| ----------------------------------------- | ------------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `bun:test`                                | `src/**/*.test.ts`             | `bun test ./src`   | No DOM — fast unit tests for the core, codecs, backends, transport, source + framework adapters, and hydration SSR/snapshot contracts. |
+| `vitest` + jsdom + @testing-library/react | `tests-dom/**/*.test.{ts,tsx}` | `bun run test:dom` | The React `useHydrated` rerender + unmount-detach path needs a DOM + a client renderer (`useSyncExternalStore` reactivity).            |
 
-The split is structural — `tests-dom/` is a top-level directory outside `bun test ./src`'s scan, so the two runners never pick up the same file. `check` runs both in parallel; CI runs them as separate jobs (`Test`, `Test (DOM)`) gated by the single `CI complete` job. The bun suite's `use-hydrated.test.ts` header documents which contracts it pins and which it deliberately leaves to the vitest suite.
+The split is structural — `tests-dom/` is a top-level directory outside `bun test ./src`'s scan, so the two runners never pick up the same file. `check` runs both in parallel; CI runs them as separate jobs (`Test`, `Test (DOM)`) gated by the single `CI complete` job. The bun suite's `src/adapters/frameworks/react.test.ts` header documents which contracts it pins and which it deliberately leaves to the vitest suite.
 
 ## Reference
 

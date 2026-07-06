@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "codemap": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": ["codemap", "mcp", "--watch", "--root", "${workspaceFolder}"]
+    }
+  }
+}
