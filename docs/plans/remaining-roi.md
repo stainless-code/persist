@@ -56,11 +56,11 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 - **Acceptance (remaining):** the next changeset merge to `main` publishes with provenance — verify the npm version page shows the Provenance badge, or `npm view @stainless-code/persist@<ver> --json` includes `dist.attestations`. Then revoke + delete the old `NPM_TOKEN` repo secret. Strike this item once verified.
 - **Lands:** `.github/workflows/release.yml` + `package.json`. No changeset (infra-only).
 
-### 5. Real-browser + SSR test matrix — Tier 3, M
+### 5. Real-browser + SSR + framework-runtime test matrix — Tier 3, M
 
-- **What:** add a Playwright job covering the React `useHydrated` rerender/detach path in a real browser (Chromium + WebKit/Safari); add a Next.js SSR smoke that asserts the server renders `hydrated: true` and the client hydrates without a flash. The `tests-dom` vitest/jsdom suite stays (fast); Playwright is the slow, real-environment gate.
-- **Why:** today the matrix is jsdom only — no real browser, no Safari, no SSR-framework. `useSyncExternalStore` reactivity and SSR snapshot policy are the constraint-critical paths; jsdom can diverge from real browsers.
-- **Acceptance:** CI `Test (Browser)` job runs Playwright green; `Test (SSR)` job runs a Next.js app green; both gated by `CI complete`. Co-locate fixtures under `tests-browser/` and `tests-ssr/` (outside `bun test ./src`'s scan, like `tests-dom/`).
+- **What:** add a Playwright job covering the React `useHydrated` rerender/detach path in a real browser (Chromium + WebKit/Safari); add a Next.js SSR smoke that asserts the server renders `hydrated: true` and the client hydrates without a flash. The `tests-dom` vitest/jsdom suite stays (fast); Playwright is the slow, real-environment gate. **Framework-runtime coverage gaps to close here** (bun mocks can't exercise the reactive wiring): Preact `useHydrated` subscribe/unsubscribe + rerender-on-flip (add a `tests-dom` jsdom suite — parity with React); Svelte 5 runes `createSubscriber` reactive ownership + cleanup (needs a Svelte component runtime); Angular `effect()` async attach timing (needs an Angular runtime so the `angular.ts:30` re-read guard is exercised, not hidden by a sync mock).
+- **Why:** today the matrix is jsdom only — no real browser, no Safari, no SSR-framework. `useSyncExternalStore` reactivity and SSR snapshot policy are the constraint-critical paths; jsdom can diverge from real browsers. The Preact/Svelte/Angular adapters ship reactive wiring that the bun mocks never actually drive.
+- **Acceptance:** CI `Test (Browser)` job runs Playwright green; `Test (SSR)` job runs a Next.js app green; Preact jsdom suite green; Svelte + Angular runtime tests green (or an explicit decision per-adapter to defer to a community recipe). All gated by `CI complete`. Co-locate fixtures under `tests-browser/`, `tests-ssr/`, and `tests-dom/preact.test.tsx` (outside `bun test ./src`'s scan, like `tests-dom/`).
 - **Lands:** `.github/workflows/ci.yml` + new test dirs; `docs/architecture.md` § Test matrix updated. No changeset (test-only).
 
 ### 6. React ergonomics layer — Tier 4, M-L
