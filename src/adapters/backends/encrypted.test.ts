@@ -74,7 +74,18 @@ describe("createEncryptedStorage", () => {
     await waitForHydration(persist.hasHydrated);
 
     source.setState(() => ({ count: 7 }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    // Async backend (crypto.subtle) — the subscribe-write settles on a
+    // macrotask; a single `setTimeout 0` may race it on CI. Poll until it lands.
+    await new Promise<void>((resolve, reject) => {
+      let ticks = 0;
+      const tick = () => {
+        if (memory.getItem(name) !== null) return resolve();
+        if (++ticks > 1000)
+          return reject(new Error("encrypted write never landed"));
+        setTimeout(tick, 0);
+      };
+      tick();
+    });
 
     const rawStored = memory.getItem(name);
     expect(rawStored).not.toBeNull();
