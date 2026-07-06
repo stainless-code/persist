@@ -84,7 +84,7 @@ From audit Appendix B.3. Each is a one-line composition over an existing seam; s
 - **Redis backend** (M) — server-side persistent state; async `StateStorage`. Pairs with `./backends/node-fs` for a real server story.
 - **Chrome `storage.area`** (S) — `local` / `sync` / `session` for MV3 extensions (`localStorage` is forbidden in MV3 service workers).
 - **cookies backend** (M) — server-rendered hydration; size limits + HTTP coupling make it awkward — likely a recipe, not a shipped peer.
-- **Codecs** — MessagePack / cbor-x / CBOR (S, compact binary wire — needs `TRaw = Uint8Array`), superjson / devalue (S, class-instance round-trip), structuredClone (S, largely subsumed by IDB identity mode), protobuf (L, heavy toolchain — recipe).
+- **Codecs** — MessagePack / cbor-x / CBOR (S codec, but needs `TRaw = Uint8Array` + a binary backend or base64 bridge — no shipped backend is binary-wire today), superjson / devalue (S, class-instance round-trip — overlaps `seroval`), protobuf (L, heavy toolchain — recipe). `structuredClone` isn't a codec (returns an object, not a wire type); IDB identity mode covers its only use case.
 
 ## Sequencing
 
