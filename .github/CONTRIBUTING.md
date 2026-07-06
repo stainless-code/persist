@@ -46,7 +46,7 @@ Match Oxfmt/Oxlint; prefer **straight-line code** and extracted helpers over lon
 
 ### Releases
 
-[@changesets/cli](https://github.com/changesets/changesets) — run **`bunx changeset`** when your PR should bump the version, and commit the `.changeset/*.md` file. The Release workflow opens a "Version packages" PR and publishes to npm on merge via trusted publishing (GitHub OIDC; no `NPM_TOKEN`).
+[@changesets/cli](https://github.com/changesets/changesets) — run **`bunx changeset`** when your PR should bump the version, and commit the `.changeset/*.md` file. The Release workflow opens a "Version packages" PR and publishes to npm on merge via trusted publishing (GitHub OIDC; no `NPM_TOKEN`); Sigstore provenance is auto-generated.
 
 ### Issues
 
