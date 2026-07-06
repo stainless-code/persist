@@ -16,3 +16,6 @@ alwaysApply: true
 
 <!-- Append durable corrections below, one bullet per line. Keep this file
      short — lift into rules/skills when a lesson becomes policy. -->
+
+- npm trusted publishing (OIDC) needs npm ≥ 11.5.1 + Node ≥ 22.14; oven-sh/setup-bun leaves npm 10.x in PATH, so a release job running `changeset publish`/`npm publish` must also run actions/setup-node (Node 24 → npm 11) or OIDC isn't detected → ENEEDAUTH.
+- Don't pin a GitHub action to a moving major tag's commit SHA (e.g. setup-node@<v6-tag-commit>) — the tag moves and orphans/GCs the commit → "unable to find version"; pin to an immutable release-tag commit or use the moving @vN tag.
