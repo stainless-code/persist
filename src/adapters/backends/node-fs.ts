@@ -54,8 +54,11 @@ export function nodeFsStateStorage(
     getItem: async (name) => {
       try {
         return await readFile(pathFor(name), "utf8");
-      } catch {
-        return null;
+      } catch (err) {
+        // Missing key → null. Other failures (EACCES, EISDIR, disk) must
+        // surface — swallowing them would mask real I/O problems as "no data".
+        if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
+        throw err;
       }
     },
     setItem: async (name, value) => {
@@ -65,8 +68,12 @@ export function nodeFsStateStorage(
     removeItem: async (name) => {
       try {
         await unlink(pathFor(name));
-      } catch {
-        /* missing file — nothing to remove */
+      } catch (err) {
+        // Idempotent: a missing file is nothing to remove. Other failures
+        // (permissions, etc.) rethrow — the caller's write/remove contract
+        // shouldn't silently swallow them.
+        if ((err as NodeJS.ErrnoException).code === "ENOENT") return;
+        throw err;
       }
     },
   };

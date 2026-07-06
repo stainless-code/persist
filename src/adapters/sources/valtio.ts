@@ -1,5 +1,5 @@
 // valtio source adapter — peer `valtio` >=1.0.0.
-import { snapshot, subscribe } from "valtio";
+import { snapshot, subscribe } from "valtio/vanilla";
 
 import type { PersistApi, PersistOptions } from "../../core/persist-core";
 import { persistSource } from "../../core/persist-core";

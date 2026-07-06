@@ -92,6 +92,47 @@ describe("createEncryptedStorage", () => {
     persist2.destroy();
   });
 
+  it("composed: a wrong-key hydrate routes to onError phase 'hydrate' and does NOT clearCorrupt (backend reject, not codec throw)", async () => {
+    const key1 = await makeKey();
+    const key2 = await makeKey();
+    const name = "encrypted-wrong-key";
+
+    // Seed an encrypted blob with key1 (await the async encrypt directly).
+    const seedStorage = createStorage<{ count: number }>(
+      () => createEncryptedStorage(() => memory, { key: key1 })!,
+      serovalCodec(),
+    )!;
+    await seedStorage.setItem(name, { state: { count: 9 }, version: 0 });
+    expect(memory.getItem(name)).not.toBeNull();
+
+    // Hydrate the same key with key2 — AES-GCM decrypt throws in the backend's
+    // async getItem, which persist-core reports as phase "hydrate". This is NOT
+    // the codec's clearCorruptOnFailure path (that fires only when the *codec*
+    // throws parsing a raw value), so the encrypted blob stays in storage.
+    // `skipHydration` + `await rehydrate()` (not `waitForHydration`) because the
+    // decrypt reject settles on a macrotask (crypto.subtle) — microtask polling
+    // never yields to it.
+    const errors: Array<{ phase: string }> = [];
+    const wrongStorage = createStorage<{ count: number }>(
+      () => createEncryptedStorage(() => memory, { key: key2 })!,
+      serovalCodec(),
+      { clearCorruptOnFailure: true },
+    )!;
+    const source = createMockSource({ count: 0 });
+    const persist = persistSource(source, {
+      name,
+      storage: wrongStorage,
+      skipHydration: true,
+      onError: (_e, ctx) => errors.push({ phase: ctx.phase }),
+    });
+    await persist.rehydrate();
+
+    expect(errors).toContainEqual({ phase: "hydrate" });
+    expect(memory.getItem(name)).not.toBeNull();
+    expect(source.state.count).toBe(0);
+    persist.destroy();
+  });
+
   it("returns undefined when crypto.subtle is unavailable", () => {
     const originalCrypto = globalThis.crypto;
     try {

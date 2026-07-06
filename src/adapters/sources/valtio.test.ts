@@ -9,7 +9,7 @@ type MockProxy<T extends object> = T & {
   __state: T;
 };
 
-mock.module("valtio", () => ({
+mock.module("valtio/vanilla", () => ({
   snapshot: <T extends object>(proxyObj: T): T => {
     const state = (proxyObj as MockProxy<T>).__state ?? proxyObj;
     return { ...state };

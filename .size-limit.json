@@ -16,5 +16,23 @@
     "path": "dist/codecs/seroval.mjs",
     "limit": "2 KB",
     "gzip": true
+  },
+  {
+    "name": "encrypted",
+    "path": "dist/backends/encrypted.mjs",
+    "limit": "2 KB",
+    "gzip": true
+  },
+  {
+    "name": "compressed",
+    "path": "dist/backends/compressed.mjs",
+    "limit": "2 KB",
+    "gzip": true
+  },
+  {
+    "name": "zod",
+    "path": "dist/codecs/zod.mjs",
+    "limit": "2 KB",
+    "gzip": true
   }
 ]

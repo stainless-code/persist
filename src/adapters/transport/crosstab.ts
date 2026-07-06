@@ -93,7 +93,7 @@ export function createBroadcastCrossTab<S>(
             .then(() => {
               postMessage({
                 key: name,
-                newValue: 1 as unknown as string,
+                newValue: "1",
                 storageArea: null,
               });
             })
