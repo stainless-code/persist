@@ -45,6 +45,16 @@ describe("persist-core zero-dep gate", () => {
       );
     expect(storeValueImports).toEqual([]);
   });
+
+  it("hydration.ts has no value imports (zero-dep core contract)", async () => {
+    const source = await Bun.file(
+      new URL("./hydration.ts", import.meta.url),
+    ).text();
+    const valueImports = source
+      .split("\n")
+      .filter((line) => /^import\s/.test(line) && !/^import type\s/.test(line));
+    expect(valueImports).toEqual([]);
+  });
 });
 
 describe("createJSONStorage codec seam", () => {
@@ -2289,6 +2299,34 @@ describe("createMigrationChain", () => {
     await expect(migrate({}, 2.5)).rejects.toThrow(
       /stored version must be an integer/,
     );
+  });
+
+  it("end-to-end: onOlder 'throw' routes to onError phase 'migrate' and keeps initial state", async () => {
+    const memory = new MemoryStorage();
+    const jsonStorage = createJSONStorage<{ x?: number }>(() => memory)!;
+    await jsonStorage.setItem("older-throw", { state: { x: 7 }, version: 0 });
+
+    const errors: Array<{ phase: string; message: string }> = [];
+    const source = createMockSource({ x: 99 });
+    const persist = persistSource(source, {
+      name: "older-throw",
+      version: 3,
+      storage: jsonStorage,
+      migrate: createMigrationChain<{ x?: number }>({
+        version: 3,
+        steps: { 2: (s) => s }, // minKey=2 → v0 unsupported
+        onOlder: "throw",
+      }),
+      onError: (e, ctx) =>
+        errors.push({ phase: ctx.phase, message: (e as Error).message }),
+    });
+    await waitForHydration(persist.hasHydrated);
+
+    const migrateError = errors.find((e) => e.phase === "migrate");
+    expect(migrateError).toBeTruthy();
+    expect(migrateError!.message).toMatch(/older than the chain's earliest/);
+    expect(source.state).toEqual({ x: 99 }); // kept initial — nothing usable
+    persist.destroy();
   });
 });
 

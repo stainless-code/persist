@@ -104,5 +104,20 @@ describe("createCompressedStorage", () => {
     }
   });
 
+  it("returns undefined when the backend is missing a required method", () => {
+    const broken = {
+      getItem: () => null,
+      setItem: () => {},
+      // removeItem missing
+    } as unknown as import("../../core/persist-core").StateStorage<string>;
+    expect(createCompressedStorage(() => broken)).toBeUndefined();
+  });
+
+  it("decompress rejects a corrupt (non-base64) payload", async () => {
+    const storage = createCompressedStorage(() => memory)!;
+    memory.setItem("corrupt", "!!!not-base64!!!");
+    await expect(storage.getItem("corrupt")).rejects.toThrow();
+  });
+
   itImportsOnlyFromCore(new URL("./compressed.ts", import.meta.url));
 });

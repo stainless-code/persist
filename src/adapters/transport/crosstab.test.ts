@@ -258,5 +258,55 @@ describe("createBroadcastCrossTab", () => {
     bridgeB.close();
   });
 
+  it("a failed setItem/removeItem does not broadcast", async () => {
+    const channelName = `fail-${Math.random()}`;
+    const bridgeA = createBroadcastCrossTab<{ x: number }>({ channelName })!;
+    const bridgeB = createBroadcastCrossTab<{ x: number }>({ channelName })!;
+
+    let posts = 0;
+    bridgeB.crossTabEventTarget.addEventListener("storage", () => posts++);
+
+    const failing: PersistStorage<{ x: number }> = {
+      raw: undefined,
+      getItem: () => ({ state: { x: 1 }, version: 0 }), // present → removeItem probe proceeds
+      setItem: () => Promise.reject(new Error("write fail")),
+      removeItem: () => Promise.reject(new Error("remove fail")),
+    };
+    const wrapped = bridgeA.wrap(failing);
+
+    await expect(
+      wrapped.setItem("k", { state: { x: 1 }, version: 0 }),
+    ).rejects.toThrow();
+    await expect(wrapped.removeItem("k")).rejects.toThrow();
+
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(posts).toBe(0);
+
+    bridgeA.close();
+    bridgeB.close();
+  });
+
+  it("removeEventListener stops delivery to that listener", async () => {
+    const channelName = `rm-${Math.random()}`;
+    const bridge = createBroadcastCrossTab({ channelName })!;
+    const poster = new BroadcastChannel(channelName);
+
+    let fired = 0;
+    const listener = () => fired++;
+    bridge.crossTabEventTarget.addEventListener("storage", listener);
+
+    poster.postMessage({ key: "k", newValue: "1", storageArea: null });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(fired).toBe(1);
+
+    bridge.crossTabEventTarget.removeEventListener("storage", listener);
+    poster.postMessage({ key: "k", newValue: "1", storageArea: null });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(fired).toBe(1); // no second delivery after removeEventListener
+
+    poster.close();
+    bridge.close();
+  });
+
   itImportsOnlyFromCore(new URL("./crosstab.ts", import.meta.url));
 });

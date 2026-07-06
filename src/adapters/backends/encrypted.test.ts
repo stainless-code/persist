@@ -158,5 +158,25 @@ describe("createEncryptedStorage", () => {
     }
   });
 
+  it("returns undefined when the backend is missing a required method", () => {
+    const broken = {
+      getItem: () => null,
+      setItem: () => {},
+      // removeItem missing
+    } as unknown as import("../../core/persist-core").StateStorage<string>;
+    expect(
+      createEncryptedStorage(() => broken, { key: {} as CryptoKey }),
+    ).toBeUndefined();
+  });
+
+  it("decrypt rejects a malformed ciphertext payload (missing separator)", async () => {
+    const key = await makeKey();
+    const storage = createEncryptedStorage(() => memory, { key })!;
+    memory.setItem("malformed", "not-a-valid-ciphertext-no-separator");
+    await expect(storage.getItem("malformed")).rejects.toThrow(
+      /invalid ciphertext payload/,
+    );
+  });
+
   itImportsOnlyFromCore(new URL("./encrypted.ts", import.meta.url));
 });

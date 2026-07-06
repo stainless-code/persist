@@ -103,6 +103,26 @@ describe("nodeFsStateStorage", () => {
     }
   });
 
+  it("refuses keys that sanitize to traversal / self / empty segments", async () => {
+    const dir = await tempDir();
+    try {
+      const storage = nodeFsStateStorage({ dir });
+      for (const bad of ["..", ".", ""]) {
+        await expect(storage.setItem(bad, "x")).rejects.toThrow(
+          /refusing to resolve outside dir/,
+        );
+        await expect(storage.getItem(bad)).rejects.toThrow(
+          /refusing to resolve outside dir/,
+        );
+        await expect(storage.removeItem(bad)).rejects.toThrow(
+          /refusing to resolve outside dir/,
+        );
+      }
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
   it("composes with createStorage + persistSource end-to-end", async () => {
     const dir = await tempDir();
     try {
