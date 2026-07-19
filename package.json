@@ -45,6 +45,7 @@
     "url": "git+https://github.com/stainless-code/persist.git"
   },
   "workspaces": [
+    ".",
     "apps/*"
   ],
   "files": [
