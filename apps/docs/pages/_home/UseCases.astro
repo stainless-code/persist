@@ -1,0 +1,178 @@
+---
+import { contentHref } from "blume/components/content/base-href.ts";
+
+const reachFor = [
+  {
+    useCase: "Persist prefs / draft state across reloads without a hydrate flash",
+    involves: "`toHydrationSignal` + framework `useHydrated`",
+    fit: "Ideal",
+  },
+  {
+    useCase: "Same persist middleware across zustand, TanStack Store, jotai, …",
+    involves: "`PersistableSource` + `./sources/*`",
+    fit: "Ideal",
+  },
+  {
+    useCase: "Swap localStorage ↔ IndexedDB ↔ encrypted wrapper without rewrite",
+    involves: "`createStorage(backend, codec)` seams",
+    fit: "Ideal",
+  },
+  {
+    useCase: "Versioned schema evolution for long-lived keys",
+    involves: "`version` + `migrate` / `createMigrationChain`",
+    fit: "Ideal",
+  },
+  {
+    useCase: "Keep tabs in sync (or BroadcastChannel over IDB)",
+    involves: "`crossTab` + `./transport/crosstab`",
+    fit: "Ideal",
+  },
+  {
+    useCase: "Survive quota errors without clobbering newer writes",
+    involves: "`retryWrite` (shrink-or-give-up + generation guard)",
+    fit: "Ideal",
+  },
+  {
+    useCase: "Validate or rich-serialize payloads (zod / seroval / Date/Map/Set)",
+    involves: "`./codecs/zod` · `./codecs/seroval`",
+    fit: "Good",
+  },
+  {
+    useCase: "Clear every registered key on logout",
+    involves: "`createPersistRegistry` + `clearAll`",
+    fit: "Nice-to-have",
+  },
+  {
+    useCase: "Gate UI the same way in React / Solid / Vue / Svelte / Angular / Preact",
+    involves: "`./frameworks/*` hydration adapters",
+    fit: "Ideal",
+  },
+];
+
+const fitBadge: Record<string, string> = {
+  Ideal: "bg-accent/15 text-accent",
+  Good: "bg-muted text-muted-foreground",
+  "Nice-to-have": "bg-muted text-muted-foreground",
+};
+
+const skip = [
+  {
+    useCase:
+      "A single sync `localStorage.setItem` with no hydrate gate, migrate, or multi-tab needs",
+    fit: "Skip → plain storage helpers",
+  },
+  {
+    useCase:
+      "Persisting a query/cache layer (TanStack Query, SWR, …) — different lifecycle",
+    fit: "Skip → that library's persist client",
+  },
+  {
+    useCase: "Server-authoritative state with no client durable copy",
+    fit: "Skip → your API + cache policy",
+  },
+];
+
+const thClass =
+  "border-border border-b px-4 py-3 text-left font-medium text-foreground text-sm";
+const tdClass = "border-border border-b px-4 py-3 text-sm";
+const leadClass = `${tdClass} text-foreground`;
+const mutedClass = `${tdClass} text-muted-foreground`;
+---
+
+<section>
+  <div class="mx-auto max-w-2xl text-center">
+    <p
+      class="font-semibold text-muted-foreground text-xs uppercase tracking-wider"
+    >
+      When to use it
+    </p>
+    <h2 class="mt-3 font-medium text-3xl tracking-tight sm:text-4xl">
+      When to reach for Persist.
+    </h2>
+    <p class="mx-auto mt-4 max-w-lg text-balance text-muted-foreground">
+      Client store state is durable and cross-cutting, but most persist glue is
+      store-locked. Persist binds to a structural source and a hydration
+      lifecycle you can gate from any framework.
+    </p>
+  </div>
+
+  <div class="mt-10 overflow-x-auto rounded-blume border border-border">
+    <table class="w-full min-w-[640px] border-collapse text-left">
+      <thead>
+        <tr class="bg-muted/50">
+          <th class={thClass}>Use case</th>
+          <th class={thClass}>What it involves</th>
+          <th class={thClass}>Fit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          reachFor.map((row) => (
+            <tr>
+              <td class={leadClass}>{row.useCase}</td>
+              <td class={mutedClass}>
+                <code class="text-foreground text-xs">{row.involves}</code>
+              </td>
+              <td class={tdClass}>
+                <span
+                  class={`rounded-full px-2 py-0.5 text-xs font-medium ${fitBadge[row.fit] ?? "bg-muted text-muted-foreground"}`}
+                >
+                  {row.fit}
+                </span>
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mx-auto mt-16 max-w-2xl text-center">
+    <h2 class="font-medium text-3xl tracking-tight sm:text-4xl">
+      When to skip it.
+    </h2>
+    <p class="mx-auto mt-4 max-w-lg text-balance text-muted-foreground">
+      Persist pays for itself when you need a hydration signal, swappable seams,
+      or store-agnostic middleware. A one-off sync write is cheaper as plain
+      storage.
+    </p>
+  </div>
+
+  <div class="mt-10 overflow-x-auto rounded-blume border border-border">
+    <table class="w-full min-w-[640px] border-collapse text-left">
+      <thead>
+        <tr class="bg-muted/50">
+          <th class={thClass}>Use case</th>
+          <th class={thClass}>Fit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          skip.map((row) => (
+            <tr>
+              <td class={leadClass}>{row.useCase}</td>
+              <td class={mutedClass}>{row.fit}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div
+    class="mx-auto mt-10 flex max-w-2xl flex-wrap items-center justify-center gap-x-6 gap-y-2"
+  >
+    <a
+      class="inline-flex items-center gap-1 font-medium text-accent transition-opacity hover:opacity-80"
+      href={contentHref("/concepts/three-seams")}
+    >
+      Browse the three seams →
+    </a>
+    <a
+      class="inline-flex items-center gap-1 font-medium text-accent transition-opacity hover:opacity-80"
+      href={contentHref("/concepts/comparison")}
+    >
+      Compare store middlewares →
+    </a>
+  </div>
+</section>

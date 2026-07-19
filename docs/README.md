@@ -1,6 +1,10 @@
 # Docs
 
-Repo-wide documentation hub for `@stainless-code/persist`. The package landing page is the root [`README.md`](../README.md) (install, quick start, extensibility guide); this folder holds maintainer-facing reference and forward-looking work.
+Repo-wide documentation hub for `@stainless-code/persist`.
+
+**Canonical public site:** [https://stainless-code.com/persist](https://stainless-code.com/persist) ([`apps/docs`](../apps/docs)). The root [`README.md`](../README.md) is a short landing digest that links there.
+
+This folder holds maintainer-facing reference and forward-looking work.
 
 ## Reference
 

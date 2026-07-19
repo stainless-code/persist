@@ -1,0 +1,63 @@
+---
+title: Composition
+description: Encrypt, compress, and compose Persist backends and codecs for IndexedDB and string-wire storage.
+search:
+  tags: ["recipe", "encryption", "compression"]
+---
+
+```ts
+import { createStorage } from "@stainless-code/persist";
+import {
+  idbStateStorage,
+  createIdbStorage,
+} from "@stainless-code/persist/backends/idb";
+import { createEncryptedStorage } from "@stainless-code/persist/backends/encrypted";
+import { createCompressedStorage } from "@stainless-code/persist/backends/compressed";
+import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+
+// Encryption at rest (AES-GCM WebCrypto) over IndexedDB. Encryption is a
+// backend wrapper (crypto.subtle is async, the StorageCodec seam is sync),
+// not a sync codec; idbStateStorage() in string-wire mode holds the encrypted base64.
+const key = await crypto.subtle.generateKey(
+  { name: "AES-GCM", length: 256 },
+  true,
+  ["encrypt", "decrypt"],
+);
+createStorage(
+  () => createEncryptedStorage(() => idbStateStorage(), { key })!,
+  serovalCodec(),
+  {
+    clearCorruptOnFailure: true,
+  },
+);
+
+// Compress-then-encrypt (standard order) — the two wrappers stack
+createStorage(
+  () =>
+    createEncryptedStorage(
+      () => createCompressedStorage(() => idbStateStorage())!,
+      { key },
+    )!,
+  serovalCodec(),
+);
+
+// Legacy string payloads in IDB (written by an older version)
+createStorage(() => idbStateStorage(), serovalCodec());
+
+// Namespaced IDB store away from other idb-keyval users
+import { createStore } from "idb-keyval";
+createIdbStorage({ store: createStore("my-db", "persist") });
+
+// Cross-tab sync (localStorage): pair crossTab with onCrossTabRemove when using skipPersist
+persistStore(store, {
+  name,
+  storage,
+  crossTab: true,
+  onCrossTabRemove: () => store.actions.reset(),
+});
+
+// Cross-tab over IDB: no storage events — bridge a BroadcastChannel via crossTabEventTarget
+```
+
+For the full IDB BroadcastChannel bridge, see [Cross-tab](/recipes/crosstab).

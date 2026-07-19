@@ -1,0 +1,91 @@
+---
+title: Wrapping stores
+description: Persist zustand, jotai, valtio, mobx, or any custom PersistableSource with thin source adapters.
+search:
+  tags: ["recipe", "zustand", "jotai", "valtio", "mobx"]
+---
+
+Same `getState`/`setState`/`subscribe` shape → same adapter name → same merge semantics, regardless of library. Naming is shape-based (`persistStore` / `persistAtom` / `persistProxy` / `persistObservable`); the subpath carries the library. Importing two same-shape adapters into one module? Alias one: `import { persistStore as persistZustand } from "@stainless-code/persist/sources/zustand"`. Escape hatch: pass a custom `PersistableSource` to `persistSource` directly.
+
+## zustand
+
+```ts
+import { create } from "zustand";
+import { createJSONStorage } from "@stainless-code/persist";
+import { persistStore } from "@stainless-code/persist/sources/zustand";
+
+const usePrefs = create(() => ({ theme: "light" as const }));
+const persist = persistStore(usePrefs, {
+  name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+```
+
+Or pass a custom `PersistableSource` to `persistSource` directly — the adapter is a thin wrapper over `getState`/`setState`/`subscribe`.
+
+## jotai
+
+```ts
+import { atom, createStore } from "jotai";
+import { createJSONStorage } from "@stainless-code/persist";
+import { persistAtom } from "@stainless-code/persist/sources/jotai";
+
+const store = createStore();
+const themeAtom = atom<"light" | "dark">("light");
+const persist = persistAtom(store, themeAtom, {
+  name: "app:theme:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+```
+
+Or pass a custom `PersistableSource` to `persistSource` directly — the adapter is a thin wrapper over `getState`/`setState`/`subscribe`.
+
+## valtio
+
+```ts
+import { proxy } from "valtio";
+import { createJSONStorage } from "@stainless-code/persist";
+import { persistProxy } from "@stainless-code/persist/sources/valtio";
+
+const prefs = proxy({ theme: "light" as const });
+const persist = persistProxy(prefs, {
+  name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+```
+
+Or pass a custom `PersistableSource` to `persistSource` directly — the adapter is a thin wrapper over `getState`/`setState`/`subscribe`.
+
+## mobx
+
+```ts
+import { observable } from "mobx";
+import { createJSONStorage } from "@stainless-code/persist";
+import { persistObservable } from "@stainless-code/persist/sources/mobx";
+
+const prefs = observable.object({ theme: "light" as const });
+const persist = persistObservable(prefs, {
+  name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+```
+
+Or pass a custom `PersistableSource` to `persistSource` directly — the adapter is a thin wrapper over `getState`/`setState`/`subscribe`.
+
+## Any other store
+
+```ts
+import { createJSONStorage, persistSource } from "@stainless-code/persist";
+
+const persist = persistSource(
+  {
+    getState: () => myStore.getState(),
+    setState: (updater) => myStore.setState(updater),
+    subscribe: (listener) => myStore.subscribe(() => listener()),
+  },
+  {
+    name: "app:custom:v1",
+    storage: createJSONStorage(() => localStorage),
+  },
+);
+```

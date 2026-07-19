@@ -1,0 +1,24 @@
+---
+title: Choosing a storage
+description: Pick a Persist backend by sync-vs-async, cross-tab needs, and structured-clone support.
+search:
+  tags: ["concept", "storage", "backend"]
+---
+
+Pick by sync-vs-async (does it gate UI?), cross-tab needs, and whether you want structured-clone (Set/Map/Date natively).
+
+| Backend              | Sync? | Cross-tab | Structured-clone | Size               | Gate UI? | Subpath                                           |
+| -------------------- | ----- | --------- | ---------------- | ------------------ | -------- | ------------------------------------------------- |
+| IndexedDB            | ✗     | ✗         | ✓                | large              | ✓        | `./backends/idb`                                  |
+| AsyncStorage (RN)    | ✗     | ✗         | ✗                | large              | ✓        | `./backends/async-storage`                        |
+| MMKV (RN)            | ✓     | ✗         | ✗                | large              | ✗        | `./backends/mmkv`                                 |
+| Secure Store (Expo)  | ✗     | ✗         | ✗                | ~2KB/key           | ✓        | `./backends/secure-store`                         |
+| Node fs              | ✗     | ✗         | ✗                | disk               | ✓        | `./backends/node-fs`                              |
+| Encrypted (wrapper)  | ✗     | ✗         | ✗                | inherits           | ✓        | `./backends/encrypted`                            |
+| Compressed (wrapper) | ✗     | ✗         | ✗                | inherits (smaller) | ✓        | `./backends/compressed`                           |
+| localStorage         | ✓     | ✓         | ✗                | ~5MB               | ✗        | core `createJSONStorage`                          |
+| sessionStorage       | ✓     | ✗         | ✗                | ~5MB               | ✗        | core `createJSONStorage` / `createSessionStorage` |
+
+IDB has no storage events — pair `./transport/crosstab` for cross-tab sync. Encrypted/compressed wrappers over `localStorage` also don't receive native `storage` events: `PersistStorage.raw` is the wrapper identity `crossTab` compares, not the inner `localStorage` — use `./transport/crosstab` (BroadcastChannel) for cross-tab there too.
+
+React Native backends: [Recipes → React Native](/recipes/react-native). See also [Choosing a codec](/concepts/choosing-codec) and [Recipes](/recipes).

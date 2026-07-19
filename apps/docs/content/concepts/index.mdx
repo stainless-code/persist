@@ -1,0 +1,17 @@
+---
+title: Concepts
+description: Seam model, storage and codec choice, lifecycle, entry points, and how Persist compares to other libraries.
+search:
+  tags: ["concept"]
+---
+
+Three seams — backend, codec, source — so swapping storage, serialization, or store never rewrites the call site. The full API contract lives in the JSDoc of each module.
+
+| Page                                             | Topic                                            |
+| ------------------------------------------------ | ------------------------------------------------ |
+| [The three seams](/concepts/three-seams)         | Backend × codec × source                         |
+| [Choosing a storage](/concepts/choosing-storage) | Sync vs async, cross-tab, structured-clone       |
+| [Choosing a codec](/concepts/choosing-codec)     | JSON, seroval, zod, identity                     |
+| [Lifecycle](/concepts/lifecycle)                 | Hydrate, write, destroy, errors                  |
+| [Entry points](/concepts/entry-points)           | Subpaths and optional peers                      |
+| [Comparison](/concepts/comparison)               | vs zustand-persist, redux-persist, pinia-persist |

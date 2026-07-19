@@ -11,6 +11,7 @@ Source of truth for AI agent configuration. Cursor consumes via symlinks in `.cu
 | Tier 1 / 2 / 3 attachment modes   | [rules/agents-tier-system.md](rules/agents-tier-system.md)            |
 | Persist tier/pairing deltas       | [skills/writing-agents-config](skills/writing-agents-config/SKILL.md) |
 | Authoring new rules/skills (meta) | [`writing-great-skills`](skills/writing-great-skills/SKILL.md)        |
+| Product north-star (tenets)       | [`product-tenets`](skills/product-tenets/SKILL.md)                    |
 | Past corrections                  | [`lessons.md`](lessons.md)                                            |
 | What exists on disk right now     | `ls .agents/rules` · `ls .agents/skills`                              |
 
@@ -28,7 +29,7 @@ Discover on disk via `ls` + the frontmatter audit in [`agents-tier-system`](rule
 
 ## Conventions
 
-- **`-priming` suffix** when a Tier-2 rule filename ≠ skill folder name (`docs-governance-priming` ↔ `docs-governance` + `docs-lifecycle-sweep`; `architecture-priming` ↔ `improve-codebase-architecture`).
+- **`-priming` suffix** when a Tier-2 rule filename ≠ skill folder name (`docs-governance-priming` ↔ `docs-governance` + `docs-lifecycle-sweep`; `docs-voice-priming` ↔ `docs-voice`; `architecture-priming` ↔ `improve-codebase-architecture`).
 - **No `AGENTS.md` in skill folders** — use `FULL-GUIDE.md` or topic siblings (`WORKFLOW.md`, `REFERENCE.md`, `LANGUAGE.md`, `PROSE.md`) for bulk reference. Repo root `AGENTS.md` is a thin stub only.
 - **Thin rules** (~10–40 lines); depth in `SKILL.md` or siblings.
 

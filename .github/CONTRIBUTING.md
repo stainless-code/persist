@@ -15,7 +15,7 @@ bun run typecheck      # tsgo --noEmit
 bun run lint           # oxlint
 bun run format         # oxfmt
 bun run build          # tsdown → dist/ (one file per entry, mirroring src)
-bun run docs:api       # TypeDoc → docs/api/ (git-ignored HTML site)
+bun run docs:api       # TypeDoc → apps/docs/content/reference/api (MDX)
 bun run check          # build, then format:check + lint:ci + test + test:dom + typecheck (in parallel)
 bun run check-updates  # interactive dependency updates (`bun update -i --latest`)
 bun run clean          # remove untracked/ignored build artifacts (keeps .env)
@@ -34,7 +34,7 @@ git checkout -b your-branch-name
 git push -u origin your-branch-name
 ```
 
-Then open a PR on GitHub into **`main`**.
+Then open a PR on GitHub into **`main`**. PRs that change the public docs site (`apps/docs/**`) should carry the **`docs`** label — merge deploys https://stainless-code.com/persist (see [`.github/workflows/deploy-docs.yml`](workflows/deploy-docs.yml)).
 
 ### Git hooks
 

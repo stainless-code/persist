@@ -1,0 +1,153 @@
+---
+title: Migrating from …
+description: Map zustand-persist, redux-persist, and pinia-persist options onto Persist seams.
+search:
+  tags: ["guide", "migration"]
+---
+
+Same mental model everywhere: pick a source (`PersistableSource`), wire storage, gate UI with `HydrationSignal`. Option names map 1:1 where noted; gaps are explicit.
+
+## Migrating from zustand-persist
+
+Near 1:1 — this API is modeled on zustand persist, plus store-agnostic sources, a first-class `HydrationSignal`, and a codec seam.
+
+| zustand-persist                 | `@stainless-code/persist`                                                          |
+| ------------------------------- | ---------------------------------------------------------------------------------- |
+| `name`                          | `name`                                                                             |
+| `storage` / `createJSONStorage` | `storage` / `createJSONStorage` (core)                                             |
+| `partialize`                    | `partialize`                                                                       |
+| `version`                       | `version`                                                                          |
+| `migrate`                       | `migrate`                                                                          |
+| `merge`                         | `merge`                                                                            |
+| `onRehydrateStorage`            | `onRehydrateStorage`                                                               |
+| `skipHydration`                 | `skipHydration`                                                                    |
+| `persist` middleware            | `persistStore(store, opts)` or `persistSource(source, opts)`                       |
+| —                               | `toHydrationSignal(persist)` + `useHydrated` (no zustand equivalent)               |
+| —                               | `crossTab`, `maxAge`, `buster`, `throttleMs`, `retryWrite` (no zustand equivalent) |
+
+```ts
+// zustand-persist
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+
+export const usePrefs = create(
+  persist(() => ({ theme: "light" }), {
+    name: "app:prefs:v1",
+    storage: createJSONStorage(() => localStorage),
+  }),
+);
+
+// @stainless-code/persist
+import { Store } from "@tanstack/store";
+import { createJSONStorage, toHydrationSignal } from "@stainless-code/persist";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+import { useHydrated } from "@stainless-code/persist/frameworks/react";
+
+export const prefsStore = new Store({ theme: "light" });
+const persist = persistStore(prefsStore, {
+  name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+export const prefsHydration = toHydrationSignal(persist);
+// const { hydrated } = useHydrated(prefsHydration);
+```
+
+## Migrating from redux-persist
+
+redux-persist reconciles whole reducer trees implicitly; here `merge` is explicit and a hydration signal gates UI until the snapshot lands. redux stores have `getState`/`subscribe`/`dispatch` (no `setState`), so wrap the store in a `PersistableSource` whose `setState` dispatches an action your reducer recognizes to replace state.
+
+| redux-persist                     | `@stainless-code/persist`                                                |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| `key`                             | `name`                                                                   |
+| `storage`                         | `storage`                                                                |
+| `version`                         | `version`                                                                |
+| `migrate`                         | `migrate`                                                                |
+| `whitelist` / `blacklist`         | `partialize` (project the slice)                                         |
+| `transforms`                      | `merge` (per-reducer in/out)                                             |
+| `serialize` / `deserialize`       | custom `StorageCodec` via `createStorage`                                |
+| `stateReconciler`                 | `merge` (default shallow-spread; customize)                              |
+| `throttle`                        | `throttleMs`                                                             |
+| `persistReducer` / `persistStore` | `persistSource(reduxSource, opts)`                                       |
+| —                                 | `toHydrationSignal` + framework adapter (no redux-persist equivalent)    |
+| —                                 | `crossTab`, `maxAge`, `buster`, `retryWrite`, schema validation (no eq.) |
+
+```ts
+// redux-persist
+import { persistReducer, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+
+const persistedReducer = persistReducer({ key: "root", storage }, rootReducer);
+export const store = createStore(persistedReducer);
+persistStore(store);
+
+// @stainless-code/persist — wrap the redux store (dispatch ↔ setState)
+import {
+  createJSONStorage,
+  persistSource,
+  toHydrationSignal,
+} from "@stainless-code/persist";
+
+const reduxSource = {
+  getState: () => store.getState(),
+  setState: (updater) =>
+    store.dispatch({ type: "PERSIST_SET", payload: updater(store.getState()) }),
+  subscribe: (listener) => store.subscribe(listener),
+};
+const persist = persistSource(reduxSource, {
+  name: "root",
+  storage: createJSONStorage(() => localStorage),
+});
+export const rootHydration = toHydrationSignal(persist);
+```
+
+## Migrating from pinia-persist
+
+pinia-persist is a Pinia plugin; here persistence is a middleware call on any reactive source — same storage, explicit partialization, optional codec. Wrap the Pinia store's `$state` + `$subscribe` in a `PersistableSource`.
+
+| pinia-persist                    | `@stainless-code/persist`                                                             |
+| -------------------------------- | ------------------------------------------------------------------------------------- |
+| `key`                            | `name`                                                                                |
+| `storage`                        | `storage`                                                                             |
+| `paths`                          | `partialize` (pick paths)                                                             |
+| `serializer`                     | custom `StorageCodec` or default `jsonCodec` via `createStorage`                      |
+| `beforeHydrate` / `afterHydrate` | `onRehydrateStorage`                                                                  |
+| `debug`                          | `onError`                                                                             |
+| `pinia.use(plugin)`              | `persistSource(piniaSource, opts)`                                                    |
+| —                                | `toHydrationSignal` + framework adapter (no equivalent)                               |
+| —                                | `crossTab`, `migrate`, `maxAge`, `buster`, `throttleMs`, `retryWrite` (no equivalent) |
+
+```ts
+// pinia-persist
+import { createPinia } from "pinia";
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+
+const pinia = createPinia();
+pinia.use(
+  piniaPluginPersistedstate({
+    key: "prefs",
+    storage: localStorage,
+    paths: ["theme"],
+  }),
+);
+
+// @stainless-code/persist — wrap $state / $subscribe
+import {
+  createJSONStorage,
+  persistSource,
+  toHydrationSignal,
+} from "@stainless-code/persist";
+
+const piniaSource = {
+  getState: () => piniaStore.$state,
+  setState: (updater) => {
+    piniaStore.$state = updater(piniaStore.$state);
+  },
+  subscribe: (listener) => piniaStore.$subscribe(() => listener()),
+};
+const persist = persistSource(piniaSource, {
+  name: "prefs",
+  storage: createJSONStorage(() => localStorage),
+  partialize: (s) => ({ theme: s.theme }),
+});
+export const prefsHydration = toHydrationSignal(persist);
+```

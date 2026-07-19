@@ -16,7 +16,7 @@ Always-on priming: [`.agents/rules/agents-tier-system.md`](../../rules/agents-ti
 | **Tier 3** | `alwaysApply: false`, no `globs:` — intent via `description`                                           |
 | **Skills** | `ls .agents/skills` — runtime discovery via descriptions                                               |
 
-**Pairing examples in this repo:** `architecture-priming` ↔ `improve-codebase-architecture`; `docs-governance-priming` ↔ `docs-governance` + `docs-lifecycle-sweep`; `agents-tier-system` rule + skill; `authoring-discipline` rule + PROSE; `verify-after-each-step` rule + skill.
+**Pairing examples in this repo:** `architecture-priming` ↔ `improve-codebase-architecture`; `docs-governance-priming` ↔ `docs-governance` + `docs-lifecycle-sweep`; `docs-voice-priming` ↔ `docs-voice`; `agents-tier-system` rule + skill; `authoring-discipline` rule + PROSE; `verify-after-each-step` rule + skill.
 
 **Caution:** avoid stacking broad globs without thin priming bodies.
 

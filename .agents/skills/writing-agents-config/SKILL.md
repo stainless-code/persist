@@ -50,18 +50,19 @@ find .agents/skills -name SKILL.md -exec sh -c 'n=$(wc -l < "$1"); [ "$n" -gt 12
 
 ## Repo exemplars
 
-`tracer-bullets` (rule, single file), `harden-pr` (SKILL + `WORKFLOW.md` + `LEDGER.md`), `docs-governance` (SKILL + `LIFECYCLE.md`), `improve-codebase-architecture` (SKILL + `LANGUAGE.md` + `REFERENCE.md`), `authoring-discipline` (rule + `PROSE.md`), `verify-after-each-step` (slim rule + skill), `agents-tier-system` (rule + skill).
+`tracer-bullets` (rule, single file), `harden-pr` (SKILL + `WORKFLOW.md` + `LEDGER.md`), `docs-governance` (SKILL + `LIFECYCLE.md`), `docs-voice` (skill + `docs-voice-priming`), `product-tenets` (skill-only), `update-docs` (skill-only, `apps/docs` sync), `minimum-diff` (user-only), `improve-codebase-architecture` (SKILL + `LANGUAGE.md` + `REFERENCE.md`), `authoring-discipline` (rule + `PROSE.md`), `verify-after-each-step` (slim rule + skill), `agents-tier-system` (rule + skill).
 
 ## User-only router
 
-[`ask-agents`](../ask-agents/SKILL.md) — `grill-me`, `grill-with-docs`, `teach`, `writing-great-skills`, `writing-agents-config`. Wrappers **≤10 lines**.
+[`ask-agents`](../ask-agents/SKILL.md) — `grill-me`, `grill-with-docs`, `teach`, `writing-great-skills`, `writing-agents-config`, `minimum-diff`. Wrappers **≤10 lines**.
 
 ## Persist-specific tradeoffs
 
-- **Tier-2 attach** — `agents-tier-system` (`agents/**` + `cursor/**`); `docs-governance-priming` (`docs/**`, `.agents/**`).
-- **Intent-only skills** — `improve-codebase-architecture`, `domain-modeling`, `docs-lifecycle-sweep`, `diagnosing-bugs`, `tdd`, `pr-comment-fact-check`, `harden-pr`. No glob (no per-file tax).
+- **Tier-2 attach** — `agents-tier-system` (`.agents/rules/**`, `.agents/skills/**`, `.cursor/rules/**`, `.cursor/skills/**`); `docs-governance-priming` (`docs/**`, `.agents/**`, `.cursor/**`); `docs-voice-priming` (`apps/docs/**`) — Persist keeps voice priming (Layers is skill-only) so competitor framing auto-loads on docs edits.
+- **Intent-only skills** — `improve-codebase-architecture`, `domain-modeling`, `docs-lifecycle-sweep`, `diagnosing-bugs`, `tdd`, `pr-comment-fact-check`, `harden-pr`, `update-docs`. No glob (no per-file tax).
 - **Cross-skill links** — relative `../skill/SKILL.md` and sibling files resolve reliably in Cursor agents. Relative links inside `.agents/` are an **intentional delta**, not drift.
 - **Small-lib surface** — no per-feature `docs/` subtrees, no UI-component skills, no API-client/codegen skills. Don't add a skill governing tooling this repo lacks (a rule referencing a nonexistent script is worse than no rule).
+- **Seam vocabulary** — backends / codecs / sources / frameworks / transport; zero-dep `src/core/`; optional peers via subpath imports — see [`architecture-priming`](../../rules/architecture-priming.md) and [`product-tenets`](../product-tenets/SKILL.md).
 
 ## Anti-patterns (persist)
 
@@ -69,6 +70,7 @@ find .agents/skills -name SKILL.md -exec sh -c 'n=$(wc -l < "$1"); [ "$n" -gt 12
 - ❌ README skill inventories that drift (discover via `ls` + frontmatter audit)
 - ❌ Brittle anchors in committed source ([`authoring-discipline`](../../rules/authoring-discipline.md))
 - ❌ External-monorepo artifact leakage in examples — use `src/`, seams, `bun` scripts, `origin/main`
+- ❌ Treating query-cache persisters as Persist competitors in docs ([`docs-voice`](../docs-voice/SKILL.md))
 
 ## Reference
 

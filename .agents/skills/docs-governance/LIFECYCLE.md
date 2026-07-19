@@ -81,3 +81,9 @@ Preserve cited anchors / rule numbers; if renumbering is unavoidable, update eve
 - **Adopted** → lift the decision-of-record into `architecture.md` or a rule/skill; delete the research file unless its comparison framework is reusable.
 - **Rejected** → add `Status: Rejected (YYYY-MM-DD) — <one-line reason>` at the top. Keep. The rejection rationale saves the next agent from re-litigating.
 - **Open** → stays in `research/` with no status header.
+
+## README surfaces
+
+**The `apps/docs` docs site (built with Blume) is the canonical public documentation** for concepts, API, guides, recipes, adapters, and reference detail. The repo root `README.md` is an **npm/repo landing only**: package name, brand one-liner, install command, optional-peer table (or link), one idiomatic taste snippet, and links to `https://stainless-code.com/persist` — it **must not** restate API tables, when-to-use matrices, lifecycle explanations, or feature lists. Maintainer-facing depth stays in `docs/architecture.md`, `docs/glossary.md`, and the docs site `/reference/*`. On API changes, update the docs site first (`update-docs`); the root README changes only when install/peers/package name change.
+
+PR checklist: docs site updated for behavior/API; README touched only for install/taste/links. Label the PR **`docs`** when it changes `apps/docs/**` (or site-visible root README branding) — merge then deploys `/persist` via `.github/workflows/deploy-docs.yml` (also `release` / `workflow_dispatch`). Not GitHub's default `documentation` label.

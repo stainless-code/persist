@@ -11,6 +11,6 @@ alwaysApply: false
 
 Before authoring or editing any doc, **read the [`docs-governance` skill](../skills/docs-governance/SKILL.md)**.
 
-Lifecycle types, existence test, anti-bloat, and cross-reference discipline live in the skill — not duplicated here.
+Lifecycle types, existence test, anti-bloat, README surfaces (`apps/docs` canonical; root README is npm landing), and cross-reference discipline live in the skill — not duplicated here.
 
-Janitor sweep: [`docs-lifecycle-sweep`](../skills/docs-lifecycle-sweep/SKILL.md).
+Janitor sweep: [`docs-lifecycle-sweep`](../skills/docs-lifecycle-sweep/SKILL.md). Public site sync after merges: [`update-docs`](../skills/update-docs/SKILL.md).

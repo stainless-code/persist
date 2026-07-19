@@ -1,0 +1,18 @@
+---
+title: Choosing a codec
+description: Pick jsonCodec, serovalCodec, zodCodec, or identityCodec for your Persist wire format.
+search:
+  tags: ["concept", "codec"]
+---
+
+Pick by whether you need Set/Map/Date round-trips, schema-gated persistence, or a structured-clone backend. `identityCodec` only with structured-clone backends (IDB) — never string-wire.
+
+| Codec                 | Set/Map/Date                              | Wire type                  | Schema validation | For backend                 | Subpath                  |
+| --------------------- | ----------------------------------------- | -------------------------- | ----------------- | --------------------------- | ------------------------ |
+| `jsonCodec`           | ✗                                         | string                     | ✗                 | string-wire                 | core                     |
+| `serovalCodec`        | ✓                                         | string (JSON-shaped)       | ✗                 | string-wire                 | `./codecs/seroval`       |
+| `zodCodec`            | ✗ (JSON wire; only via schema transforms) | string                     | ✓                 | string-wire                 | `./codecs/zod`           |
+| `identityCodec`       | ✓ (structured clone)                      | `StorageValue<S>` (object) | ✗                 | structured-clone only (IDB) | core                     |
+| custom `StorageCodec` | yours                                     | yours                      | yours             | any                         | custom `encode`/`decode` |
+
+See [The three seams](/concepts/three-seams) for composition examples.

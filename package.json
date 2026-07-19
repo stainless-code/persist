@@ -35,7 +35,7 @@
     "zod",
     "zustand"
   ],
-  "homepage": "https://github.com/stainless-code/persist#readme",
+  "homepage": "https://stainless-code.com/persist",
   "bugs": {
     "url": "https://github.com/stainless-code/persist/issues"
   },
@@ -44,6 +44,9 @@
     "type": "git",
     "url": "git+https://github.com/stainless-code/persist.git"
   },
+  "workspaces": [
+    "apps/*"
+  ],
   "files": [
     "dist",
     "skills",
@@ -155,7 +158,13 @@
     "check-updates": "bun update -i --latest",
     "check:pack": "attw --pack . --profile esm-only && publint && knip",
     "clean": "git clean -xdf -e .env",
-    "docs:api": "typedoc",
+    "docs:api": "bun apps/docs/scripts/rewrite-api-links.ts --clean && typedoc && bun apps/docs/scripts/rewrite-api-links.ts",
+    "docs:audit": "bun run --filter '@stainless-code/persist-docs' audit",
+    "docs:build": "bun run --filter '@stainless-code/persist-docs' build",
+    "docs:check": "bun run --filter '@stainless-code/persist-docs' check",
+    "docs:dev": "bun run --filter '@stainless-code/persist-docs' dev",
+    "docs:preview": "bun run --filter '@stainless-code/persist-docs' preview",
+    "docs:validate": "bun run --filter '@stainless-code/persist-docs' validate",
     "fix": "bun run lint:fix && bun run format",
     "fix:changes": "bun run lint:fix:changes && bun run format:changes",
     "format": "oxfmt --no-error-on-unmatched-pattern",
@@ -217,6 +226,8 @@
     "svelte": "^5.56.4",
     "tsdown": "0.22.3",
     "typedoc": "0.28.19",
+    "typedoc-plugin-frontmatter": "1.3.1",
+    "typedoc-plugin-markdown": "4.12.0",
     "typescript": "6.0.3",
     "valtio": "2.3.2",
     "vitest": "4.1.9",

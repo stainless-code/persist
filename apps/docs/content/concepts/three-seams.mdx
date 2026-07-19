@@ -1,0 +1,65 @@
+---
+title: The three seams
+description: Backend, codec, and PersistableSource — compose any storage × serialization × store without rewriting.
+search:
+  tags: ["concept", "seams"]
+---
+
+**1. Backend (`StateStorage<TRaw = string>`)** — anything with `getItem`/`setItem`/`removeItem`, sync or Promise-returning, string-wire by default, generic for structured backends.
+
+```ts
+import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
+import { createIdbStorage } from "@stainless-code/persist/backends/idb";
+import { createJSONStorage } from "@stainless-code/persist";
+
+createSerovalStorage(() => localStorage); // durable prefs
+createSerovalStorage(() => sessionStorage); // per-visit state (dies with the tab)
+createIdbStorage(); // IndexedDB, structured-clone mode
+createAsyncStorage(); // RN AsyncStorage — async → gate UI (./backends/async-storage)
+createMmkvStorage({ id: "app-prefs" }); // RN MMKV — sync, no gate
+createSecureStoreStorage(); // expo-secure-store — ~2KB/key, async → gate
+// custom: in-memory for tests, remote KV, encrypted wrapper — implement 3 methods
+```
+
+**2. Codec (`StorageCodec<S, TRaw = string>`)** — pure `encode`/`decode` between the persisted envelope and the backend's wire type.
+
+```ts
+import {
+  jsonCodec,
+  identityCodec,
+  createStorage,
+} from "@stainless-code/persist";
+import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
+import { zodCodec } from "@stainless-code/persist/codecs/zod";
+import { idbStateStorage } from "@stainless-code/persist/backends/idb";
+import { z } from "zod";
+
+const PrefsSchema = z.object({ theme: z.enum(["light", "dark"]) });
+
+jsonCodec(); // core default — plain JSON
+serovalCodec(); // Set / Map / Date / cycles, inert JSON-shaped output
+zodCodec(PrefsSchema); // schema-gated persistence — invalid state never writes; corrupt reads discard
+identityCodec(); // structured-clone backends only — zero serialization
+// custom — any pair of pure functions:
+const superjsonCodec = { encode: superjson.stringify, decode: superjson.parse }; // class instances via registerCustom
+const encryptedCodec = {
+  encode: (v) => encrypt(JSON.stringify(v)),
+  decode: (raw) => JSON.parse(decrypt(raw)),
+}; // sync cipher — for WebCrypto (async) use ./backends/encrypted
+```
+
+**3. Store source (`PersistableSource`)** — structural, so the middleware persists anything reactive:
+
+```ts
+import {
+  persistStore,
+  persistAtom,
+} from "@stainless-code/persist/sources/tanstack-store";
+import { persistSource } from "@stainless-code/persist";
+
+persistStore(store, opts); // @tanstack/store Store
+persistAtom(atom, opts); // writable Atom (replace-merge default)
+persistSource({ getState, setState, subscribe }, opts); // zustand-like, redux, hand-rolled
+```
+
+Every backend × codec cell composes via `createStorage(backend, codec, options)`. Escape hatch: skip a source adapter and call `persistSource` with a hand-rolled `{ getState, setState, subscribe }`. **Factory policy:** codec factories take the backend as an argument; a backend earns its own factory only when it needs real adaptation (IndexedDB); everything else composes — no factory-per-combination.

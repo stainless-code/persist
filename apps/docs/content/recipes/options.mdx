@@ -1,0 +1,153 @@
+---
+title: Options
+description: Persist option recipes — clear-all, partialize, merge, retryWrite, throttleMs, maxAge, buster, migrate, skipPersist, sessionStorage.
+search:
+  tags: ["recipe", "options"]
+---
+
+## Clear-all on logout
+
+```ts
+import { createPersistRegistry } from "@stainless-code/persist";
+import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+
+// One registry for every persisted store — clearAll() at logout wipes all keys
+// (allSettled; first rejection rethrows; destroy() unregisters each store)
+const registry = createPersistRegistry();
+const storage = createSerovalStorage(() => localStorage);
+
+persistStore(prefsStore, { name: "app:prefs", storage, registry });
+persistStore(cartStore, { name: "app:cart", storage, registry });
+persistStore(sessionStore, { name: "app:session", storage, registry });
+
+async function logout() {
+  await registry.clearAll();
+}
+```
+
+## Partialize
+
+```ts
+// Persist only prefs — ephemeral fields (scroll, modal) are excluded from the payload
+persistStore(store, {
+  name: "app:state",
+  storage,
+  partialize: (state) => state.prefs,
+});
+```
+
+## Merge
+
+```ts
+// Deep-merge nested settings on hydrate — default is shallow spread (persisted over current)
+persistStore(store, {
+  name: "app:settings",
+  storage,
+  merge: (persisted, current) => ({
+    ...current,
+    settings: {
+      ...current.settings,
+      ...(persisted as typeof current).settings,
+    },
+  }),
+});
+```
+
+## retryWrite — shrink-or-give-up on quota
+
+```ts
+// Quota exceeded: shrink state to retry, return undefined to give up.
+// errorCount is the aggressiveness dial; stale retries never clobber newer state.
+persistStore(store, {
+  name: "app:history",
+  storage,
+  retryWrite: ({ state, errorCount }) => {
+    if (errorCount === 1)
+      return { ...state, history: state.history.slice(-50) };
+    if (errorCount === 2) return { ...state, history: [] };
+    return; // give up — last error goes to onError
+  },
+});
+```
+
+## throttleMs — trailing throttle
+
+```ts
+// Coalesce a write burst into one trailing write with flush-time state; destroy() flushes pending
+persistStore(store, {
+  name: "app:canvas",
+  storage,
+  throttleMs: 250,
+});
+```
+
+## maxAge — payload expiry
+
+```ts
+// Discard payloads older than 7 days (by timestamp); missing timestamp = expired; key removed before migrate runs
+const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+
+persistStore(store, {
+  name: "app:draft",
+  storage,
+  maxAge: SEVEN_DAYS,
+});
+```
+
+## buster — cache-busting
+
+```ts
+// Format changed completely — bust stale keys instead of migrating wrong values (checked before migrate)
+persistStore(store, {
+  name: "app:layout",
+  storage,
+  buster: "grid-v2",
+});
+```
+
+## Migration chain
+
+```ts
+import { createMigrationChain } from "@stainless-code/persist";
+
+// steps[N] takes vN → v(N+1). Start at a higher key to drop support for
+// old versions (onOlder discards by default).
+const migrate = createMigrationChain<Prefs>({
+  version: 3,
+  steps: {
+    0: (s) => ({ ...s, theme: "light" }),
+    1: (s) => ({ ...s, filters: [] }),
+    2: (s) => ({ ...s, layout: "grid" }),
+  },
+});
+persistStore(store, { name: "app:prefs:v3", version: 3, storage, migrate });
+```
+
+## skipPersist — reset-to-default removes the key
+
+Evaluated against the **partialized** slice. When true, the key is removed instead of written (immediate — not throttled). With `crossTab`, also wire `onCrossTabRemove` so peer tabs reset instead of keeping stale state.
+
+```ts
+const initial = { theme: "light" as const, filters: [] as string[] };
+
+persistStore(store, {
+  name: "app:prefs:v1",
+  storage,
+  crossTab: true,
+  skipPersist: (s) => s.theme === initial.theme && s.filters.length === 0,
+  onCrossTabRemove: () => {
+    store.setState(initial);
+  },
+});
+```
+
+## createSessionStorage
+
+```ts
+import { createSessionStorage } from "@stainless-code/persist";
+
+// Per-tab only — crossTab is meaningless here
+const storage = createSessionStorage<Prefs>()!;
+persistStore(store, { name: "app:draft:v1", storage });
+```

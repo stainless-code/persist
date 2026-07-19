@@ -13,6 +13,6 @@ Canonical read order: [`.agents/README.md`](.agents/README.md) (START HERE).
 | Architecture     | [`.agents/rules/architecture-priming.md`](.agents/rules/architecture-priming.md)       |
 | Lessons          | [`.agents/lessons.md`](.agents/lessons.md)                                             |
 
-Intent (not always-on): `docs-governance`, `docs-lifecycle-sweep`, `grilling`, `grill-me`, `grill-with-docs`, `teach`, `ask-agents`, `improve-codebase-architecture`, `domain-modeling`, `agents-tier-system`, `authoring-discipline`, `verify-after-each-step`, `writing-agents-config`, `harden-pr`, `diagnosing-bugs`, `tdd`, `pr-comment-fact-check`, `codemap`, `writing-great-skills` — see `.agents/README.md`.
+Intent (not always-on): `docs-governance`, `docs-lifecycle-sweep`, `docs-voice`, `product-tenets`, `update-docs`, `grilling`, `grill-me`, `grill-with-docs`, `teach`, `ask-agents`, `improve-codebase-architecture`, `domain-modeling`, `agents-tier-system`, `authoring-discipline`, `verify-after-each-step`, `writing-agents-config`, `harden-pr`, `diagnosing-bugs`, `tdd`, `pr-comment-fact-check`, `codemap`, `writing-great-skills`, `minimum-diff` — see `.agents/README.md`.
 
 Human Day-1: [README](README.md) Getting Started · [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md).

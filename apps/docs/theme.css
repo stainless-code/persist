@@ -1,0 +1,44 @@
+:root {
+  /* Cool zinc surfaces + amber-copper brand */
+  --blume-background: #fafafa;
+  --blume-foreground: #18181b;
+  --blume-muted: #f4f4f5;
+  --blume-muted-foreground: #52525b;
+  --blume-border: #e4e4e7;
+  --blume-accent: #b45309;
+  --blume-accent-foreground: #ffffff;
+  --blume-success: #15803d;
+}
+
+:root[data-theme="dark"] {
+  --blume-background: #18181b;
+  --blume-foreground: #fafafa;
+  --blume-muted: #27272a;
+  --blume-muted-foreground: #a1a1aa;
+  --blume-border: #3f3f46;
+  --blume-accent: #fbbf24;
+  --blume-accent-foreground: #18181b;
+  --blume-success: #4ade80;
+}
+
+/* Logo hover: dashed outer ring settles (solid) + center disk scales slightly. */
+.logo-ring {
+  transition:
+    stroke-dashoffset 200ms ease,
+    opacity 200ms ease;
+}
+
+.logo-settled {
+  fill: var(--blume-accent);
+  transition: transform 200ms ease;
+  transform-origin: center;
+}
+
+a:has(> span > .logo-svg):hover .logo-ring {
+  stroke-dashoffset: 0;
+  opacity: 0.9;
+}
+
+a:has(> span > .logo-svg):hover .logo-settled {
+  transform: scale(1.08);
+}

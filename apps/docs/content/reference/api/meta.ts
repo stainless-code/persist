@@ -1,0 +1,31 @@
+import { defineMeta } from "blume";
+
+export default defineMeta({
+  title: "API",
+  icon: "code",
+  pages: [
+    "core",
+    "adapters-codecs-seroval",
+    "adapters-codecs-zod",
+    "adapters-backends-idb",
+    "adapters-backends-async-storage",
+    "adapters-backends-mmkv",
+    "adapters-backends-secure-store",
+    "adapters-backends-encrypted",
+    "adapters-backends-compressed",
+    "adapters-backends-node-fs",
+    "adapters-transport-crosstab",
+    "adapters-sources-tanstack-store",
+    "adapters-sources-zustand",
+    "adapters-sources-jotai",
+    "adapters-sources-valtio",
+    "adapters-sources-mobx",
+    "adapters-frameworks-react",
+    "adapters-frameworks-solid",
+    "adapters-frameworks-vue",
+    "adapters-frameworks-svelte",
+    "adapters-frameworks-svelte-store",
+    "adapters-frameworks-angular",
+    "adapters-frameworks-preact",
+  ],
+});

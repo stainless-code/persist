@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="24" height="24"><metadata><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"><rdf:Description><dc:creator>RealFaviconGenerator</dc:creator><dc:source>https://realfavicongenerator.net</dc:source></rdf:Description></rdf:RDF></metadata><style>
+    .ring { stroke: #18181b; }
+    .settled { fill: #b45309; }
+    @media (prefers-color-scheme: dark) {
+      .ring { stroke: #fafafa; }
+      .settled { fill: #fbbf24; }
+    }
+  </style><circle class="ring" cx="12" cy="12" r="9" stroke-width="1.75" stroke-dasharray="4 3" opacity="0.55"></circle><circle class="settled" cx="12" cy="12" r="4.5"></circle></svg>

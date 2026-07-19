@@ -1,0 +1,56 @@
+---
+title: What does hydration-aware mean?
+description: Persist tracks whether stored state has finished loading — gate UI on async backends to avoid flash.
+search:
+  tags: ["guide", "hydration"]
+---
+
+Between mount and the storage read resolving, the store holds its constructor default — theme `"light"` when storage says `"dark"`. Render persisted UI in that window and you get a flash. Persist answers one question via `HydrationSignal`: _has the stored snapshot landed yet?_ (Not React SSR hydration, not DOM rehydration.)
+
+Sync backends (`localStorage`, `sessionStorage`) settle before first render when the store is created at module load — `hydrated` is `true` immediately. Async backends (IndexedDB, AsyncStorage, …) make the gate mandatory. SSR: render `hydrated = true` on the server; a `null` signal means no persistence (= hydrated). Prefer `alwaysHydratedSignal()` when you need a stub gate for tests or a store with no storage.
+
+```tsx
+// React
+import { useHydrated } from "@stainless-code/persist/frameworks/react";
+const { hydrated } = useHydrated(prefsHydration);
+if (!hydrated) return <Skeleton />;
+```
+
+```ts
+// Solid — Accessor<boolean>
+import { useHydrated } from "@stainless-code/persist/frameworks/solid";
+const hydrated = useHydrated(prefsHydration);
+```
+
+```ts
+// Vue — Ref<boolean>
+import { useHydrated } from "@stainless-code/persist/frameworks/vue";
+const hydrated = useHydrated(prefsHydration);
+```
+
+```ts
+// Svelte 5 runes
+import { hydratedRune } from "@stainless-code/persist/frameworks/svelte";
+const hydrated = hydratedRune(prefsHydration);
+// hydrated.current
+```
+
+```ts
+// Svelte store (Svelte 4 / store users)
+import { hydratedStore } from "@stainless-code/persist/frameworks/svelte-store";
+const hydrated = hydratedStore(prefsHydration);
+```
+
+```ts
+// Angular — Signal<boolean>
+import { useHydrated } from "@stainless-code/persist/frameworks/angular";
+const hydrated = useHydrated(prefsHydration);
+```
+
+```ts
+// Preact — { hydrated: boolean }
+import { useHydrated } from "@stainless-code/persist/frameworks/preact";
+const { hydrated } = useHydrated(prefsHydration);
+```
+
+See [IndexedDB + React](/guides/idb-react) for the full async path, and [Writing a framework adapter](/adapters/framework-adapter) to author a new one.

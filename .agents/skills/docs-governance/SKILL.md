@@ -9,12 +9,9 @@ Repo-wide Tier B surface (cross-cutting reference + lifecycle substrate). This i
 
 ## Quick rules
 
-1. **Five lifecycle types** — Reference (`architecture.md`, `roadmap.md`), Roadmap (`roadmap.md`), Plan (`plans/<topic>.md`), Audit (`audits/<topic>.md`), Research (`research/<tool>.md`). New content folds into one of these; no new top-level types.
-2. **Existence test** — a doc earns its place if source cites it, it carries durable policy unavailable elsewhere, it tracks open work, or it carries unique historical context. Otherwise fold + delete.
-3. **Plans are deleted + lifted when work ships** — durable bits move to `architecture.md` / `roadmap.md` / a rule; the plan file dies. No "slim & keep in plans/" state.
-4. **`.gitkeep`** in each lifecycle folder so it stays discoverable when empty.
-5. **Anti-bloat** — don't add a rule until there's content that needs it. Density (cut what code already shows) per [`authoring-discipline`](../../rules/authoring-discipline.md); lifecycle stays in [LIFECYCLE.md](./LIFECYCLE.md).
-6. **Provenance** — `docs/README.md` cites this skill in its opening; per-surface docs link, never restate the spine.
+Full blueprint: [LIFECYCLE.md](./LIFECYCLE.md) — spine (§1–6), README surfaces (`apps/docs` canonical; root README = npm landing; **`docs` label** → FTP `/persist`), Closing states.
+
+Public site sync: [`update-docs`](../update-docs/SKILL.md). Voice: [`docs-voice`](../docs-voice/SKILL.md).
 
 ## Reference
 

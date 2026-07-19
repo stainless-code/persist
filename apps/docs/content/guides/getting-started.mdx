@@ -1,0 +1,55 @@
+---
+title: Getting started
+description: Install Persist and wire hydration-aware persistence into any reactive store.
+search:
+  tags: ["guide", "install"]
+---
+
+You already have a store. You need durable state without a first-paint flash — and without rewriting when the storage backend or store library changes.
+
+## Install
+
+```bash
+bun add @stainless-code/persist
+```
+
+Core is zero-dep. Each subpath is an optional peer — install only what you import. Full table: [Entry points](/concepts/entry-points).
+
+```bash
+# peers for the quick-start imports below
+bun add seroval idb-keyval @tanstack/store react
+```
+
+## Quick start
+
+```ts
+import { Store } from "@tanstack/store";
+import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+import { toHydrationSignal } from "@stainless-code/persist";
+import { useHydrated } from "@stainless-code/persist/frameworks/react";
+
+const store = new Store({ theme: "light" });
+const persist = persistStore(store, {
+  name: "app:prefs:v1",
+  storage: createSerovalStorage(() => localStorage),
+});
+export const prefsHydration = toHydrationSignal(persist);
+
+// in a component:
+const { hydrated } = useHydrated(prefsHydration);
+```
+
+## Compatibility
+
+| Runtime | Supported range         |
+| ------- | ----------------------- |
+| Node    | ^20.19.0 \|\| >=22.12.0 |
+| Bun     | >=1.0.0                 |
+
+## Next
+
+- [What does hydration-aware mean?](/guides/hydration)
+- [IndexedDB + React, end to end](/guides/idb-react)
+- [Choosing a storage](/concepts/choosing-storage) · [Choosing a codec](/concepts/choosing-codec)
+- [API reference](/reference/api)

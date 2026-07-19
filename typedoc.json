@@ -1,5 +1,6 @@
 {
   "$schema": "https://typedoc.org/schema.json",
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
   "entryPoints": [
     "src/core/index.ts",
     "src/adapters/codecs/seroval.ts",
@@ -25,7 +26,28 @@
     "src/adapters/frameworks/angular.ts",
     "src/adapters/frameworks/preact.ts"
   ],
-  "out": "docs/api",
+  "cleanOutputDir": false,
+  "outputs": [
+    {
+      "name": "markdown",
+      "path": "apps/docs/content/reference/api"
+    }
+  ],
+  "router": "module",
+  "publicPath": "/reference/api/",
+  "preserveAnchorCasing": true,
+  "fileExtension": ".mdx",
+  "entryFileName": "_typedoc-entry.mdx",
+  "modulesFileName": "_typedoc-modules.mdx",
+  "flattenOutputFiles": true,
+  "useCodeBlocks": true,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "indexFormat": "table",
+  "parametersFormat": "table",
+  "interfacePropertiesFormat": "table",
+  "classPropertiesFormat": "table",
+  "typeDeclarationFormat": "table",
   "name": "@stainless-code/persist",
   "includeVersion": true,
   "readme": "none",
@@ -47,5 +69,10 @@
   "disableSources": false,
   "sourceLinkTemplate": "https://github.com/stainless-code/persist/blob/{gitRevision}/{path}#L{line}",
   "gitRevision": "main",
-  "logLevel": "Info"
+  "logLevel": "Info",
+  "frontmatterGlobals": {
+    "search": {
+      "tags": ["api", "reference"]
+    }
+  }
 }
