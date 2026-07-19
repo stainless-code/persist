@@ -1,0 +1,18 @@
+---
+title: Adapters
+description: Overview of Persist backends, codecs, sources, and framework hydration adapters.
+search:
+  tags: ["adapter"]
+---
+
+Persist ships adapters as opt-in subpaths — import only what you use. Each seam has its own entries:
+
+| Seam           | What it is                                                                  | Where to look                                                                             |
+| -------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Backends**   | `StateStorage` implementations (IDB, RN, encrypted, compressed, Node fs, …) | [Choosing a storage](/concepts/choosing-storage) · [Entry points](/concepts/entry-points) |
+| **Codecs**     | `StorageCodec` encode/decode (JSON, seroval, zod, identity)                 | [Choosing a codec](/concepts/choosing-codec)                                              |
+| **Sources**    | Thin wrappers that adapt a store library to `PersistableSource`             | [Wrapping stores](/recipes/wrapping-stores)                                               |
+| **Frameworks** | Hydration gates (`useHydrated`, `hydratedRune`, …)                          | [Writing a framework adapter](/adapters/framework-adapter)                                |
+| **Transport**  | Cross-tab bridges (BroadcastChannel)                                        | [Cross-tab](/recipes/crosstab)                                                            |
+
+Full symbol table: [Entry points](/concepts/entry-points). Generated signatures: [API reference](/reference/api).

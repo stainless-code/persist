@@ -41,5 +41,6 @@ Keep grilling + plan authoring in **one window** until issues are filed. Each im
 | [`writing-agents-config`](../writing-agents-config/SKILL.md) | Persist repo tier/pairing deltas                |
 | [`domain-modeling`](../domain-modeling/SKILL.md)             | Ubiquitous language inline + batch glossary     |
 | [`diagnosing-bugs`](../diagnosing-bugs/SKILL.md)             | Debug loop for hard bugs                        |
+| [`minimum-diff`](../minimum-diff/SKILL.md)                   | minimum-diff / why-first / stated-process       |
 
 Meta: [`agents-tier-system`](../agents-tier-system/SKILL.md).

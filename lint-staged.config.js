@@ -81,7 +81,9 @@ function runStagedTest(filenames) {
 /** @type {import('lint-staged').Configuration} */
 export default {
   "*.{js,jsx,ts,tsx,mjs,mts,cjs,cts}": ["bun run format:check", "bun run lint"],
-  "*.{css,json,md,mdc,html,yaml,yml}": "bun run format:check",
+  // `mdx` so docs commits hit format:check; `apps/docs/content/**` ignored in
+  // nested oxfmtrc (oxfmt collapses `:::` fences — see Blume FAQ / lessons).
+  "*.{css,json,md,mdc,mdx,html,yaml,yml}": "bun run format:check",
   "*.{ts,tsx}": [typecheckStagedFiles, relatedTests],
   "*.test.ts": runStagedTest,
   "*.test.tsx": runStagedTest,

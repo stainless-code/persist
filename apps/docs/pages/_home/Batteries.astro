@@ -1,0 +1,104 @@
+---
+import Card from "blume/components/content/Card.astro";
+import CardGroup from "blume/components/content/CardGroup.astro";
+import { contentHref } from "blume/components/content/base-href.ts";
+---
+
+<section>
+  <div class="mx-auto max-w-2xl text-center">
+    <h2 class="font-medium text-3xl tracking-tight sm:text-4xl">
+      Batteries included.
+    </h2>
+    <p class="mx-auto mt-4 max-w-lg text-balance text-muted-foreground">
+      Handle the persist cases that stop being local: async hydrate flash,
+      schema evolution, quota retries, multi-tab sync, and rich serialization.
+      Import only the subpaths you need.
+    </p>
+  </div>
+
+  <div class="mt-10">
+    <CardGroup cols={3}>
+      <Card
+        arrow
+        href={contentHref("/concepts/three-seams")}
+        icon="layers"
+        title="Compose backend × codec × source"
+      >
+        <code>createStorage</code> + <code>persistSource</code> — swap IndexedDB
+        or seroval without touching the store.
+      </Card>
+      <Card
+        arrow
+        href={contentHref("/guides/hydration")}
+        icon="droplets"
+        title="Gate UI until hydration settles"
+      >
+        <code>toHydrationSignal</code> + <code>useHydrated</code> — no flash on
+        async backends.
+      </Card>
+      <Card
+        arrow
+        href={contentHref("/recipes/options")}
+        icon="git-branch"
+        title="Migrate versioned payloads"
+      >
+        <code>version</code> + <code>migrate</code> /
+        <code>createMigrationChain</code> for long-lived keys.
+      </Card>
+      <Card
+        arrow
+        href={contentHref("/recipes/crosstab")}
+        icon="radio"
+        title="Sync tabs without custom listeners"
+      >
+        Built-in <code>crossTab</code>; BroadcastChannel over IDB via
+        <code>./transport/crosstab</code>.
+      </Card>
+      <Card
+        arrow
+        href={contentHref("/recipes/options")}
+        icon="shield"
+        title="Survive quota without clobbering"
+      >
+        <code>retryWrite</code> shrinks-or-gives-up with a write-generation
+        guard.
+      </Card>
+      <Card
+        arrow
+        href={contentHref("/recipes/composition")}
+        icon="lock"
+        title="Encrypt or compress the wire"
+      >
+        Stack <code>./backends/encrypted</code> and
+        <code>./backends/compressed</code> over any storage.
+      </Card>
+      <Card
+        arrow
+        href={contentHref("/concepts/choosing-codec")}
+        icon="braces"
+        title="Validate or rich-serialize"
+      >
+        <code>./codecs/zod</code> for schema checks;
+        <code>./codecs/seroval</code> for Date/Map/Set.
+      </Card>
+      <Card
+        arrow
+        href={contentHref("/recipes/wrapping-stores")}
+        icon="box"
+        title="Wrap any store shape"
+      >
+        Shipped adapters for TanStack Store, zustand, jotai, valtio, mobx — or
+        a hand-rolled <code>PersistableSource</code>.
+      </Card>
+      <Card
+        arrow
+        href={contentHref("/adapters/framework-adapter")}
+        icon="puzzle"
+        title="No framework in the core"
+      >
+        Zero-dep engine — adapters mount <code>HydrationSignal</code> into
+        React, Solid, Vue, Svelte, Angular, Preact.
+      </Card>
+    </CardGroup>
+  </div>
+</section>

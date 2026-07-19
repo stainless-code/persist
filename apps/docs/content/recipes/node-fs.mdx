@@ -1,0 +1,20 @@
+---
+title: Node fs
+description: Persist to the filesystem for server, SSR, or CLI — one file per key under a directory.
+search:
+  tags: ["recipe", "node"]
+---
+
+```ts
+import { createStorage } from "@stainless-code/persist";
+import { nodeFsStateStorage } from "@stainless-code/persist/backends/node-fs";
+import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
+
+// One file per key under ./.persist — async (fs.promises); gate UI on useHydrated in SSR
+const storage = createStorage<Prefs>(
+  () => nodeFsStateStorage({ dir: "./.persist" }),
+  serovalCodec(),
+);
+```
+
+Async backends can't settle hydration before first paint — gate UI on `useHydrated` in SSR. See [Hydration](/guides/hydration).

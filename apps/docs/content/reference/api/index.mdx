@@ -1,0 +1,140 @@
+---
+title: API
+description: Exhaustive CI-generated TypeDoc reference — every export across the core and opt-in adapters.
+sidebar:
+  label: Overview
+search:
+  tags: ["api", "reference"]
+---
+
+import Card from "blume/components/content/Card.astro";
+import CardGroup from "blume/components/content/CardGroup.astro";
+
+One TypeDoc module per package entry. [Reference](/reference)
+
+## Core
+
+<CardGroup cols={2}>
+  <Card title="Core" href="/reference/api/core" arrow>
+    `@stainless-code/persist`
+  </Card>
+</CardGroup>
+
+## Codecs
+
+<CardGroup cols={2}>
+  <Card title="Seroval" href="/reference/api/adapters-codecs-seroval" arrow>
+    `@stainless-code/persist/codecs/seroval`
+  </Card>
+  <Card title="Zod" href="/reference/api/adapters-codecs-zod" arrow>
+    `@stainless-code/persist/codecs/zod`
+  </Card>
+</CardGroup>
+
+## Backends
+
+<CardGroup cols={3}>
+  <Card title="IndexedDB" href="/reference/api/adapters-backends-idb" arrow>
+    `@stainless-code/persist/backends/idb`
+  </Card>
+  <Card
+    title="Async Storage"
+    href="/reference/api/adapters-backends-async-storage"
+    arrow
+  >
+    `@stainless-code/persist/backends/async-storage`
+  </Card>
+  <Card title="MMKV" href="/reference/api/adapters-backends-mmkv" arrow>
+    `@stainless-code/persist/backends/mmkv`
+  </Card>
+  <Card
+    title="Secure Store"
+    href="/reference/api/adapters-backends-secure-store"
+    arrow
+  >
+    `@stainless-code/persist/backends/secure-store`
+  </Card>
+  <Card
+    title="Encrypted"
+    href="/reference/api/adapters-backends-encrypted"
+    arrow
+  >
+    `@stainless-code/persist/backends/encrypted`
+  </Card>
+  <Card
+    title="Compressed"
+    href="/reference/api/adapters-backends-compressed"
+    arrow
+  >
+    `@stainless-code/persist/backends/compressed`
+  </Card>
+  <Card title="Node FS" href="/reference/api/adapters-backends-node-fs" arrow>
+    `@stainless-code/persist/backends/node-fs`
+  </Card>
+</CardGroup>
+
+## Transport
+
+<CardGroup cols={2}>
+  <Card
+    title="Cross-tab"
+    href="/reference/api/adapters-transport-crosstab"
+    arrow
+  >
+    `@stainless-code/persist/transport/crosstab`
+  </Card>
+</CardGroup>
+
+## Sources
+
+<CardGroup cols={3}>
+  <Card
+    title="TanStack Store"
+    href="/reference/api/adapters-sources-tanstack-store"
+    arrow
+  >
+    `@stainless-code/persist/sources/tanstack-store`
+  </Card>
+  <Card title="Zustand" href="/reference/api/adapters-sources-zustand" arrow>
+    `@stainless-code/persist/sources/zustand`
+  </Card>
+  <Card title="Jotai" href="/reference/api/adapters-sources-jotai" arrow>
+    `@stainless-code/persist/sources/jotai`
+  </Card>
+  <Card title="Valtio" href="/reference/api/adapters-sources-valtio" arrow>
+    `@stainless-code/persist/sources/valtio`
+  </Card>
+  <Card title="MobX" href="/reference/api/adapters-sources-mobx" arrow>
+    `@stainless-code/persist/sources/mobx`
+  </Card>
+</CardGroup>
+
+## Frameworks
+
+<CardGroup cols={3}>
+  <Card title="React" href="/reference/api/adapters-frameworks-react" arrow>
+    `@stainless-code/persist/frameworks/react`
+  </Card>
+  <Card title="Solid" href="/reference/api/adapters-frameworks-solid" arrow>
+    `@stainless-code/persist/frameworks/solid`
+  </Card>
+  <Card title="Vue" href="/reference/api/adapters-frameworks-vue" arrow>
+    `@stainless-code/persist/frameworks/vue`
+  </Card>
+  <Card title="Svelte" href="/reference/api/adapters-frameworks-svelte" arrow>
+    `@stainless-code/persist/frameworks/svelte`
+  </Card>
+  <Card
+    title="Svelte (store)"
+    href="/reference/api/adapters-frameworks-svelte-store"
+    arrow
+  >
+    `@stainless-code/persist/frameworks/svelte-store`
+  </Card>
+  <Card title="Angular" href="/reference/api/adapters-frameworks-angular" arrow>
+    `@stainless-code/persist/frameworks/angular`
+  </Card>
+  <Card title="Preact" href="/reference/api/adapters-frameworks-preact" arrow>
+    `@stainless-code/persist/frameworks/preact`
+  </Card>
+</CardGroup>

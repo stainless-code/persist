@@ -1,0 +1,20 @@
+---
+title: Recipes
+description: Copy-paste Persist patterns — encryption, options, wrapping stores, cross-tab, zod, React Native, and Node fs.
+search:
+  tags: ["recipe"]
+---
+
+Composable patterns over the three seams. Start with [Composition](/recipes/composition) for encrypt/compress stacks; use the pages below for options and store adapters.
+
+| Recipe                                      | Topic                                                                                      |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [Composition](/recipes/composition)         | Encrypt, compress, legacy IDB string payloads, namespaced stores                           |
+| [Options](/recipes/options)                 | Clear-all, partialize, merge, retryWrite, throttleMs, maxAge, buster, migrate, skipPersist |
+| [Wrapping stores](/recipes/wrapping-stores) | zustand, jotai, valtio, mobx, custom `PersistableSource`                                   |
+| [Cross-tab](/recipes/crosstab)              | localStorage sync and BroadcastChannel over IndexedDB                                      |
+| [Zod](/recipes/zod)                         | Schema-gated persist with `createZodStorage`                                               |
+| [React Native](/recipes/react-native)       | AsyncStorage, MMKV, Expo Secure Store                                                      |
+| [Node fs](/recipes/node-fs)                 | Server / SSR / CLI file-backed storage                                                     |
+
+Caveats that matter per backend: async backends (IDB, AsyncStorage, Secure Store) can't settle hydration before first paint → gate UI on a framework adapter; `sessionStorage` is per-tab (crossTab is meaningless); `identityCodec` never with string-only backends.

@@ -1,0 +1,62 @@
+---
+title: IndexedDB + React, end to end
+description: Async IndexedDB storage, TanStack Store, and a React hydration gate.
+search:
+  tags: ["guide", "indexeddb", "react"]
+---
+
+IndexedDB reads are Promise-backed — they cannot settle before first paint. This guide wires `createIdbStorage`, TanStack Store, and a React hydration gate.
+
+```bash
+bun add @stainless-code/persist @tanstack/store react idb-keyval
+```
+
+**Store module** — `createIdbStorage` runs structured-clone mode: `Set` / `Map` / `Date` round-trip natively, no codec. The persist + hydration signal live at module scope for an app-lifetime singleton store.
+
+```ts
+// prefs-store.ts
+import { Store } from "@tanstack/store";
+import { toHydrationSignal } from "@stainless-code/persist";
+import { createIdbStorage } from "@stainless-code/persist/backends/idb";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+
+export type Prefs = { theme: "light" | "dark"; recent: string[] };
+
+export const prefsStore = new Store<Prefs>({ theme: "light", recent: [] });
+
+const persist = persistStore(prefsStore, {
+  name: "app:prefs:v1",
+  storage: createIdbStorage<Prefs>(),
+});
+export const prefsHydration = toHydrationSignal(persist);
+```
+
+**React component** — `useHydrated` returns only `{ hydrated }`; state reads stay on `useSelector`. Server snapshot is always `true` (nothing to gate server-side).
+
+```tsx
+// PrefsPanel.tsx
+import { useSelector } from "@tanstack/store";
+import { useHydrated } from "@stainless-code/persist/frameworks/react";
+import { prefsStore, prefsHydration } from "./prefs-store";
+
+export function PrefsPanel() {
+  const { hydrated } = useHydrated(prefsHydration);
+  const theme = useSelector(prefsStore, (s) => s.theme);
+  if (!hydrated) return <Skeleton />;
+  return <ThemeToggle theme={theme} />;
+}
+```
+
+**Non-singleton stores** (a per-route filter store, a per-instance draft editor) must create the persist in `useEffect` and tear it down on unmount — `destroy()` detaches the source subscription, removes the cross-tab listener, unregisters from any registry, and flushes any pending throttled write:
+
+```tsx
+useEffect(() => {
+  const persist = persistStore(filtersStore, {
+    name: `app:filters:${id}`,
+    storage: createIdbStorage<Filters>(),
+  });
+  return () => persist.destroy();
+}, [id]);
+```
+
+IndexedDB fires no `storage` events — `crossTab: true` alone does nothing on this backend. Cross-tab sync needs a `BroadcastChannel` bridge wired through `crossTabEventTarget` — see [Cross-tab over IndexedDB](/recipes/crosstab).

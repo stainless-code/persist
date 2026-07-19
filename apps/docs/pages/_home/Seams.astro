@@ -1,0 +1,138 @@
+---
+import { contentHref } from "blume/components/content/base-href.ts";
+
+const backends = [
+  "localStorage / session",
+  "IndexedDB",
+  "AsyncStorage",
+  "MMKV",
+  "Secure Store",
+  "Node fs",
+  "Encrypted",
+  "Compressed",
+];
+
+const codecs = ["JSON", "seroval", "zod", "identity"];
+
+const sources = [
+  "TanStack Store",
+  "zustand",
+  "jotai",
+  "valtio",
+  "mobx",
+  "custom source",
+];
+
+const frameworks = [
+  "React",
+  "Preact",
+  "Solid",
+  "Angular",
+  "Vue",
+  "Svelte (runes)",
+  "Svelte (store)",
+];
+
+const thClass =
+  "border-border border-b px-3 py-2 text-left font-medium text-foreground text-xs sm:px-4 sm:text-sm";
+const tdClass =
+  "border-border border-b px-3 py-2 text-muted-foreground text-xs sm:px-4 sm:text-sm";
+---
+
+<section>
+  <div class="mx-auto max-w-2xl text-center">
+    <h2 class="font-medium text-3xl tracking-tight sm:text-4xl">
+      Three seams. Swap any cell.
+    </h2>
+    <p class="mx-auto mt-4 max-w-lg text-balance text-muted-foreground">
+      Backend × codec × source compose through
+      <code class="rounded bg-muted px-1 font-mono text-sm">createStorage</code>
+      and
+      <code class="rounded bg-muted px-1 font-mono text-sm">persistSource</code>
+      — framework adapters only mount the hydration signal.
+    </p>
+  </div>
+
+  <div
+    class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+  >
+    <div class="rounded-blume border border-border p-4 text-left">
+      <h3 class="font-medium text-foreground text-sm">Backends</h3>
+      <ul class="mt-3 space-y-1.5 text-muted-foreground text-sm">
+        {backends.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+    <div class="rounded-blume border border-border p-4 text-left">
+      <h3 class="font-medium text-foreground text-sm">Codecs</h3>
+      <ul class="mt-3 space-y-1.5 text-muted-foreground text-sm">
+        {codecs.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+    <div class="rounded-blume border border-border p-4 text-left">
+      <h3 class="font-medium text-foreground text-sm">Sources</h3>
+      <ul class="mt-3 space-y-1.5 text-muted-foreground text-sm">
+        {sources.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+    <div class="rounded-blume border border-border p-4 text-left">
+      <h3 class="font-medium text-foreground text-sm">Frameworks</h3>
+      <ul class="mt-3 space-y-1.5 text-muted-foreground text-sm">
+        {frameworks.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-10 overflow-x-auto rounded-blume border border-border">
+    <table class="w-full min-w-[520px] border-collapse text-left">
+      <thead>
+        <tr class="bg-muted/50">
+          <th class={thClass}>Concern</th>
+          <th class={thClass}>Where it lives</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class={tdClass}>Wire format / validation</td>
+          <td class={tdClass}
+            ><code class="text-foreground text-xs">./codecs/*</code></td
+          >
+        </tr>
+        <tr>
+          <td class={tdClass}>Durable key/value IO</td>
+          <td class={tdClass}
+            ><code class="text-foreground text-xs">./backends/*</code> · core
+            factories</td
+          >
+        </tr>
+        <tr>
+          <td class={tdClass}>Store shape → PersistableSource</td>
+          <td class={tdClass}
+            ><code class="text-foreground text-xs">./sources/*</code></td
+          >
+        </tr>
+        <tr>
+          <td class={tdClass}>Hydration gate in UI</td>
+          <td class={tdClass}
+            ><code class="text-foreground text-xs">./frameworks/*</code></td
+          >
+        </tr>
+        <tr>
+          <td class={tdClass}>Multi-tab over async backends</td>
+          <td class={tdClass}
+            ><code class="text-foreground text-xs">./transport/crosstab</code
+            ></td
+          >
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-8 text-center">
+    <a
+      class="inline-flex items-center gap-1 font-medium text-accent transition-opacity hover:opacity-80"
+      href={contentHref("/concepts/entry-points")}
+    >
+      Full entry-point table →
+    </a>
+  </div>
+</section>

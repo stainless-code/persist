@@ -1,0 +1,56 @@
+---
+title: Lifecycle
+description: How persistSource hydrates, writes, tears down, and surfaces errors.
+search:
+  tags: ["concept", "lifecycle"]
+---
+
+`persistSource` is a lifecycle, not a `setItem` call. It hydrates (or waits for you to), writes on subscribe, and tears down on `destroy()`.
+
+## Phases
+
+1. **Hydrate** — on create, unless `skipHydration`. Then `await persist.rehydrate()` when you are ready (route guard, feature flag, after auth).
+2. **Write** — every eligible `setState` after hydrate settles; optional trailing `throttleMs`. Writes are gated until hydrated.
+3. **Destroy** — `destroy()` flushes a pending throttled write, removes cross-tab listeners, and unregisters from a `registry`. Required for non-singleton stores.
+
+```ts
+const persist = persistStore(store, {
+  name: "app:prefs:v1",
+  storage,
+  skipHydration: true,
+});
+
+// later — after the user is known
+await persist.rehydrate();
+```
+
+## Errors
+
+Failures route to `onError` with a phase (`write` / `hydrate` / `migrate` / `crossTab`). Without a sink, the console fallback is **dev-only** — production is silent by design. Errors never throw into the caller's `setState`.
+
+```ts
+persistStore(store, {
+  name: "app:prefs:v1",
+  storage,
+  onError: (error, { name, phase }) => {
+    report({ error, name, phase });
+  },
+});
+```
+
+## Payload stamps
+
+Stored envelopes carry `version` (→ `migrate`), `timestamp` (→ `maxAge`), and optional `buster`. `retryWrite` shrinks-or-gives-up on quota errors with a **write-generation guard** so a stale retry never clobbers a newer write.
+
+## `setOptions` limits
+
+`setOptions` can swap mutable callbacks and knobs (`partialize`, `merge`, `onError`, `throttleMs`, …). Structural wiring — `registry`, `crossTab`, `crossTabEventTarget` — is fixed at create time. Passing `{ merge: undefined }` does not clear an existing merge.
+
+## No hidden magic
+
+- Codecs are **sync** — async work belongs in the backend.
+- `HydrationSignal` does **not** fire an initial notification; pull `isHydrated()` after subscribe.
+- Default `merge` is shallow spread (persisted over current) — customize explicitly.
+- `skipPersist` removals are immediate (not throttled) so reset-to-default drops the key now.
+
+For the UI gate on async backends, see [Hydration](/guides/hydration). For option recipes, see [Recipes → Options](/recipes/options).

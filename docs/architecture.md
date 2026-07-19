@@ -92,10 +92,11 @@ What the core deliberately does **not** do — the seams exist for these, but no
 
 ## Publishing & API docs
 
+- **Public docs** — canonical site is [`apps/docs`](../apps/docs) (`@stainless-code/persist-docs`, Blume), base `/persist`, live at [https://stainless-code.com/persist](https://stainless-code.com/persist). Root scripts: `docs:dev` / `docs:api` / `docs:validate` / `docs:check` / `docs:build` / `docs:audit` / `docs:preview`. CI runs that pipeline; merge of a `docs`-labeled PR (or release / `workflow_dispatch`) deploys via FTP ([`.github/workflows/deploy-docs.yml`](../.github/workflows/deploy-docs.yml)). Brand assets live under `apps/docs/public/`; accent overrides in `apps/docs/theme.css`. Maintainer Tier-B (`docs/architecture.md`, glossary, plans) stays in this folder.
 - **Public surface** — every export from an entry point is the public API and carries JSDoc that reads well in hovers and published typings. `@default` / `@example` tags survive into the shipped `.d.mts` (tsdown dts preserves JSDoc). No `@internal` tags are currently warranted — every export is part of the public surface; `stripInternal: true` is set in `tsconfig.json` as a forward-looking guard so any future `@internal`-marked member is dropped from the dts.
 - **`PersistStorage.raw`** — stays **public** (semi-public seam): set by `createStorage` and identity-compared by cross-tab rehydrate; hand-rolled `PersistStorage` implementations may omit it. Typed `unknown` deliberately (only identity matters; typing it `StateStorage<TRaw>` would cascade the wire-type generic for no benefit).
 - **Internal aliases** — non-exported helper types (e.g. the listener alias) are kept out of public signatures: `PersistApi.onHydrate` / `onFinishHydration` inline `(state: TState) => void` so the shipped dts never leaks an unexported type name into a hover. The internal alias is reserved for the implementation's listener Sets.
-- **API reference** — `bun run docs:api` runs [TypeDoc](https://typedoc.org) (`typedoc.json`) over every entry point to a static HTML site under `docs/api/` (git-ignored). `treatWarningsAsErrors` + `validation.invalidLink` gate unresolved `{@link}` targets; all current `{@link}` resolve within the `index` core entry (no cross-entry links).
+- **API reference** — `bun run docs:api` runs [TypeDoc](https://typedoc.org) (`typedoc.json`) with the markdown + frontmatter plugins into MDX under `apps/docs/content/reference/api` (generated, gitignored except hand-authored `index.mdx` + `meta.ts`). `apps/docs/scripts/rewrite-api-links.ts` cleans prior output and rewrites links/anchors for the docs site routes. `treatWarningsAsErrors` + `validation.invalidLink` gate unresolved `{@link}` targets; all current `{@link}` resolve within the core entry (no cross-entry links).
 
 ## Test matrix
 
@@ -110,7 +111,8 @@ The split is structural — `tests-dom/` is a top-level directory outside `bun t
 
 ## Reference
 
-- Root [`README.md`](../README.md) — install, quick start, recipes, framework-adapter guide.
+- Public docs — [https://stainless-code.com/persist](https://stainless-code.com/persist) (`apps/docs`).
+- Root [`README.md`](../README.md) — npm/repo landing.
 - [`glossary.md`](./glossary.md) — ubiquitous language (backend, codec, source, envelope, hydration signal, generation guard, entry).
 - [`roadmap.md`](./roadmap.md) — forward-looking work.
 - `.agents/skills/docs-governance` — docs lifecycle for this folder.

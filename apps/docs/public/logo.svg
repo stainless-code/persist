@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="logo-svg" aria-hidden="true">
+  <!-- Open / dashed outer ring — pre-hydrate -->
+  <circle
+    class="logo-ring"
+    cx="12"
+    cy="12"
+    r="9"
+    stroke="currentColor"
+    stroke-width="1.75"
+    stroke-dasharray="4 3"
+    stroke-dashoffset="6"
+    opacity="0.55"
+  />
+  <!-- Settled center disk — hydrated -->
+  <circle class="logo-settled" cx="12" cy="12" r="4.5" />
+</svg>

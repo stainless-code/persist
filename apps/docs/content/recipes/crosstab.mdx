@@ -1,0 +1,42 @@
+---
+title: Cross-tab
+description: Sync Persist state across tabs with localStorage events or a BroadcastChannel bridge over IndexedDB.
+search:
+  tags: ["recipe", "crosstab"]
+---
+
+## localStorage
+
+```ts
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+
+// Cross-tab sync (localStorage): pair crossTab with onCrossTabRemove when using skipPersist
+persistStore(store, {
+  name,
+  storage,
+  crossTab: true,
+  onCrossTabRemove: () => store.actions.reset(),
+});
+```
+
+## Cross-tab over IndexedDB
+
+IndexedDB fires no `storage` events — `crossTab: true` alone does nothing. Bridge a `BroadcastChannel` via `crossTabEventTarget`:
+
+```ts
+import { createBroadcastCrossTab } from "@stainless-code/persist/transport/crosstab";
+import { createIdbStorage } from "@stainless-code/persist/backends/idb";
+
+// IDB fires no storage events — bridge a BroadcastChannel as the transport.
+// storageArea: null in every posted event → key-only matching in every tab.
+const bridge = createBroadcastCrossTab({ channelName: "app:prefs" })!;
+persistStore(store, {
+  name: "app:prefs:v1",
+  storage: bridge.wrap(createIdbStorage()!),
+  crossTab: true,
+  crossTabEventTarget: bridge.crossTabEventTarget,
+});
+// teardown: persist.destroy(); bridge.close();
+```
+
+Encrypted/compressed wrappers over `localStorage` also don't receive native `storage` events — use the same `./transport/crosstab` bridge. See [Choosing a storage](/concepts/choosing-storage).

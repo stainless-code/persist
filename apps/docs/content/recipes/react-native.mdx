@@ -1,0 +1,61 @@
+---
+title: React Native backends
+description: Wire AsyncStorage, MMKV, or Expo Secure Store — and know which ones need a hydration gate.
+search:
+  tags: ["recipe", "react-native", "async-storage", "mmkv", "secure-store"]
+---
+
+Pick by sync-vs-async (does it gate UI?) and threat model. All three are string-wire — pair a codec if you need Date/Map/Set or schema validation.
+
+| Backend      | Sync? | Gate UI? | Peer                                        | Subpath                    |
+| ------------ | ----- | -------- | ------------------------------------------- | -------------------------- |
+| AsyncStorage | ❌    | ✅       | `@react-native-async-storage/async-storage` | `./backends/async-storage` |
+| MMKV         | ✅    | ❌       | `react-native-mmkv`                         | `./backends/mmkv`          |
+| Secure Store | ❌    | ✅       | `expo-secure-store`                         | `./backends/secure-store`  |
+
+## AsyncStorage
+
+```ts
+import { createAsyncStorage } from "@stainless-code/persist/backends/async-storage";
+import { persistStore } from "@stainless-code/persist/sources/zustand";
+import { toHydrationSignal } from "@stainless-code/persist";
+import { useHydrated } from "@stainless-code/persist/frameworks/react";
+
+const storage = createAsyncStorage<Prefs>()!;
+const persist = persistStore(usePrefs, { name: "app:prefs:v1", storage });
+export const prefsHydration = toHydrationSignal(persist);
+
+// in UI — mandatory gate (async backend)
+const { hydrated } = useHydrated(prefsHydration);
+```
+
+## MMKV
+
+```ts
+import { createMmkvStorage } from "@stainless-code/persist/backends/mmkv";
+import { persistStore } from "@stainless-code/persist/sources/zustand";
+
+// Sync reads — hydrated is true immediately when the store is created at module load
+const storage = createMmkvStorage<Prefs>({ id: "app-prefs" })!;
+persistStore(usePrefs, { name: "app:prefs:v1", storage });
+```
+
+## Expo Secure Store
+
+```ts
+import { createSecureStoreStorage } from "@stainless-code/persist/backends/secure-store";
+import { persistStore } from "@stainless-code/persist/sources/zustand";
+import { toHydrationSignal } from "@stainless-code/persist";
+
+// ~2KB/key — keep slices small; async → gate UI
+type AuthToken = { token: string };
+const storage = createSecureStoreStorage<AuthToken>()!;
+const persist = persistStore(useAuth, {
+  name: "auth:token:v1",
+  storage,
+  partialize: (s) => ({ token: s.token }),
+});
+export const secretHydration = toHydrationSignal(persist);
+```
+
+See [Choosing a storage](/concepts/choosing-storage) for the full backend matrix and [Hydration](/guides/hydration) for the gate.
