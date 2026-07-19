@@ -1,5 +1,11 @@
 # @stainless-code/persist
 
+## 0.2.1
+
+### Patch Changes
+
+- [#20](https://github.com/stainless-code/persist/pull/20) [`cb6ca1d`](https://github.com/stainless-code/persist/commit/cb6ca1dce91dc9f4716a5ac35f1cf4e6e707967c) Thanks [@SutuSebastian](https://github.com/SutuSebastian)! - Ship the public docs site at https://stainless-code.com/persist (`apps/docs`); README is now the npm landing digest that links there.
+
 ## 0.2.0
 
 ### Minor Changes
