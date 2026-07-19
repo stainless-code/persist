@@ -9,9 +9,9 @@ Pick by sync-vs-async (does it gate UI?) and threat model. All three are string-
 
 | Backend      | Sync? | Gate UI? | Peer                                        | Subpath                    |
 | ------------ | ----- | -------- | ------------------------------------------- | -------------------------- |
-| AsyncStorage | ✗     | ✓        | `@react-native-async-storage/async-storage` | `./backends/async-storage` |
-| MMKV         | ✓     | ✗        | `react-native-mmkv`                         | `./backends/mmkv`          |
-| Secure Store | ✗     | ✓        | `expo-secure-store`                         | `./backends/secure-store`  |
+| AsyncStorage | ❌     | ✅        | `@react-native-async-storage/async-storage` | `./backends/async-storage` |
+| MMKV         | ✅     | ❌        | `react-native-mmkv`                         | `./backends/mmkv`          |
+| Secure Store | ❌     | ✅        | `expo-secure-store`                         | `./backends/secure-store` 
 
 ## AsyncStorage
 

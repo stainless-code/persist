@@ -15,17 +15,19 @@ Every row is a seam or lifecycle concern — not a roadmap item. `@stainless-cod
 
 | Capability                             | `@stainless-code/persist` | zustand-persist | redux-persist | pinia-persist |
 | -------------------------------------- | :-----------------------: | :-------------: | :-----------: | :-----------: |
-| Store-agnostic (structural source)     |             ✓             |        ✗        |       ✗       |       ✗       |
-| Codec seam (swap serialization)        |             ✓             |        ~        |       ✓       |       ~       |
-| Storage seam (swap backend)            |             ✓             |        ✓        |       ✓       |       ✓       |
-| Hydration signal (gate UI flash)       |             ✓             |        ~        |       ~       |       ~       |
-| Cross-tab sync                         |             ✓             |        ✗        |       ✗       |       ✗       |
-| `migrate` (versioned)                  |             ✓             |        ✓        |       ✓       |       ✗       |
-| `retryWrite` (quota shrink-or-give-up) |             ✓             |        ✗        |       ✗       |       ✗       |
-| `throttleMs`                           |             ✓             |        ✗        |       ✓       |       ✗       |
-| `maxAge` / `buster` expiry             |             ✓             |        ✗        |       ✗       |       ✗       |
-| Schema validation (codec)              |             ✓             |        ✗        |       ✗       |       ✗       |
-| Framework hydration adapters           |             ✓             |        ✗        |       ✗       |       ✗       |
+| Store-agnostic (structural source)     |             ✅             |        ❌        |       ❌       |       ❌       |
+| Codec seam (swap serialization)        |             ✅             |        🟡        |       ✅       |       🟡       |
+| Storage seam (swap backend)            |             ✅             |        ✅        |       ✅       |       ✅       |
+| Hydration signal (gate UI flash)       |             ✅             |        🟡        |       🟡       |       🟡       |
+| Cross-tab sync                         |             ✅             |        ❌        |       ❌       |       ❌       |
+| `migrate` (versioned)                  |             ✅             |        ✅        |       ✅       |       ❌       |
+| `retryWrite` (quota shrink-or-give-up) |             ✅             |        ❌        |       ❌       |       ❌       |
+| `throttleMs`                           |             ✅             |        ❌        |       ✅       |       ❌       |
+| `maxAge` / `buster` expiry             |             ✅             |        ❌        |       ❌       |       ❌       |
+| Schema validation (codec)              |             ✅             |        ❌        |       ❌       |       ❌       |
+| Framework hydration adapters           |             ✅             |        ❌        |       ❌       |       ❌       |
+
+Legend: ✅ full · 🟡 partial · ❌ none.
 
 **Differentiator:** store-agnostic `PersistableSource`, a codec seam that includes schema validation, built-in cross-tab sync, and a hydration signal you can mount in any framework adapter — without rewriting when you swap zustand for TanStack Store or localStorage for IndexedDB.
 
