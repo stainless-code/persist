@@ -49,6 +49,8 @@ export class HydrationController implements ReactiveController {
     this.#unsubscribe = this.#signal.subscribeHydrated(() => {
       this.#host.requestUpdate();
     });
+    // Hydration may have completed between construct and connect.
+    if (this.#signal.isHydrated()) this.#host.requestUpdate();
   }
 
   hostDisconnected(): void {

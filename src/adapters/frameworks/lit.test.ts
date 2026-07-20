@@ -76,6 +76,16 @@ describe("HydrationController (lit)", () => {
     expect(controller.hydrated).toBe(false);
   });
 
+  it("requestUpdate on connect when already hydrated", () => {
+    const signal = createFakeSignal();
+    signal.set(true);
+    const host = createFakeHost();
+    const controller = new HydrationController(host, signal);
+    controller.hostConnected();
+    expect(controller.hydrated).toBe(true);
+    expect(host.requestUpdate).toHaveBeenCalledTimes(1);
+  });
+
   it("hostDisconnected unsubscribes so further flips do not requestUpdate", () => {
     const signal = createFakeSignal();
     const host = createFakeHost();

@@ -36,21 +36,15 @@ function alpineReactive<T extends object>(seed: T): T {
 }
 
 /**
- * Mount a `HydrationSignal` into Alpine reactivity. Returns a reactive bag
- * `{ hydrated }` so `x-show` / `x-text` track updates. Call after
- * `Alpine.plugin(persist)`, or inside `Alpine.data` and tear down with
- * `bag.destroy()` (or the component `destroy()` hook). Null/undefined signal
- * → `{ hydrated: true }` (no subscribe). Renders `true` on the server.
- *
- * Prefer `useHydrated` inside `Alpine.data` with explicit teardown when you
- * need a long-lived subscription; `$hydrated(signal)` in templates caches per
- * element and cleans up when the element is removed.
+ * Mount a `HydrationSignal` into Alpine reactivity — reactive `{ hydrated }`
+ * for `x-show` / `x-text`. Call after `Alpine.plugin(persist)`. Null signal →
+ * `{ hydrated: true }`. Tear down with `bag.destroy()` from `Alpine.data`.
+ * Template `$hydrated(signal)` caches per element and cleans up on remove.
  *
  * @example
  * ```ts
  * import persist, { useHydrated } from "@stainless-code/persist/frameworks/alpine";
  * Alpine.plugin(persist);
- *
  * Alpine.data("prefs", () => {
  *   const hydration = useHydrated(prefsHydration);
  *   return {
@@ -58,7 +52,6 @@ function alpineReactive<T extends object>(seed: T): T {
  *     destroy() { hydration.destroy(); },
  *   };
  * });
- * // template: x-show="hydrated" / $hydrated(prefsHydration).hydrated
  * ```
  */
 export function useHydrated(

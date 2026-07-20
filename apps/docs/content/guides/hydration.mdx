@@ -17,8 +17,20 @@ if (!hydrated) return <Skeleton />;
 ```
 
 ```ts
+// Preact — { hydrated: boolean }
+import { useHydrated } from "@stainless-code/persist/frameworks/preact";
+const { hydrated } = useHydrated(prefsHydration);
+```
+
+```ts
 // Solid — Accessor<boolean>
 import { useHydrated } from "@stainless-code/persist/frameworks/solid";
+const hydrated = useHydrated(prefsHydration);
+```
+
+```ts
+// Angular — Signal<boolean>
+import { useHydrated } from "@stainless-code/persist/frameworks/angular";
 const hydrated = useHydrated(prefsHydration);
 ```
 
@@ -54,18 +66,6 @@ const hydrated = hydratedRune(prefsHydration);
 // Svelte store (Svelte 4 / store users)
 import { hydratedStore } from "@stainless-code/persist/frameworks/svelte-store";
 const hydrated = hydratedStore(prefsHydration);
-```
-
-```ts
-// Angular — Signal<boolean>
-import { useHydrated } from "@stainless-code/persist/frameworks/angular";
-const hydrated = useHydrated(prefsHydration);
-```
-
-```ts
-// Preact — { hydrated: boolean }
-import { useHydrated } from "@stainless-code/persist/frameworks/preact";
-const { hydrated } = useHydrated(prefsHydration);
 ```
 
 See [IndexedDB + React](/guides/idb-react) for the full async path, and [Writing a framework adapter](/adapters/framework-adapter) to author a new one.
