@@ -85,7 +85,14 @@ export default defineConfig({
   },
 
   seo: {
-    og: { enabled: true },
+    // Custom .astro pages have no frontmatter — name OG cards explicitly (Blume 1.1.1+).
+    og: {
+      enabled: true,
+      titles: {
+        "/": "Persist",
+        "/404": "Page not found",
+      },
+    },
     rss: { enabled: true, types: ["changelog"] },
     sitemap: true,
     robots: true,
