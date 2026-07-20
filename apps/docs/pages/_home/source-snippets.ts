@@ -9,7 +9,7 @@ export interface SourceSnippet {
 
 export const defaultSourceId = "tanstack-store";
 
-/** Hero subset (docs sources also list pinia → redux before custom). */
+/** Order: tanstack-store → zustand → jotai → valtio → mobx → pinia → redux → custom */
 export const sourceSnippets: SourceSnippet[] = [
   {
     id: "tanstack-store",
@@ -89,6 +89,43 @@ import { persistObservable } from "@stainless-code/persist/sources/mobx";
 const prefs = observable.object({ theme: "light" as const });
 persistObservable(prefs, {
   name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});`,
+  },
+  {
+    id: "pinia",
+    label: "Pinia",
+    icon: "/brands/pinia.svg",
+    lang: "ts",
+    installCommand: "bun add @stainless-code/persist pinia",
+    code: `import { defineStore } from "pinia";
+import { createJSONStorage } from "@stainless-code/persist";
+import { persistStore } from "@stainless-code/persist/sources/pinia";
+
+const usePrefs = defineStore("prefs", {
+  state: () => ({ theme: "light" as const }),
+});
+persistStore(usePrefs(), {
+  name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});`,
+  },
+  {
+    id: "redux",
+    label: "Redux",
+    icon: "/brands/redux.svg",
+    lang: "ts",
+    installCommand: "bun add @stainless-code/persist redux",
+    code: `import { createStore } from "redux";
+import { createJSONStorage } from "@stainless-code/persist";
+import {
+  persistStore,
+  persistableReducer,
+} from "@stainless-code/persist/sources/redux";
+
+const store = createStore(persistableReducer(rootReducer));
+persistStore(store, {
+  name: "app:root:v1",
   storage: createJSONStorage(() => localStorage),
 });`,
   },
