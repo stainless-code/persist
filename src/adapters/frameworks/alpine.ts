@@ -1,17 +1,7 @@
-// Alpine hydration adapter — peer `alpinejs` >=3.0.0.
+// Alpine hydration adapter — peer `alpinejs` >=3.0.0 (`@types/alpinejs`; package ships none).
 import type { HydrationSignal } from "../../core/hydration";
 
-/** Minimal Alpine surface used by the adapter (no `@types/alpinejs` required). */
-export interface AlpineLike {
-  reactive<T extends object>(obj: T): T;
-  magic(
-    name: string,
-    fn: (
-      el: Element,
-      utils: { Alpine: AlpineLike; cleanup?: (fn: () => void) => void },
-    ) => unknown,
-  ): void;
-}
+export type AlpineLike = Pick<typeof import("alpinejs"), "reactive" | "magic">;
 
 /** Alpine-reactive bag returned by {@link useHydrated}. */
 export interface HydratedBag {
@@ -101,7 +91,7 @@ export default function persist(Alpine: AlpineLike): void {
       if (!map) {
         map = new Map();
         magicBags.set(el, map);
-        cleanup?.(() => {
+        cleanup(() => {
           for (const bag of map!.values()) bag.destroy();
           magicBags.delete(el);
         });

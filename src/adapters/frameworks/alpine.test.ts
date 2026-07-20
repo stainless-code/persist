@@ -21,10 +21,12 @@ function createFakeSignal() {
   };
 }
 
-type MagicFn = (
-  el: Element,
-  utils: { Alpine: AlpineLike; cleanup?: (fn: () => void) => void },
-) => unknown;
+type MagicFn = AlpineLike["magic"] extends (
+  name: string,
+  callback: infer C,
+) => void
+  ? C
+  : never;
 
 function createMockAlpine(): AlpineLike & { magics: Map<string, MagicFn> } {
   const magics = new Map<string, MagicFn>();
@@ -58,13 +60,18 @@ describe("useHydrated / persist (alpine)", () => {
   });
 
   it("signal flip updates bag.hydrated and calls Alpine.reactive", () => {
-    const alpine = createMockAlpine();
     const reactiveCalls: object[] = [];
-    alpine.reactive = (o) => {
-      reactiveCalls.push(o);
-      return o;
+    const alpine = createMockAlpine();
+    const { magics } = alpine;
+    const tracked: AlpineLike & { magics: typeof magics } = {
+      magics,
+      reactive: (o) => {
+        reactiveCalls.push(o as object);
+        return o;
+      },
+      magic: alpine.magic.bind(alpine),
     };
-    persist(alpine);
+    persist(tracked);
     const signal = createFakeSignal();
     const bag = useHydrated(signal);
     expect(reactiveCalls).toHaveLength(1);
@@ -91,10 +98,13 @@ describe("useHydrated / persist (alpine)", () => {
     const magic = alpine.magics.get("hydrated")!;
     const el = {} as Element;
     const cleanups: Array<() => void> = [];
-    const fn = magic(el, {
-      Alpine: alpine,
-      cleanup: (cb) => cleanups.push(cb),
-    }) as (signal: ReturnType<typeof createFakeSignal> | null) => HydratedBag;
+    const fn = magic(
+      el as never,
+      {
+        Alpine: alpine,
+        cleanup: (cb: () => void) => cleanups.push(cb),
+      } as unknown as Parameters<MagicFn>[1],
+    ) as (signal: ReturnType<typeof createFakeSignal> | null) => HydratedBag;
 
     const signal = createFakeSignal();
     const bag = fn(signal);

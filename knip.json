@@ -8,6 +8,6 @@
     "lint-staged.config.js"
   ],
   "ignore": [".codemap/**"],
-  "ignoreDependencies": ["@stainless-code/codemap", "alpinejs"],
+  "ignoreDependencies": ["@stainless-code/codemap"],
   "ignoreWorkspaces": ["apps/*"]
 }
