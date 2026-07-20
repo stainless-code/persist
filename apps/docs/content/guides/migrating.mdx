@@ -52,22 +52,22 @@ export const prefsHydration = toHydrationSignal(persist);
 
 ## Migrating from redux-persist
 
-redux-persist reconciles whole reducer trees implicitly; here `merge` is explicit and a hydration signal gates UI until the snapshot lands. redux stores have `getState`/`subscribe`/`dispatch` (no `setState`), so wrap the store in a `PersistableSource` whose `setState` dispatches an action your reducer recognizes to replace state.
+redux-persist reconciles whole reducer trees implicitly; here `merge` is explicit and a hydration signal gates UI until the snapshot lands. Use first-party `persistStore` + `persistableReducer` from `@stainless-code/persist/sources/redux` — Redux has no `setState`, so the companion reducer handles the private hydrate/set action (RTK slices ignore foreign actions otherwise). Alias if you still import redux-persist's `persistStore`.
 
-| redux-persist                     | `@stainless-code/persist`                                                |
-| --------------------------------- | ------------------------------------------------------------------------ |
-| `key`                             | `name`                                                                   |
-| `storage`                         | `storage`                                                                |
-| `version`                         | `version`                                                                |
-| `migrate`                         | `migrate`                                                                |
-| `whitelist` / `blacklist`         | `partialize` (project the slice)                                         |
-| `transforms`                      | `merge` (per-reducer in/out)                                             |
-| `serialize` / `deserialize`       | custom `StorageCodec` via `createStorage`                                |
-| `stateReconciler`                 | `merge` (default shallow-spread; customize)                              |
-| `throttle`                        | `throttleMs`                                                             |
-| `persistReducer` / `persistStore` | `persistSource(reduxSource, opts)`                                       |
-| —                                 | `toHydrationSignal` + framework adapter (no redux-persist equivalent)    |
-| —                                 | `crossTab`, `maxAge`, `buster`, `retryWrite`, schema validation (no eq.) |
+| redux-persist                     | `@stainless-code/persist`                                                             |
+| --------------------------------- | ------------------------------------------------------------------------------------- |
+| `key`                             | `name`                                                                                |
+| `storage`                         | `storage`                                                                             |
+| `version`                         | `version`                                                                             |
+| `migrate`                         | `migrate`                                                                             |
+| `whitelist` / `blacklist`         | `partialize` (project the slice)                                                      |
+| `transforms`                      | `merge` (per-reducer in/out)                                                          |
+| `serialize` / `deserialize`       | custom `StorageCodec` via `createStorage`                                             |
+| `stateReconciler`                 | `merge` (default shallow-spread; customize)                                           |
+| `throttle`                        | `throttleMs`                                                                          |
+| `persistReducer` / `persistStore` | `persistableReducer` + `persistStore` from `./sources/redux`                          |
+| —                                 | `toHydrationSignal` + framework adapter (no redux-persist equivalent)                 |
+| —                                 | `crossTab`, `maxAge`, `buster`, `retryWrite`, schema validation (no eq.)              |
 
 ```ts
 // redux-persist
@@ -79,32 +79,19 @@ const persistedReducer = persistReducer({ key: "root", storage }, rootReducer);
 export const store = createStore(persistedReducer);
 persistStore(store);
 
-// @stainless-code/persist — plain store + PersistableSource (dispatch ↔ setState)
+// @stainless-code/persist
 import { createStore } from "redux";
+import { createJSONStorage, toHydrationSignal } from "@stainless-code/persist";
 import {
-  createJSONStorage,
-  persistSource,
-  toHydrationSignal,
-} from "@stainless-code/persist";
+  persistStore,
+  persistableReducer,
+} from "@stainless-code/persist/sources/redux";
 
-export const store = createStore(rootReducer); // rootReducer handles PERSIST_SET
-const persist = persistSource(
-  {
-    getState: () => store.getState(),
-    setState: (updater) =>
-      store.dispatch({
-        type: "PERSIST_SET",
-        payload: updater(store.getState()),
-      }),
-    subscribe: (listener) => ({
-      unsubscribe: store.subscribe(listener),
-    }),
-  },
-  {
-    name: "root",
-    storage: createJSONStorage(() => localStorage),
-  },
-);
+export const store = createStore(persistableReducer(rootReducer));
+const persist = persistStore(store, {
+  name: "root",
+  storage: createJSONStorage(() => localStorage),
+});
 export const rootHydration = toHydrationSignal(persist);
 ```
 
