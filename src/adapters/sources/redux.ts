@@ -13,9 +13,10 @@ interface PersistSetAction<TState> {
 }
 
 /**
- * Root-reducer wrapper so hydrate/`setState` can replace state. RTK slices
- * ignore foreign actions — without this, hydrate is a silent no-op. Named to
- * avoid clashing with redux-persist's `persistReducer`.
+ * Wrap the **root** reducer so hydrate/`setState` can replace state. Do not
+ * wrap individual slices inside `combineReducers` — the payload is the full
+ * root. Without this wrapper RTK slices ignore the private action (silent
+ * no-op). Named to avoid clashing with redux-persist's `persistReducer`.
  *
  * @example
  * ```ts
@@ -39,7 +40,8 @@ export function persistableReducer<
 /**
  * Persist a Redux store (classic `createStore` or RTK `configureStore`).
  * Redux has no `setState` — hydrate/writes dispatch a private action handled
- * by {@link persistableReducer}. Do not use `replaceReducer` for hydrate.
+ * by {@link persistableReducer} on the root. Do not use `replaceReducer` for
+ * hydrate.
  *
  * If you also import redux-persist's `persistStore`, alias this one:
  * `import { persistStore as persistWithStainless } from "@stainless-code/persist/sources/redux"`.
@@ -67,11 +69,20 @@ export function persistStore<TState, TPersistedState = TState>(
     {
       getState: () => store.getState(),
       setState: (updater) => {
+        const payload = updater(store.getState());
         const action: PersistSetAction<TState> = {
           type: PERSIST_SET,
-          payload: updater(store.getState()),
+          payload,
         };
         store.dispatch(action as unknown as UnknownAction);
+        if (
+          process.env.NODE_ENV !== "production" &&
+          store.getState() !== payload
+        ) {
+          console.warn(
+            "[@stainless-code/persist/sources/redux] setState/hydrate did not apply. Wrap the root reducer with persistableReducer (not each slice).",
+          );
+        }
       },
       subscribe: (listener) => ({
         unsubscribe: store.subscribe(listener),

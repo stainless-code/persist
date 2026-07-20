@@ -52,7 +52,7 @@ export const prefsHydration = toHydrationSignal(persist);
 
 ## Migrating from redux-persist
 
-redux-persist owns writes inside `persistReducer`. Here wrap the root with `persistableReducer` and call `persistStore` — Redux has no `setState`, and RTK slices ignore foreign hydrate actions otherwise. Alias if you still import redux-persist's `persistStore`.
+redux-persist owns writes inside `persistReducer`. Here wrap the **root** reducer with `persistableReducer` (not each slice) and call `persistStore` — Redux has no `setState`, and RTK slices ignore foreign hydrate actions otherwise. Alias if you still import redux-persist's `persistStore`.
 
 | redux-persist                     | `@stainless-code/persist`                                                             |
 | --------------------------------- | ------------------------------------------------------------------------------------- |

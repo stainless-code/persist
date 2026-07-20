@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 
 import { createPinia, defineStore, setActivePinia } from "pinia";
-import { ref } from "vue";
+import { effectScope, ref } from "vue";
 
 import { createJSONStorage } from "../../core/persist-core";
 import { itImportsOnlyFromCore } from "../../testing/assert-core-only-imports";
@@ -71,6 +71,20 @@ describe("persistStore", () => {
 
     await waitForHydration(persist.hasHydrated);
     expect(store.count).toBe(3);
+
+    store.count = 4;
+    await new Promise((resolve) => queueMicrotask(resolve));
+    const stored = await jsonStorage.getItem("setup-count-store");
+    expect(stored?.state.count).toBe(4);
+
+    setActivePinia(createPinia());
+    const freshStore = useSetupStore();
+    const rehydrate = persistStore(freshStore, {
+      name: "setup-count-store",
+      storage: jsonStorage,
+    });
+    await waitForHydration(rehydrate.hasHydrated);
+    expect(freshStore.count).toBe(4);
   });
 
   it("subscribe writes on state change after hydrate", async () => {
@@ -92,6 +106,31 @@ describe("persistStore", () => {
 
     const stored = await jsonStorage.getItem("subscribe-store");
     expect(stored?.state.count).toBe(42);
+  });
+
+  it("keeps writing after the Vue effectScope that called persistStore stops", async () => {
+    const useCountStore = defineStore("detached-count", {
+      state: () => ({ count: 0 }),
+    });
+    const store = useCountStore();
+    const jsonStorage = createJSONStorage<{ count: number }>(() => memory)!;
+    const scope = effectScope();
+
+    let hasHydrated!: () => boolean;
+    scope.run(() => {
+      const persist = persistStore(store, {
+        name: "detached-store",
+        storage: jsonStorage,
+      });
+      hasHydrated = persist.hasHydrated;
+    });
+    await waitForHydration(hasHydrated);
+    scope.stop();
+
+    store.count = 11;
+    await new Promise((resolve) => queueMicrotask(resolve));
+    const stored = await jsonStorage.getItem("detached-store");
+    expect(stored?.state.count).toBe(11);
   });
 });
 

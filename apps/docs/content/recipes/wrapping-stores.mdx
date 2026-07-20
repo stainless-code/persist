@@ -90,7 +90,7 @@ const persist = persistStore(usePrefs(), {
 
 ## redux
 
-Wrap the root reducer with `persistableReducer` so hydrate can replace state (RTK slices ignore foreign actions otherwise). Alias if you also import redux-persist's `persistStore`.
+Wrap the **root** reducer with `persistableReducer` (not each slice) so hydrate can replace state. Alias if you also import redux-persist's `persistStore`.
 
 ```ts
 import { createStore } from "redux";
