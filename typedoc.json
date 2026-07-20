@@ -24,6 +24,7 @@
     "src/adapters/frameworks/solid.ts",
     "src/adapters/frameworks/vue.ts",
     "src/adapters/frameworks/lit.ts",
+    "src/adapters/frameworks/alpine.ts",
     "src/adapters/frameworks/svelte.ts",
     "src/adapters/frameworks/svelte-store.ts",
     "src/adapters/frameworks/angular.ts",
