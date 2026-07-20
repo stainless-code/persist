@@ -3,14 +3,13 @@ import CodeBlock from "blume/components/content/CodeBlock.astro";
 import Icon from "blume/components/Icon.astro";
 import { contentHref } from "blume/components/content/base-href.ts";
 import InstallBox from "./InstallBox.astro";
-import { sourceSnippets } from "./source-snippets.ts";
+import { defaultSourceId, sourceSnippets } from "./source-snippets.ts";
 
 const pillBase =
   "cursor-pointer rounded-full border px-3 py-1 text-xs transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
 const pillActive = "border-accent bg-accent/10 font-medium text-accent";
 const pillMuted =
   "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground";
-const defaultSource = "tanstack-store";
 ---
 
 <section class="text-center">
@@ -56,12 +55,16 @@ const defaultSource = "tanstack-store";
     {
       sourceSnippets.map((snippet) => (
         <button
-          class={`inline-flex items-center gap-1.5 ${pillBase} ${snippet.id === defaultSource ? pillActive : pillMuted}`}
+          class={`inline-flex items-center gap-1.5 ${pillBase} ${snippet.id === defaultSourceId ? pillActive : pillMuted}`}
           data-install-command={snippet.installCommand}
           data-source={snippet.id}
           type="button"
         >
-          <Icon class="size-4 shrink-0" name={snippet.icon} size={16} />
+          <Icon
+            class="size-4 shrink-0 object-contain"
+            name={snippet.icon}
+            size={16}
+          />
           {snippet.label}
         </button>
       ))
@@ -72,7 +75,7 @@ const defaultSource = "tanstack-store";
     {
       sourceSnippets.map((snippet) => (
         <div
-          class={snippet.id === defaultSource ? undefined : "hidden"}
+          class={snippet.id === defaultSourceId ? undefined : "hidden"}
           data-code={snippet.id}
         >
           <CodeBlock code={snippet.code} lang={snippet.lang} />

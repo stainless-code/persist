@@ -37,19 +37,17 @@ export const usePrefs = create(
   }),
 );
 
-// @stainless-code/persist
-import { Store } from "@tanstack/store";
+// @stainless-code/persist — same zustand store, adapter instead of middleware
+import { create } from "zustand";
 import { createJSONStorage, toHydrationSignal } from "@stainless-code/persist";
-import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
-import { useHydrated } from "@stainless-code/persist/frameworks/react";
+import { persistStore } from "@stainless-code/persist/sources/zustand";
 
-export const prefsStore = new Store({ theme: "light" });
-const persist = persistStore(prefsStore, {
+export const usePrefs = create(() => ({ theme: "light" }));
+const persist = persistStore(usePrefs, {
   name: "app:prefs:v1",
   storage: createJSONStorage(() => localStorage),
 });
 export const prefsHydration = toHydrationSignal(persist);
-// const { hydrated } = useHydrated(prefsHydration);
 ```
 
 ## Migrating from redux-persist
@@ -73,6 +71,7 @@ redux-persist reconciles whole reducer trees implicitly; here `merge` is explici
 
 ```ts
 // redux-persist
+import { createStore } from "redux";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
@@ -80,23 +79,32 @@ const persistedReducer = persistReducer({ key: "root", storage }, rootReducer);
 export const store = createStore(persistedReducer);
 persistStore(store);
 
-// @stainless-code/persist — wrap the redux store (dispatch ↔ setState)
+// @stainless-code/persist — plain store + PersistableSource (dispatch ↔ setState)
+import { createStore } from "redux";
 import {
   createJSONStorage,
   persistSource,
   toHydrationSignal,
 } from "@stainless-code/persist";
 
-const reduxSource = {
-  getState: () => store.getState(),
-  setState: (updater) =>
-    store.dispatch({ type: "PERSIST_SET", payload: updater(store.getState()) }),
-  subscribe: (listener) => store.subscribe(listener),
-};
-const persist = persistSource(reduxSource, {
-  name: "root",
-  storage: createJSONStorage(() => localStorage),
-});
+export const store = createStore(rootReducer); // rootReducer handles PERSIST_SET
+const persist = persistSource(
+  {
+    getState: () => store.getState(),
+    setState: (updater) =>
+      store.dispatch({
+        type: "PERSIST_SET",
+        payload: updater(store.getState()),
+      }),
+    subscribe: (listener) => ({
+      unsubscribe: store.subscribe(listener),
+    }),
+  },
+  {
+    name: "root",
+    storage: createJSONStorage(() => localStorage),
+  },
+);
 export const rootHydration = toHydrationSignal(persist);
 ```
 
@@ -118,36 +126,43 @@ pinia-persist is a Pinia plugin; here persistence is a middleware call on any re
 
 ```ts
 // pinia-persist
-import { createPinia } from "pinia";
+import { createPinia, defineStore } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
 const pinia = createPinia();
-pinia.use(
-  piniaPluginPersistedstate({
-    key: "prefs",
-    storage: localStorage,
-    paths: ["theme"],
-  }),
-);
+pinia.use(piniaPluginPersistedstate);
+export const usePrefsStore = defineStore("prefs", {
+  state: () => ({ theme: "light", draft: "" }),
+  persist: { key: "prefs", paths: ["theme"] },
+});
 
 // @stainless-code/persist — wrap $state / $subscribe
+import { defineStore } from "pinia";
 import {
   createJSONStorage,
   persistSource,
   toHydrationSignal,
 } from "@stainless-code/persist";
 
-const piniaSource = {
-  getState: () => piniaStore.$state,
-  setState: (updater) => {
-    piniaStore.$state = updater(piniaStore.$state);
-  },
-  subscribe: (listener) => piniaStore.$subscribe(() => listener()),
-};
-const persist = persistSource(piniaSource, {
-  name: "prefs",
-  storage: createJSONStorage(() => localStorage),
-  partialize: (s) => ({ theme: s.theme }),
+export const usePrefsStore = defineStore("prefs", {
+  state: () => ({ theme: "light", draft: "" }),
 });
+const prefsStore = usePrefsStore();
+const persist = persistSource(
+  {
+    getState: () => prefsStore.$state,
+    setState: (updater) => {
+      prefsStore.$patch(updater(prefsStore.$state));
+    },
+    subscribe: (listener) => ({
+      unsubscribe: prefsStore.$subscribe(() => listener()),
+    }),
+  },
+  {
+    name: "prefs",
+    storage: createJSONStorage(() => localStorage),
+    partialize: (s) => ({ theme: s.theme }),
+  },
+);
 export const prefsHydration = toHydrationSignal(persist);
 ```
