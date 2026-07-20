@@ -5,7 +5,9 @@ search:
   tags: ["adapter", "framework"]
 ---
 
-The React hook (`@stainless-code/persist/frameworks/react`) is ~20 lines over `HydrationSignal` — every adapter is the same shape. Preact, Solid, Angular, Vue, Lit (`HydrationController`), Alpine (reactive bag + `$hydrated` plugin), and Svelte (runes / store) ship the same contract. Full version on `HydrationSignal`'s JSDoc: subscribe returns an idempotent unsubscribe; each subscribe call is an independent subscription; **no initial notification and no payload** — pull `isHydrated()` after attach and on every notification; transitions while detached aren't replayed (the snapshot re-read recovers); **render `hydrated: true` on the server** (no storage server-side); `null` signal = no persistence = hydrated.
+The React hook is ~20 lines over `HydrationSignal` — every adapter is that shape. Preact, Solid, Angular, Vue, Lit, Alpine, and Svelte ship the same contract (full text on `HydrationSignal`'s JSDoc).
+
+Subscribe returns an idempotent unsubscribe; each call is an independent subscription. **No initial notification and no payload** — pull `isHydrated()` after attach and on every notification. Transitions while detached aren't replayed (re-read recovers). **Render `hydrated: true` on the server**; `null` signal = no persistence = hydrated.
 
 ```ts
 import type { HydrationSignal } from "@stainless-code/persist";

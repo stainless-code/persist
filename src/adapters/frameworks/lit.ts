@@ -4,12 +4,9 @@ import type { ReactiveController, ReactiveControllerHost } from "lit";
 import type { HydrationSignal } from "../../core/hydration";
 
 /**
- * Lit `ReactiveController` that mounts a `HydrationSignal` and exposes
- * `hydrated` for template gating. Construct on the host (calls
- * `host.addController(this)`); subscribe on `hostConnected`, tear down on
- * `hostDisconnected`. Null/undefined signal → `hydrated` stays `true` (no
- * subscribe). Same SSR policy as React: treat as hydrated when there is no
- * signal / nothing to gate server-side.
+ * Lit `ReactiveController` over `HydrationSignal` — gate with `hydrated`.
+ * Construct on the host (`addController`); subscribe on connect, tear down on
+ * disconnect. Null signal → `hydrated` stays `true`.
  *
  * @example
  * ```ts

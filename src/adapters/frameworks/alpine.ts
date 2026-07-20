@@ -29,7 +29,7 @@ function alpineReactive<T extends object>(seed: T): T {
   if (process.env.NODE_ENV !== "production" && !warnedMissingRuntime) {
     warnedMissingRuntime = true;
     console.warn(
-      "[persist/alpine] useHydrated called before Alpine.plugin(persist); updates won't be reactive.",
+      "[@stainless-code/persist/frameworks/alpine] useHydrated called before Alpine.plugin(persist); updates won't be reactive.",
     );
   }
   return seed;

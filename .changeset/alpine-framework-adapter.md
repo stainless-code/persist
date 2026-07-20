@@ -2,4 +2,4 @@
 "@stainless-code/persist": minor
 ---
 
-Add Alpine hydration plugin + `useHydrated` / `$hydrated` framework adapter (`./frameworks/alpine`) over the `HydrationSignal` seam.
+Add Alpine framework adapter (`./frameworks/alpine`) — `useHydrated` + `$hydrated` plugin over `HydrationSignal`.
