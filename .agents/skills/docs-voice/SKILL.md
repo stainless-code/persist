@@ -34,7 +34,7 @@ was rejected) and the "when **not** to use it" anti-sell — keep both.
 - **Adapter / listing order:** core → backends → codecs → sources → frameworks
   → transport. Within sources: tanstack-store → zustand → jotai → valtio →
   mobx → pinia → redux → custom. Within frameworks: react → preact → solid →
-  angular → vue → svelte (runes → store).
+  angular → vue → lit → alpine → svelte (runes → store).
 
 ## Don't
 

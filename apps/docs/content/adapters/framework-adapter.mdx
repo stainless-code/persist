@@ -1,11 +1,13 @@
 ---
 title: Writing a framework adapter
-description: Bridge HydrationSignal into your UI framework — the same shape as the shipped React, Solid, Vue, and Svelte adapters.
+description: Bridge HydrationSignal into your UI framework — same shape as the shipped React, Preact, Solid, Angular, Vue, Lit, Alpine, and Svelte adapters.
 search:
   tags: ["adapter", "framework"]
 ---
 
-The React hook (`@stainless-code/persist/frameworks/react`) is ~20 lines over `HydrationSignal` — every adapter is the same shape. Solid (`@stainless-code/persist/frameworks/solid`, `Accessor<boolean>` via `from`), Vue (`@stainless-code/persist/frameworks/vue`, `Ref<boolean>` via `shallowRef` + `onScopeDispose`), and Svelte (`@stainless-code/persist/frameworks/svelte` runes `hydratedRune`; `@stainless-code/persist/frameworks/svelte-store` `hydratedStore` for Svelte 4 + Svelte 5 store users) ship the same way. The contract (full version on `HydrationSignal`'s JSDoc): subscribe returns an idempotent unsubscribe; each subscribe call is an independent subscription; **no initial notification and no payload** — pull `isHydrated()` after attach and on every notification; transitions while detached aren't replayed (the snapshot re-read recovers); **render `hydrated: true` on the server** (no storage server-side); `null` signal = no persistence = hydrated.
+The React hook is ~20 lines over `HydrationSignal` — every adapter is that shape. Preact, Solid, Angular, Vue, Lit, Alpine, and Svelte ship the same contract (full text on `HydrationSignal`'s JSDoc).
+
+Subscribe returns an idempotent unsubscribe; each call is an independent subscription. **No initial notification and no payload** — pull `isHydrated()` after attach and on every notification. Transitions while detached aren't replayed (re-read recovers). **Render `hydrated: true` on the server**; `null` signal = no persistence = hydrated.
 
 ```ts
 import type { HydrationSignal } from "@stainless-code/persist";

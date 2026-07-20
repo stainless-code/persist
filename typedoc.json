@@ -21,12 +21,14 @@
     "src/adapters/sources/pinia.ts",
     "src/adapters/sources/redux.ts",
     "src/adapters/frameworks/react.ts",
+    "src/adapters/frameworks/preact.ts",
     "src/adapters/frameworks/solid.ts",
-    "src/adapters/frameworks/vue.ts",
-    "src/adapters/frameworks/svelte.ts",
-    "src/adapters/frameworks/svelte-store.ts",
     "src/adapters/frameworks/angular.ts",
-    "src/adapters/frameworks/preact.ts"
+    "src/adapters/frameworks/vue.ts",
+    "src/adapters/frameworks/lit.ts",
+    "src/adapters/frameworks/alpine.ts",
+    "src/adapters/frameworks/svelte.ts",
+    "src/adapters/frameworks/svelte-store.ts"
   ],
   "cleanOutputDir": false,
   "outputs": [

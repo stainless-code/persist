@@ -10,7 +10,7 @@ Actionable items not yet shipped from the docs-adapters ROI work. When an item s
 - **Codec** — `StorageCodec<S, TRaw>`: pure `encode` / `decode` between the `StorageValue<S>` envelope and the backend's wire type. Sync by design — async transforms (encryption, compression) are backend **wrappers**, not codecs.
 - **Source** — `PersistableSource<TState>`: `getState` / `setState` / `subscribe`. Structural, store-agnostic.
 
-Framework adapters mount `HydrationSignal` into each framework's external-store mechanism (React `useSyncExternalStore`, Solid `from`, Vue `shallowRef` + `onScopeDispose`, Svelte runes `createSubscriber` / stores `readable`, Angular `signal` + `effect`, Preact `useSyncExternalStore` via `preact/compat`).
+Framework adapters mount `HydrationSignal` into each framework's external-store mechanism (React / Preact `useSyncExternalStore`, Solid `from`, Angular `signal` + `effect`, Vue `shallowRef` + `onScopeDispose`, Lit `ReactiveController`, Alpine reactive bag + `$hydrated`, Svelte runes `createSubscriber` / stores `readable`).
 
 **Layout:** `src/core/` (zero-dep engine) + `src/adapters/<seam>/` (`codecs/`, `backends/`, `transport/`, `sources/`, `frameworks/`). One subpath per optional peer, mirroring `src/` → `dist/` → `./<seam>/<name>` 1:1. No barrel — importing a subpath is the dependency opt-in. Each adapter imports only from `core/` (enforced by a per-entry self-check test). Full seam model + entry-point table + test matrix: [`docs/architecture.md`](../architecture.md). Consumer docs: [https://stainless-code.com/persist](https://stainless-code.com/persist) (`apps/docs`); npm landing: root [`README.md`](../../README.md).
 
@@ -70,26 +70,6 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 - **Deps:** item 2 (`examples/`) should land first so the playground has a source app (or seed from a docs recipe).
 - **Lands:** README + docs site link. Changeset: `minor` (dev/docs-only).
 
-### 8. Lit + Alpine framework adapters — Tier 2, M
-
-[Layers](https://stainless-code.com/layers/) ships framework mounts for Vanilla, React, Preact, Solid, Angular, Vue, Lit, Alpine, Svelte. Persist already covers React / Preact / Solid / Angular / Vue / Svelte (+ `svelte-store`). Gap vs Layers: **Lit** and **Alpine**. Vanilla is the core `HydrationSignal` / `toHydrationSignal` surface — no `./frameworks/vanilla` subpath (same as Layers' vanilla = core package). Research (2026-07-20) against local `stainless-code/layers` lit + alpine packages and OSS clones `lit` / `alpinejs`.
-
-#### `./frameworks/lit` — `HydrationController` (or `useHydrated` controller)
-
-- **What:** Lit `ReactiveController` that mounts a `HydrationSignal` and exposes `hydrated` (SSR snapshot `true` when no signal / on server). Peer: `lit`.
-- **Why (fact-checked):** Layers Lit adapter drives hosts via `ReactiveController` + `host.requestUpdate()` on subscribe (`packages/lit/src/index.ts` `subscribeStackSnapshot` / `StackController`). Persist's contract is the same seam as React's `useHydrated`: `subscribeHydrated` + `isHydrated` only — gate flash, don't own store reads. Lit has no hooks; controller hostAdd / hostDisconnected is the lifecycle pair.
-- **Mapping:** `hostConnected` → subscribe; on notify → `host.requestUpdate()`; `hostDisconnected` → unsubscribe; getter `hydrated` → `signal?.isHydrated() ?? true`.
-- **Acceptance:** subpath + controller tests (mock `ReactiveControllerHost`); adapters index + docs guide. Changeset: `minor`.
-- **Lands:** `src/adapters/frameworks/lit.ts`, entry-points table, [`adapters`](../../apps/docs/content/) / getting-started framework list.
-
-#### `./frameworks/alpine` — plugin + `$hydrated` / `useHydrated`
-
-- **What:** Alpine plugin that mounts `HydrationSignal` into Alpine reactivity (`Alpine.reactive` bag + subscribe). Peer: `alpinejs`. Optional CDN entry if Layers-style auto-plugin is wanted later.
-- **Why (fact-checked):** Layers Alpine keeps a reactive bag and `stack.subscribe` → mutate bag so Alpine tracks (`packages/alpine/src/index.ts`); warns if `useStack` runs before `Alpine.plugin`. Persist needs the same: bare `subscribeHydrated` alone won't re-render `x-show` / `x-text` without a reactive property Alpine already tracks. Prefer thin magic/data (`$hydrated(signal)` or `Alpine.data`) over a heavy directive — hydration is a boolean gate, not a stack outlet.
-- **Mapping:** `getSnapshot` → `reactive({ hydrated })`; `subscribeHydrated` → set `bag.hydrated = signal.isHydrated()`; cleanup on Alpine destroy / effect teardown; null signal → `hydrated: true`.
-- **Acceptance:** subpath + plugin tests (mock Alpine runtime or happy-dom + alpine); adapters index + docs. Changeset: `minor`.
-- **Lands:** `src/adapters/frameworks/alpine.ts`, entry-points table, docs framework list (order after Vue, before Svelte — match Layers: … Vue, Lit, Alpine, Svelte).
-
 ## Backlog (lower-priority, brainstormed — not ROI-tiered)
 
 From audit Appendix B.3. Each is a one-line composition over an existing seam; ship only if demand surfaces.
@@ -102,10 +82,9 @@ From audit Appendix B.3. Each is a one-line composition over an existing seam; s
 ## Sequencing
 
 1. **#1 (Query bridge)** — M, pure code, high adoption payoff, no deps. Best next pick.
-2. **#8 (Lit + Alpine frameworks)** — M, Layers parity; Lit is a thin controller, Alpine needs reactive bag + plugin.
-3. **#3 (real-browser + SSR matrix)** — M, de-risks the hydration-critical paths before more surface lands.
-4. **#2 (examples/) → #6 (playground)** — demo arc; docs site already shipped.
-5. **#4 (React ergonomics) + #5 (OPFS/SQLite/Cloudflare)** — strategic; decide ship-vs-recipe per item.
+2. **#3 (real-browser + SSR matrix)** — M, de-risks the hydration-critical paths before more surface lands.
+3. **#2 (examples/) → #6 (playground)** — demo arc; docs site already shipped.
+4. **#4 (React ergonomics) + #5 (OPFS/SQLite/Cloudflare)** — strategic; decide ship-vs-recipe per item.
 
 ## Reference
 
