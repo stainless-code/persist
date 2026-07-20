@@ -13,10 +13,9 @@ interface PersistSetAction<TState> {
 }
 
 /**
- * Wrap a root reducer so hydrate/`setState` can replace state via a private
- * action. RTK slices ignore foreign actions — without this wrapper, hydrate
- * is a silent no-op. Named `persistableReducer` (not `persistReducer`) to
- * avoid clashing with redux-persist.
+ * Root-reducer wrapper so hydrate/`setState` can replace state. RTK slices
+ * ignore foreign actions — without this, hydrate is a silent no-op. Named to
+ * avoid clashing with redux-persist's `persistReducer`.
  *
  * @example
  * ```ts

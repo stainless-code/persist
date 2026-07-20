@@ -52,7 +52,7 @@ export const prefsHydration = toHydrationSignal(persist);
 
 ## Migrating from redux-persist
 
-redux-persist reconciles whole reducer trees implicitly; here `merge` is explicit and a hydration signal gates UI until the snapshot lands. Use first-party `persistStore` + `persistableReducer` from `@stainless-code/persist/sources/redux` — Redux has no `setState`, so the companion reducer handles the private hydrate/set action (RTK slices ignore foreign actions otherwise). Alias if you still import redux-persist's `persistStore`.
+redux-persist owns writes inside `persistReducer`. Here wrap the root with `persistableReducer` and call `persistStore` — Redux has no `setState`, and RTK slices ignore foreign hydrate actions otherwise. Alias if you still import redux-persist's `persistStore`.
 
 | redux-persist                     | `@stainless-code/persist`                                                             |
 | --------------------------------- | ------------------------------------------------------------------------------------- |
@@ -97,7 +97,7 @@ export const rootHydration = toHydrationSignal(persist);
 
 ## Migrating from pinia-persist
 
-pinia-persist is a Pinia plugin; here persistence is a call-site middleware — same storage, explicit partialization, optional codec. Use first-party `persistStore` from `@stainless-code/persist/sources/pinia`.
+pinia-persist is a Pinia plugin; here call `persistStore` on the store — same storage, `partialize`, optional codec.
 
 | pinia-persist                    | `@stainless-code/persist`                                                             |
 | -------------------------------- | ------------------------------------------------------------------------------------- |

@@ -5,9 +5,9 @@ import type { PersistApi, PersistOptions } from "../../core/persist-core";
 import { persistSource } from "../../core/persist-core";
 
 /**
- * Persist a Pinia store. `$state` / `$subscribe` map to `PersistableSource`.
- * Hydrate assigns `$state` (shallow Object.assign via Pinia's setter), not
- * object `$patch`.
+ * Persist a Pinia store. Hydrate via `$state =` (shallow assign), not object
+ * `$patch`. Subscribe with `{ detached: true }` so the listener outlives the
+ * effect scope.
  *
  * @example
  * ```ts
