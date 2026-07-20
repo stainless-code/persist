@@ -70,26 +70,6 @@ Framework adapters mount `HydrationSignal` into each framework's external-store 
 - **Deps:** item 2 (`examples/`) should land first so the playground has a source app (or seed from a docs recipe).
 - **Lands:** README + docs site link. Changeset: `minor` (dev/docs-only).
 
-### 7. Redux + Pinia source adapters — Tier 2, M
-
-Migration guides already document hand-rolled `PersistableSource` wraps; first-party adapters close the gap with zustand/jotai/valtio/mobx. Research (2026-07-20) against local `rt2zz/redux-persist` + `prazdevs/pinia-plugin-persistedstate` and upstream `reduxjs/redux` / `vuejs/pinia` sources (OSS clones of the cores were unavailable in-agent — re-clone under `/Users/sutusebastian/Developer/OSS/{reduxjs/redux,vuejs/pinia}` before implementation).
-
-#### `./sources/redux` — `persistStore` + `persistableReducer`
-
-- **What:** thin `persistStore(store, opts)` over `persistSource`; companion `persistableReducer(baseReducer)` (not named `persistReducer`) that handles one internal set/hydrate action returning `action.payload`. Peer: `redux` (RTK stores are still Redux `Store`).
-- **Why (fact-checked):** Redux has **no** `setState` — only `getState` / `dispatch` / `subscribe` → bare unsub fn (`createStore.ts`). `replaceReducer` dispatches private randomized `@@redux/REPLACE…` and re-runs the reducer with **previous** state — **not** payload hydrate. redux-persist owns writes inside `persistReducer` + lifecycle via `persistStore` → `dispatch` only (`persistStore.ts` / `persistReducer.ts`) — different ownership model from subscribe-writes. RTK slices ignore foreign actions unless `extraReducers` / root wrapper → silent no-op hydrate without `persistableReducer`.
-- **Mapping:** `getState` → `store.getState()`; `setState(updater)` → `dispatch({ type: SET, payload: updater(getState()) })`; `subscribe` → `{ unsubscribe: store.subscribe(listener) }`.
-- **Acceptance:** subpath + `persistableReducer` + co-located tests (plain `createStore` + RTK `configureStore`); migrating guide swaps hand-roll for adapter. Changeset: `minor`.
-- **Lands:** `src/adapters/sources/redux.ts` (+ helper), entry-points table, [`guides/migrating`](../../apps/docs/content/guides/migrating.mdx). Alias if coexisting with redux-persist's `persistStore`.
-
-#### `./sources/pinia` — `persistStore`
-
-- **What:** thin `persistStore(store, opts)` over `persistSource`. Peer: `pinia` ≥ 2 (API floor; plugin ecosystem is often ≥ 3).
-- **Why (fact-checked):** Pinia store is already near-`PersistableSource`. `$state` setter is `$patch(($state) => Object.assign($state, state))` — **shallow assign**, not root replace; object `$patch(partial)` is **deep** merge (`store.ts`). `$subscribe` returns a bare unsub and auto-detaches with the effect scope unless `{ detached: true }` — pinia-plugin-persistedstate uses `$patch` hydrate + `$subscribe(..., { detached: true })` (`runtime/core.ts`). Neither deletes absent keys on hydrate. Adapter is call-site (not a `pinia.use` plugin / `persist:` option).
-- **Mapping:** `getState` → `store.$state`; `setState(updater)` → `store.$state = updater(store.$state)` (prefer over object `$patch`); `subscribe` → `{ unsubscribe: store.$subscribe(() => listener(), { detached: true }) }`.
-- **Acceptance:** subpath + option-store + setup-store tests; migrating guide swaps hand-roll for adapter. Changeset: `minor`.
-- **Lands:** `src/adapters/sources/pinia.ts`, entry-points table, migrating guide.
-
 ### 8. Lit + Alpine framework adapters — Tier 2, M
 
 [Layers](https://stainless-code.com/layers/) ships framework mounts for Vanilla, React, Preact, Solid, Angular, Vue, Lit, Alpine, Svelte. Persist already covers React / Preact / Solid / Angular / Vue / Svelte (+ `svelte-store`). Gap vs Layers: **Lit** and **Alpine**. Vanilla is the core `HydrationSignal` / `toHydrationSignal` surface — no `./frameworks/vanilla` subpath (same as Layers' vanilla = core package). Research (2026-07-20) against local `stainless-code/layers` lit + alpine packages and OSS clones `lit` / `alpinejs`.
@@ -122,11 +102,10 @@ From audit Appendix B.3. Each is a one-line composition over an existing seam; s
 ## Sequencing
 
 1. **#1 (Query bridge)** — M, pure code, high adoption payoff, no deps. Best next pick.
-2. **#7 (Redux + Pinia sources)** — M, closes migration-guide hand-rolls; Pinia is thin, Redux needs `persistableReducer`.
-3. **#8 (Lit + Alpine frameworks)** — M, Layers parity; Lit is a thin controller, Alpine needs reactive bag + plugin.
-4. **#3 (real-browser + SSR matrix)** — M, de-risks the hydration-critical paths before more surface lands.
-5. **#2 (examples/) → #6 (playground)** — demo arc; docs site already shipped.
-6. **#4 (React ergonomics) + #5 (OPFS/SQLite/Cloudflare)** — strategic; decide ship-vs-recipe per item.
+2. **#8 (Lit + Alpine frameworks)** — M, Layers parity; Lit is a thin controller, Alpine needs reactive bag + plugin.
+3. **#3 (real-browser + SSR matrix)** — M, de-risks the hydration-critical paths before more surface lands.
+4. **#2 (examples/) → #6 (playground)** — demo arc; docs site already shipped.
+5. **#4 (React ergonomics) + #5 (OPFS/SQLite/Cloudflare)** — strategic; decide ship-vs-recipe per item.
 
 ## Reference
 
