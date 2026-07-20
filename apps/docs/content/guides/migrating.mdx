@@ -52,7 +52,7 @@ export const prefsHydration = toHydrationSignal(persist);
 
 ## Migrating from redux-persist
 
-redux-persist owns writes inside `persistReducer`. Here wrap the **root** reducer with `persistableReducer` (not each slice) and call `persistStore` — Redux has no `setState`, and RTK slices ignore foreign hydrate actions otherwise. Alias if you still import redux-persist's `persistStore`.
+redux-persist owns writes inside `persistReducer`. Here wrap the root reducer with `persistableReducer` (not each slice) and call `persistStore`. Redux has no `setState`; RTK slices ignore foreign hydrate actions otherwise. Alias if you still import redux-persist's `persistStore`.
 
 | redux-persist                     | `@stainless-code/persist`                                                             |
 | --------------------------------- | ------------------------------------------------------------------------------------- |
@@ -123,7 +123,7 @@ export const usePrefsStore = defineStore("prefs", {
   persist: { key: "prefs", paths: ["theme"] },
 });
 
-// @stainless-code/persist — first-party Pinia source adapter
+// @stainless-code/persist
 import { defineStore } from "pinia";
 import { createJSONStorage, toHydrationSignal } from "@stainless-code/persist";
 import { persistStore } from "@stainless-code/persist/sources/pinia";

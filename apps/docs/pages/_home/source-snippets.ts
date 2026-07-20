@@ -9,7 +9,7 @@ export interface SourceSnippet {
 
 export const defaultSourceId = "tanstack-store";
 
-/** Order: tanstack-store → zustand → jotai → valtio → mobx → custom */
+/** Hero subset (docs sources also list pinia → redux before custom). */
 export const sourceSnippets: SourceSnippet[] = [
   {
     id: "tanstack-store",

@@ -13,10 +13,10 @@ interface PersistSetAction<TState> {
 }
 
 /**
- * Wrap the **root** reducer so hydrate/`setState` can replace state. Do not
- * wrap individual slices inside `combineReducers` — the payload is the full
- * root. Without this wrapper RTK slices ignore the private action (silent
- * no-op). Named to avoid clashing with redux-persist's `persistReducer`.
+ * Wrap the root reducer so hydrate/`setState` can replace state. Do not wrap
+ * slices inside `combineReducers` — the payload is the full root. Without this,
+ * RTK slices ignore the private action (silent no-op). Named to avoid clashing
+ * with redux-persist's `persistReducer`.
  *
  * @example
  * ```ts
