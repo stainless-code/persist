@@ -85,7 +85,7 @@ export default defineConfig({
   },
 
   seo: {
-    // Custom .astro pages have no frontmatter — name OG cards explicitly (Blume 1.1.1+).
+    // Custom .astro pages lack frontmatter — set OG titles explicitly.
     og: {
       enabled: true,
       titles: {
