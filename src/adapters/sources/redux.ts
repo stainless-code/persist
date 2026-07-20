@@ -69,15 +69,17 @@ export function persistStore<TState, TPersistedState = TState>(
     {
       getState: () => store.getState(),
       setState: (updater) => {
-        const payload = updater(store.getState());
+        const prev = store.getState();
+        const payload = updater(prev);
         const action: PersistSetAction<TState> = {
           type: PERSIST_SET,
           payload,
         };
         store.dispatch(action as unknown as UnknownAction);
+        // Unchanged reference ⇒ reducer ignored PERSIST_SET (missing root wrap).
         if (
           process.env.NODE_ENV !== "production" &&
-          store.getState() !== payload
+          store.getState() === prev
         ) {
           console.warn(
             "[@stainless-code/persist/sources/redux] setState/hydrate did not apply. Wrap the root reducer with persistableReducer (not each slice).",
