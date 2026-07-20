@@ -20,6 +20,8 @@ export default defineMeta({
     "adapters-sources-jotai",
     "adapters-sources-valtio",
     "adapters-sources-mobx",
+    "adapters-sources-pinia",
+    "adapters-sources-redux",
     "adapters-frameworks-react",
     "adapters-frameworks-solid",
     "adapters-frameworks-vue",

@@ -52,22 +52,22 @@ export const prefsHydration = toHydrationSignal(persist);
 
 ## Migrating from redux-persist
 
-redux-persist reconciles whole reducer trees implicitly; here `merge` is explicit and a hydration signal gates UI until the snapshot lands. redux stores have `getState`/`subscribe`/`dispatch` (no `setState`), so wrap the store in a `PersistableSource` whose `setState` dispatches an action your reducer recognizes to replace state.
+redux-persist owns writes inside `persistReducer`. Here wrap the root reducer with `persistableReducer` (not each slice) and call `persistStore`. Redux has no `setState`; RTK slices ignore foreign hydrate actions otherwise. Alias if you still import redux-persist's `persistStore`.
 
-| redux-persist                     | `@stainless-code/persist`                                                |
-| --------------------------------- | ------------------------------------------------------------------------ |
-| `key`                             | `name`                                                                   |
-| `storage`                         | `storage`                                                                |
-| `version`                         | `version`                                                                |
-| `migrate`                         | `migrate`                                                                |
-| `whitelist` / `blacklist`         | `partialize` (project the slice)                                         |
-| `transforms`                      | `merge` (per-reducer in/out)                                             |
-| `serialize` / `deserialize`       | custom `StorageCodec` via `createStorage`                                |
-| `stateReconciler`                 | `merge` (default shallow-spread; customize)                              |
-| `throttle`                        | `throttleMs`                                                             |
-| `persistReducer` / `persistStore` | `persistSource(reduxSource, opts)`                                       |
-| —                                 | `toHydrationSignal` + framework adapter (no redux-persist equivalent)    |
-| —                                 | `crossTab`, `maxAge`, `buster`, `retryWrite`, schema validation (no eq.) |
+| redux-persist                     | `@stainless-code/persist`                                                             |
+| --------------------------------- | ------------------------------------------------------------------------------------- |
+| `key`                             | `name`                                                                                |
+| `storage`                         | `storage`                                                                             |
+| `version`                         | `version`                                                                             |
+| `migrate`                         | `migrate`                                                                             |
+| `whitelist` / `blacklist`         | `partialize` (project the slice)                                                      |
+| `transforms`                      | `merge` (per-reducer in/out)                                                          |
+| `serialize` / `deserialize`       | custom `StorageCodec` via `createStorage`                                             |
+| `stateReconciler`                 | `merge` (default shallow-spread; customize)                                           |
+| `throttle`                        | `throttleMs`                                                                          |
+| `persistReducer` / `persistStore` | `persistableReducer` + `persistStore` from `./sources/redux`                          |
+| —                                 | `toHydrationSignal` + framework adapter (no redux-persist equivalent)                 |
+| —                                 | `crossTab`, `maxAge`, `buster`, `retryWrite`, schema validation (no eq.)              |
 
 ```ts
 // redux-persist
@@ -79,38 +79,25 @@ const persistedReducer = persistReducer({ key: "root", storage }, rootReducer);
 export const store = createStore(persistedReducer);
 persistStore(store);
 
-// @stainless-code/persist — plain store + PersistableSource (dispatch ↔ setState)
+// @stainless-code/persist
 import { createStore } from "redux";
+import { createJSONStorage, toHydrationSignal } from "@stainless-code/persist";
 import {
-  createJSONStorage,
-  persistSource,
-  toHydrationSignal,
-} from "@stainless-code/persist";
+  persistStore,
+  persistableReducer,
+} from "@stainless-code/persist/sources/redux";
 
-export const store = createStore(rootReducer); // rootReducer handles PERSIST_SET
-const persist = persistSource(
-  {
-    getState: () => store.getState(),
-    setState: (updater) =>
-      store.dispatch({
-        type: "PERSIST_SET",
-        payload: updater(store.getState()),
-      }),
-    subscribe: (listener) => ({
-      unsubscribe: store.subscribe(listener),
-    }),
-  },
-  {
-    name: "root",
-    storage: createJSONStorage(() => localStorage),
-  },
-);
+export const store = createStore(persistableReducer(rootReducer));
+const persist = persistStore(store, {
+  name: "root",
+  storage: createJSONStorage(() => localStorage),
+});
 export const rootHydration = toHydrationSignal(persist);
 ```
 
 ## Migrating from pinia-persist
 
-pinia-persist is a Pinia plugin; here persistence is a middleware call on any reactive source — same storage, explicit partialization, optional codec. Wrap the Pinia store's `$state` + `$subscribe` in a `PersistableSource`.
+pinia-persist is a Pinia plugin; here call `persistStore` on the store — same storage, `partialize`, optional codec.
 
 | pinia-persist                    | `@stainless-code/persist`                                                             |
 | -------------------------------- | ------------------------------------------------------------------------------------- |
@@ -120,7 +107,7 @@ pinia-persist is a Pinia plugin; here persistence is a middleware call on any re
 | `serializer`                     | custom `StorageCodec` or default `jsonCodec` via `createStorage`                      |
 | `beforeHydrate` / `afterHydrate` | `onRehydrateStorage`                                                                  |
 | `debug`                          | `onError`                                                                             |
-| `pinia.use(plugin)`              | `persistSource(piniaSource, opts)`                                                    |
+| `pinia.use(plugin)`              | `persistStore(store, opts)` from `./sources/pinia`                                    |
 | —                                | `toHydrationSignal` + framework adapter (no equivalent)                               |
 | —                                | `crossTab`, `migrate`, `maxAge`, `buster`, `throttleMs`, `retryWrite` (no equivalent) |
 
@@ -136,33 +123,19 @@ export const usePrefsStore = defineStore("prefs", {
   persist: { key: "prefs", paths: ["theme"] },
 });
 
-// @stainless-code/persist — wrap $state / $subscribe
+// @stainless-code/persist
 import { defineStore } from "pinia";
-import {
-  createJSONStorage,
-  persistSource,
-  toHydrationSignal,
-} from "@stainless-code/persist";
+import { createJSONStorage, toHydrationSignal } from "@stainless-code/persist";
+import { persistStore } from "@stainless-code/persist/sources/pinia";
 
 export const usePrefsStore = defineStore("prefs", {
   state: () => ({ theme: "light", draft: "" }),
 });
 const prefsStore = usePrefsStore();
-const persist = persistSource(
-  {
-    getState: () => prefsStore.$state,
-    setState: (updater) => {
-      prefsStore.$patch(updater(prefsStore.$state));
-    },
-    subscribe: (listener) => ({
-      unsubscribe: prefsStore.$subscribe(() => listener()),
-    }),
-  },
-  {
-    name: "prefs",
-    storage: createJSONStorage(() => localStorage),
-    partialize: (s) => ({ theme: s.theme }),
-  },
-);
+const persist = persistStore(prefsStore, {
+  name: "prefs",
+  storage: createJSONStorage(() => localStorage),
+  partialize: (s) => ({ theme: s.theme }),
+});
 export const prefsHydration = toHydrationSignal(persist);
 ```

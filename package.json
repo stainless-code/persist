@@ -18,10 +18,12 @@
     "mmkv",
     "mobx",
     "persistence",
+    "pinia",
     "preact",
     "react",
     "react-native",
     "reactive",
+    "redux",
     "seroval",
     "solid",
     "state-management",
@@ -120,6 +122,14 @@
       "types": "./dist/sources/mobx.d.mts",
       "import": "./dist/sources/mobx.mjs"
     },
+    "./sources/pinia": {
+      "types": "./dist/sources/pinia.d.mts",
+      "import": "./dist/sources/pinia.mjs"
+    },
+    "./sources/redux": {
+      "types": "./dist/sources/redux.d.mts",
+      "import": "./dist/sources/redux.mjs"
+    },
     "./frameworks/react": {
       "types": "./dist/frameworks/react.d.mts",
       "import": "./dist/frameworks/react.mjs"
@@ -195,6 +205,7 @@
     "@changesets/changelog-github": "0.7.0",
     "@changesets/cli": "2.31.0",
     "@react-native-async-storage/async-storage": "3.1.1",
+    "@reduxjs/toolkit": "2.11.2",
     "@size-limit/preset-small-lib": "12.1.0",
     "@stainless-code/codemap": "0.11.1",
     "@tanstack/intent": "0.3.5",
@@ -216,11 +227,13 @@
     "mobx": "6.16.1",
     "oxfmt": "0.57.0",
     "oxlint": "1.72.0",
+    "pinia": "3.0.4",
     "preact": "10.29.4",
     "publint": "0.3.21",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "react-native-mmkv": "4.3.2",
+    "redux": "5.0.1",
     "seroval": "1.5.4",
     "size-limit": "12.1.0",
     "solid-js": "1.9.14",
@@ -244,9 +257,11 @@
     "idb-keyval": ">=4.0.0",
     "jotai": ">=2.0.0",
     "mobx": ">=6.0.0",
+    "pinia": ">=2.0.0",
     "preact": ">=10.19.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-native-mmkv": ">=4.0.0",
+    "redux": ">=5.0.0",
     "seroval": ">=1.0.0",
     "solid-js": ">=1.6.0",
     "svelte": ">=3.0.0",
@@ -305,6 +320,12 @@
       "optional": true
     },
     "mobx": {
+      "optional": true
+    },
+    "pinia": {
+      "optional": true
+    },
+    "redux": {
       "optional": true
     }
   },

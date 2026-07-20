@@ -1,8 +1,8 @@
 ---
 title: Wrapping stores
-description: Persist zustand, jotai, valtio, mobx, or any custom PersistableSource with thin source adapters.
+description: Persist zustand, jotai, valtio, mobx, pinia, redux, or any custom PersistableSource with thin source adapters.
 search:
-  tags: ["recipe", "zustand", "jotai", "valtio", "mobx"]
+  tags: ["recipe", "zustand", "jotai", "valtio", "mobx", "pinia", "redux"]
 ---
 
 Same `getState`/`setState`/`subscribe` shape → same adapter name → same merge semantics, regardless of library. Naming is shape-based (`persistStore` / `persistAtom` / `persistProxy` / `persistObservable`); the subpath carries the library. Importing two same-shape adapters into one module? Alias one: `import { persistStore as persistZustand } from "@stainless-code/persist/sources/zustand"`. Escape hatch: pass a custom `PersistableSource` to `persistSource` directly.
@@ -71,6 +71,41 @@ const persist = persistObservable(prefs, {
 ```
 
 Or pass a custom `PersistableSource` to `persistSource` directly — the adapter is a thin wrapper over `getState`/`setState`/`subscribe`.
+
+## pinia
+
+```ts
+import { defineStore } from "pinia";
+import { createJSONStorage } from "@stainless-code/persist";
+import { persistStore } from "@stainless-code/persist/sources/pinia";
+
+const usePrefs = defineStore("prefs", {
+  state: () => ({ theme: "light" as const }),
+});
+const persist = persistStore(usePrefs(), {
+  name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+```
+
+## redux
+
+Wrap the root reducer with `persistableReducer` (not each slice) so hydrate can replace state. Alias if you also import redux-persist's `persistStore`.
+
+```ts
+import { createStore } from "redux";
+import { createJSONStorage } from "@stainless-code/persist";
+import {
+  persistStore,
+  persistableReducer,
+} from "@stainless-code/persist/sources/redux";
+
+const store = createStore(persistableReducer(rootReducer));
+const persist = persistStore(store, {
+  name: "app:root:v1",
+  storage: createJSONStorage(() => localStorage),
+});
+```
 
 ## Any other store
 
