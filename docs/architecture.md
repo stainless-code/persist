@@ -39,6 +39,7 @@ Persistence is bound to a structural `PersistableSource` (`getState` / `setState
 | `@stainless-code/persist/frameworks/react`        | `adapters/frameworks/react`                 | `react`                                       |
 | `@stainless-code/persist/frameworks/solid`        | `adapters/frameworks/solid`                 | `solid-js`                                    |
 | `@stainless-code/persist/frameworks/vue`          | `adapters/frameworks/vue`                   | `vue`                                         |
+| `@stainless-code/persist/frameworks/lit`          | `adapters/frameworks/lit`                   | `lit` (>=3)                                   |
 | `@stainless-code/persist/frameworks/svelte`       | `adapters/frameworks/svelte`                | `svelte` (>=5.7 runes)                        |
 | `@stainless-code/persist/frameworks/svelte-store` | `adapters/frameworks/svelte-store`          | `svelte` (>=3 store)                          |
 | `@stainless-code/persist/frameworks/angular`      | `adapters/frameworks/angular`               | `@angular/core` (>=17)                        |
@@ -56,13 +57,13 @@ No barrel — importing a subpath is the dependency opt-in. Each subpath entry o
   - `backends/` — `StateStorage` adapters + wrappers (idb, async-storage, mmkv, secure-store, encrypted, compressed, node-fs)
   - `transport/` — `CrossTabEventTarget` adapters (crosstab — BroadcastChannel bridge)
   - `sources/` — `PersistableSource` adapters (tanstack-store, zustand, jotai, valtio, mobx, pinia, redux). Shape-named, not library-named — same persistable shape → same name → same merge semantics; the subpath carries the library. Alias when importing two same-shape adapters into one module.
-  - `frameworks/` — `HydrationSignal` framework adapters (react, solid, vue, svelte, svelte-store, angular, preact)
+  - `frameworks/` — `HydrationSignal` framework adapters (react, solid, vue, lit, svelte, svelte-store, angular, preact)
 
 A per-entry self-check test pins the invariant: every adapter's relative imports resolve into `core/` (no cross-adapter coupling). `dist/` mirrors `src/` (`dist/<seam>/<name>.mjs` via tsdown's record-form `entry` keyed by `<seam>/<name>`) — src folder → tsdown key → dist path → subpath, all 1:1.
 
 ## Hydration lifecycle
 
-`persistSource` hydrates on create (skip with `skipHydration`; `rehydrate()` is awaitable), subscribe-writes on every `setState` (gated until hydrated; optional trailing `throttleMs`), and tears down via `destroy()`. The hydration signal (`HydrationSignal` from `hydration`) is observed from outside the store — framework adapters mount it into their external-store mechanism (React `useSyncExternalStore` via `./frameworks/react`, Solid `from` via `./frameworks/solid`, Vue `shallowRef` + `onScopeDispose` via `./frameworks/vue`, Svelte runes `createSubscriber` via `./frameworks/svelte` / stores `readable` via `./frameworks/svelte-store`, Angular `signal` + `effect` via `./frameworks/angular`, Preact `useSyncExternalStore` via `preact/compat` via `./frameworks/preact`) without coupling to the store's read path. SSR policy: render `hydrated = true` on the server; `null` signal = no persistence = hydrated.
+`persistSource` hydrates on create (skip with `skipHydration`; `rehydrate()` is awaitable), subscribe-writes on every `setState` (gated until hydrated; optional trailing `throttleMs`), and tears down via `destroy()`. The hydration signal (`HydrationSignal` from `hydration`) is observed from outside the store — framework adapters mount it into their external-store mechanism (React `useSyncExternalStore` via `./frameworks/react`, Solid `from` via `./frameworks/solid`, Vue `shallowRef` + `onScopeDispose` via `./frameworks/vue`, Lit `ReactiveController` via `./frameworks/lit`, Svelte runes `createSubscriber` via `./frameworks/svelte` / stores `readable` via `./frameworks/svelte-store`, Angular `signal` + `effect` via `./frameworks/angular`, Preact `useSyncExternalStore` via `preact/compat` via `./frameworks/preact`) without coupling to the store's read path. SSR policy: render `hydrated = true` on the server; `null` signal = no persistence = hydrated.
 
 ## Sync vs async
 

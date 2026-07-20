@@ -25,6 +25,7 @@ export default defineMeta({
     "adapters-frameworks-react",
     "adapters-frameworks-solid",
     "adapters-frameworks-vue",
+    "adapters-frameworks-lit",
     "adapters-frameworks-svelte",
     "adapters-frameworks-svelte-store",
     "adapters-frameworks-angular",

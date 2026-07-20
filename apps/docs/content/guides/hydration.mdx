@@ -29,6 +29,13 @@ const hydrated = useHydrated(prefsHydration);
 ```
 
 ```ts
+// Lit — ReactiveController
+import { HydrationController } from "@stainless-code/persist/frameworks/lit";
+// in LitElement: this.#hydration = new HydrationController(this, prefsHydration);
+// gate: this.#hydration.hydrated
+```
+
+```ts
 // Svelte 5 runes
 import { hydratedRune } from "@stainless-code/persist/frameworks/svelte";
 const hydrated = hydratedRune(prefsHydration);

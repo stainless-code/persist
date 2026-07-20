@@ -12,6 +12,7 @@
     "hydration",
     "indexeddb",
     "jotai",
+    "lit",
     "localstorage",
     "middleware",
     "migration",
@@ -142,6 +143,10 @@
       "types": "./dist/frameworks/vue.d.mts",
       "import": "./dist/frameworks/vue.mjs"
     },
+    "./frameworks/lit": {
+      "types": "./dist/frameworks/lit.d.mts",
+      "import": "./dist/frameworks/lit.mjs"
+    },
     "./frameworks/svelte": {
       "types": "./dist/frameworks/svelte.d.mts",
       "import": "./dist/frameworks/svelte.mjs"
@@ -224,6 +229,7 @@
     "jsdom": "29.1.1",
     "knip": "6.24.0",
     "lint-staged": "17.0.8",
+    "lit": "3.3.3",
     "mobx": "6.16.1",
     "oxfmt": "0.57.0",
     "oxlint": "1.72.0",
@@ -256,6 +262,7 @@
     "expo-secure-store": ">=12.0.0",
     "idb-keyval": ">=4.0.0",
     "jotai": ">=2.0.0",
+    "lit": ">=3.0.0",
     "mobx": ">=6.0.0",
     "pinia": ">=2.0.0",
     "preact": ">=10.19.0",
@@ -296,6 +303,9 @@
       "optional": true
     },
     "vue": {
+      "optional": true
+    },
+    "lit": {
       "optional": true
     },
     "zod": {
