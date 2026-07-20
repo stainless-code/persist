@@ -136,9 +136,17 @@
       "types": "./dist/frameworks/react.d.mts",
       "import": "./dist/frameworks/react.mjs"
     },
+    "./frameworks/preact": {
+      "types": "./dist/frameworks/preact.d.mts",
+      "import": "./dist/frameworks/preact.mjs"
+    },
     "./frameworks/solid": {
       "types": "./dist/frameworks/solid.d.mts",
       "import": "./dist/frameworks/solid.mjs"
+    },
+    "./frameworks/angular": {
+      "types": "./dist/frameworks/angular.d.mts",
+      "import": "./dist/frameworks/angular.mjs"
     },
     "./frameworks/vue": {
       "types": "./dist/frameworks/vue.d.mts",
@@ -159,14 +167,6 @@
     "./frameworks/svelte-store": {
       "types": "./dist/frameworks/svelte-store.d.mts",
       "import": "./dist/frameworks/svelte-store.mjs"
-    },
-    "./frameworks/angular": {
-      "types": "./dist/frameworks/angular.d.mts",
-      "import": "./dist/frameworks/angular.mjs"
-    },
-    "./frameworks/preact": {
-      "types": "./dist/frameworks/preact.d.mts",
-      "import": "./dist/frameworks/preact.mjs"
     }
   },
   "publishConfig": {

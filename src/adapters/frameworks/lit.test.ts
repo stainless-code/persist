@@ -58,32 +58,37 @@ describe("HydrationController (lit)", () => {
     expect(host.requestUpdate).not.toHaveBeenCalled();
   });
 
-  it("requestUpdate on signal flip and hydrated tracks isHydrated()", () => {
+  it("requestUpdate on connect and on signal flip; hydrated tracks isHydrated()", () => {
     const signal = createFakeSignal();
     const host = createFakeHost();
     const controller = new HydrationController(host, signal);
     expect(controller.hydrated).toBe(false);
     controller.hostConnected();
     expect(signal.listenerCount()).toBe(1);
-    expect(host.requestUpdate).not.toHaveBeenCalled();
+    expect(host.requestUpdate).toHaveBeenCalledTimes(1);
 
     signal.set(true);
-    expect(host.requestUpdate).toHaveBeenCalledTimes(1);
+    expect(host.requestUpdate).toHaveBeenCalledTimes(2);
     expect(controller.hydrated).toBe(true);
 
     signal.set(false);
-    expect(host.requestUpdate).toHaveBeenCalledTimes(2);
+    expect(host.requestUpdate).toHaveBeenCalledTimes(3);
     expect(controller.hydrated).toBe(false);
   });
 
-  it("requestUpdate on connect when already hydrated", () => {
+  it("requestUpdate on reconnect after rehydrate flips to false while detached", () => {
     const signal = createFakeSignal();
     signal.set(true);
     const host = createFakeHost();
     const controller = new HydrationController(host, signal);
     controller.hostConnected();
-    expect(controller.hydrated).toBe(true);
     expect(host.requestUpdate).toHaveBeenCalledTimes(1);
+    controller.hostDisconnected();
+
+    signal.set(false);
+    controller.hostConnected();
+    expect(controller.hydrated).toBe(false);
+    expect(host.requestUpdate).toHaveBeenCalledTimes(2);
   });
 
   it("hostDisconnected unsubscribes so further flips do not requestUpdate", () => {
@@ -92,12 +97,13 @@ describe("HydrationController (lit)", () => {
     const controller = new HydrationController(host, signal);
     controller.hostConnected();
     expect(signal.listenerCount()).toBe(1);
+    expect(host.requestUpdate).toHaveBeenCalledTimes(1);
 
     controller.hostDisconnected();
     expect(signal.listenerCount()).toBe(0);
 
     signal.set(true);
-    expect(host.requestUpdate).not.toHaveBeenCalled();
+    expect(host.requestUpdate).toHaveBeenCalledTimes(1);
     expect(controller.hydrated).toBe(true);
   });
 });

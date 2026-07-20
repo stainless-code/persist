@@ -57,10 +57,17 @@ describe("useHydrated / persist (alpine)", () => {
     expect(useHydrated(undefined).hydrated).toBe(true);
   });
 
-  it("signal flip updates bag.hydrated via mock Alpine.reactive", () => {
-    persist(createMockAlpine());
+  it("signal flip updates bag.hydrated and calls Alpine.reactive", () => {
+    const alpine = createMockAlpine();
+    const reactiveCalls: object[] = [];
+    alpine.reactive = (o) => {
+      reactiveCalls.push(o);
+      return o;
+    };
+    persist(alpine);
     const signal = createFakeSignal();
     const bag = useHydrated(signal);
+    expect(reactiveCalls).toHaveLength(1);
     expect(bag.hydrated).toBe(false);
     expect(signal.listenerCount()).toBe(1);
 

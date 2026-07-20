@@ -10,7 +10,7 @@ Actionable items not yet shipped from the docs-adapters ROI work. When an item s
 - **Codec** — `StorageCodec<S, TRaw>`: pure `encode` / `decode` between the `StorageValue<S>` envelope and the backend's wire type. Sync by design — async transforms (encryption, compression) are backend **wrappers**, not codecs.
 - **Source** — `PersistableSource<TState>`: `getState` / `setState` / `subscribe`. Structural, store-agnostic.
 
-Framework adapters mount `HydrationSignal` into each framework's external-store mechanism (React `useSyncExternalStore`, Solid `from`, Vue `shallowRef` + `onScopeDispose`, Svelte runes `createSubscriber` / stores `readable`, Angular `signal` + `effect`, Preact `useSyncExternalStore` via `preact/compat`).
+Framework adapters mount `HydrationSignal` into each framework's external-store mechanism (React / Preact `useSyncExternalStore`, Solid `from`, Angular `signal` + `effect`, Vue `shallowRef` + `onScopeDispose`, Lit `ReactiveController`, Alpine reactive bag + `$hydrated`, Svelte runes `createSubscriber` / stores `readable`).
 
 **Layout:** `src/core/` (zero-dep engine) + `src/adapters/<seam>/` (`codecs/`, `backends/`, `transport/`, `sources/`, `frameworks/`). One subpath per optional peer, mirroring `src/` → `dist/` → `./<seam>/<name>` 1:1. No barrel — importing a subpath is the dependency opt-in. Each adapter imports only from `core/` (enforced by a per-entry self-check test). Full seam model + entry-point table + test matrix: [`docs/architecture.md`](../architecture.md). Consumer docs: [https://stainless-code.com/persist](https://stainless-code.com/persist) (`apps/docs`); npm landing: root [`README.md`](../../README.md).
 
