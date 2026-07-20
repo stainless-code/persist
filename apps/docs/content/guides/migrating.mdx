@@ -91,7 +91,9 @@ const reduxSource = {
   getState: () => store.getState(),
   setState: (updater) =>
     store.dispatch({ type: "PERSIST_SET", payload: updater(store.getState()) }),
-  subscribe: (listener) => store.subscribe(listener),
+  subscribe: (listener) => ({
+    unsubscribe: store.subscribe(listener),
+  }),
 };
 const persist = persistSource(reduxSource, {
   name: "root",
@@ -142,7 +144,9 @@ const piniaSource = {
   setState: (updater) => {
     piniaStore.$state = updater(piniaStore.$state);
   },
-  subscribe: (listener) => piniaStore.$subscribe(() => listener()),
+  subscribe: (listener) => ({
+    unsubscribe: piniaStore.$subscribe(() => listener()),
+  }),
 };
 const persist = persistSource(piniaSource, {
   name: "prefs",

@@ -81,7 +81,9 @@ const persist = persistSource(
   {
     getState: () => myStore.getState(),
     setState: (updater) => myStore.setState(updater),
-    subscribe: (listener) => myStore.subscribe(() => listener()),
+    subscribe: (listener) => ({
+      unsubscribe: myStore.subscribe(() => listener()),
+    }),
   },
   {
     name: "app:custom:v1",

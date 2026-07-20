@@ -1,7 +1,11 @@
 ---
 import Icon from "blume/components/Icon.astro";
+import { defaultSourceId, sourceSnippets } from "./source-snippets.ts";
 
-const installCommand = "bun add @stainless-code/persist";
+// First paint — Hero's click handler swaps the command later.
+const installCommand =
+  sourceSnippets.find((s) => s.id === defaultSourceId)?.installCommand ??
+  "bun add @stainless-code/persist";
 ---
 
 <div
