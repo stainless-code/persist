@@ -110,7 +110,7 @@ export const rootHydration = toHydrationSignal(persist);
 
 ## Migrating from pinia-persist
 
-pinia-persist is a Pinia plugin; here persistence is a middleware call on any reactive source — same storage, explicit partialization, optional codec. Wrap the Pinia store's `$state` + `$subscribe` in a `PersistableSource`.
+pinia-persist is a Pinia plugin; here persistence is a call-site middleware — same storage, explicit partialization, optional codec. Use first-party `persistStore` from `@stainless-code/persist/sources/pinia`.
 
 | pinia-persist                    | `@stainless-code/persist`                                                             |
 | -------------------------------- | ------------------------------------------------------------------------------------- |
@@ -120,7 +120,7 @@ pinia-persist is a Pinia plugin; here persistence is a middleware call on any re
 | `serializer`                     | custom `StorageCodec` or default `jsonCodec` via `createStorage`                      |
 | `beforeHydrate` / `afterHydrate` | `onRehydrateStorage`                                                                  |
 | `debug`                          | `onError`                                                                             |
-| `pinia.use(plugin)`              | `persistSource(piniaSource, opts)`                                                    |
+| `pinia.use(plugin)`              | `persistStore(store, opts)` from `./sources/pinia`                                    |
 | —                                | `toHydrationSignal` + framework adapter (no equivalent)                               |
 | —                                | `crossTab`, `migrate`, `maxAge`, `buster`, `throttleMs`, `retryWrite` (no equivalent) |
 
@@ -136,33 +136,19 @@ export const usePrefsStore = defineStore("prefs", {
   persist: { key: "prefs", paths: ["theme"] },
 });
 
-// @stainless-code/persist — wrap $state / $subscribe
+// @stainless-code/persist — first-party Pinia source adapter
 import { defineStore } from "pinia";
-import {
-  createJSONStorage,
-  persistSource,
-  toHydrationSignal,
-} from "@stainless-code/persist";
+import { createJSONStorage, toHydrationSignal } from "@stainless-code/persist";
+import { persistStore } from "@stainless-code/persist/sources/pinia";
 
 export const usePrefsStore = defineStore("prefs", {
   state: () => ({ theme: "light", draft: "" }),
 });
 const prefsStore = usePrefsStore();
-const persist = persistSource(
-  {
-    getState: () => prefsStore.$state,
-    setState: (updater) => {
-      prefsStore.$patch(updater(prefsStore.$state));
-    },
-    subscribe: (listener) => ({
-      unsubscribe: prefsStore.$subscribe(() => listener()),
-    }),
-  },
-  {
-    name: "prefs",
-    storage: createJSONStorage(() => localStorage),
-    partialize: (s) => ({ theme: s.theme }),
-  },
-);
+const persist = persistStore(prefsStore, {
+  name: "prefs",
+  storage: createJSONStorage(() => localStorage),
+  partialize: (s) => ({ theme: s.theme }),
+});
 export const prefsHydration = toHydrationSignal(persist);
 ```

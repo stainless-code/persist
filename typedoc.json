@@ -18,6 +18,7 @@
     "src/adapters/sources/jotai.ts",
     "src/adapters/sources/valtio.ts",
     "src/adapters/sources/mobx.ts",
+    "src/adapters/sources/pinia.ts",
     "src/adapters/frameworks/react.ts",
     "src/adapters/frameworks/solid.ts",
     "src/adapters/frameworks/vue.ts",

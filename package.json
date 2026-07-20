@@ -18,6 +18,7 @@
     "mmkv",
     "mobx",
     "persistence",
+    "pinia",
     "preact",
     "react",
     "react-native",
@@ -120,6 +121,10 @@
       "types": "./dist/sources/mobx.d.mts",
       "import": "./dist/sources/mobx.mjs"
     },
+    "./sources/pinia": {
+      "types": "./dist/sources/pinia.d.mts",
+      "import": "./dist/sources/pinia.mjs"
+    },
     "./frameworks/react": {
       "types": "./dist/frameworks/react.d.mts",
       "import": "./dist/frameworks/react.mjs"
@@ -216,6 +221,7 @@
     "mobx": "6.16.1",
     "oxfmt": "0.57.0",
     "oxlint": "1.72.0",
+    "pinia": "3.0.4",
     "preact": "10.29.4",
     "publint": "0.3.21",
     "react": "19.2.7",
@@ -244,6 +250,7 @@
     "idb-keyval": ">=4.0.0",
     "jotai": ">=2.0.0",
     "mobx": ">=6.0.0",
+    "pinia": ">=2.0.0",
     "preact": ">=10.19.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-native-mmkv": ">=4.0.0",
@@ -305,6 +312,9 @@
       "optional": true
     },
     "mobx": {
+      "optional": true
+    },
+    "pinia": {
       "optional": true
     }
   },

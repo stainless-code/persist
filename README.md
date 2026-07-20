@@ -2,7 +2,7 @@
 
 **Any store, any storage, one middleware — no flash.**
 
-Hydration-aware persistence for any reactive store — no hydrate flash, no SSR mismatch. Store-agnostic via a structural `PersistableSource` (TanStack Store, zustand, jotai, valtio, mobx, or a hand-rolled atom); three composable seams (backend × codec × source) so you swap storage, serialization, or framework without rewriting. A first-class hydration signal gates UI on async backends; opt-in cross-tab sync, versioned migrations, encrypted/compressed backends, and retry-on-quota. Framework adapters for React, Solid, Vue, Svelte, Angular, and Preact.
+Hydration-aware persistence for any reactive store — no hydrate flash, no SSR mismatch. Store-agnostic via a structural `PersistableSource` (TanStack Store, zustand, jotai, valtio, mobx, pinia, or a hand-rolled atom); three composable seams (backend × codec × source) so you swap storage, serialization, or framework without rewriting. A first-class hydration signal gates UI on async backends; opt-in cross-tab sync, versioned migrations, encrypted/compressed backends, and retry-on-quota. Framework adapters for React, Solid, Vue, Svelte, Angular, and Preact.
 
 [![core size](https://img.shields.io/size-limit/label/gzip/.size-limit.json/core/stainless-code/persist)](https://github.com/stainless-code/persist/blob/main/.size-limit.json)
 
