@@ -1,25 +1,37 @@
 ---
+import CodeBlock from "blume/components/content/CodeBlock.astro";
 import Icon from "blume/components/Icon.astro";
 import { defaultSourceId, sourceSnippets } from "./source-snippets.ts";
 
-// First paint — Hero's click handler swaps the command later.
+// First paint — Hero's click handler swaps the highlighted command later.
 const installCommand =
   sourceSnippets.find((s) => s.id === defaultSourceId)?.installCommand ??
   "bun add @stainless-code/persist";
 ---
 
 <div
-  class="mx-auto flex w-fit max-w-full items-center gap-3 rounded-blume border border-border bg-background py-2 pr-2 pl-4"
+  class="mx-auto flex w-fit max-w-full items-center gap-2 rounded-blume border border-border bg-background py-1.5 pr-2 pl-3"
   data-blume-install-box
 >
   <span
     aria-hidden="true"
     class="select-none font-mono text-muted-foreground text-sm">$</span
   >
-  <code
-    class="flex-1 overflow-x-auto whitespace-nowrap text-left font-mono text-foreground text-sm"
-    >{installCommand}</code
+  {/* Strip CodeBlock chrome — chip owns the frame; keep Shiki tokens. */}
+  <div
+    class="min-w-0 flex-1 text-left [&_.prose]:contents [&_pre]:!m-0 [&_pre]:!border-0 [&_pre]:!bg-transparent [&_pre]:!p-0 [&_pre]:text-sm [&_pre_code]:!p-0"
   >
+    {
+      sourceSnippets.map((snippet) => (
+        <div
+          class={snippet.id === defaultSourceId ? undefined : "hidden"}
+          data-install-cmd={snippet.id}
+        >
+          <CodeBlock code={snippet.installCommand} lang="bash" />
+        </div>
+      ))
+    }
+  </div>
   <button
     aria-label="Copy install command"
     class="inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

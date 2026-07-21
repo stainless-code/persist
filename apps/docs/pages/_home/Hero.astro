@@ -173,9 +173,14 @@ const pillMuted =
       });
 
       if (installBox && installCommand) {
-        const codeEl = installBox.querySelector("code");
+        installBox.querySelectorAll("[data-install-cmd]").forEach((block) => {
+          if (block.dataset.installCmd === source) {
+            block.classList.remove("hidden");
+          } else {
+            block.classList.add("hidden");
+          }
+        });
         const copyBtn = installBox.querySelector("[data-blume-copy-install]");
-        if (codeEl) codeEl.textContent = installCommand;
         if (copyBtn) copyBtn.dataset.command = installCommand;
       }
     });
