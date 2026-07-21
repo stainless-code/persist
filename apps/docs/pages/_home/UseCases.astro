@@ -77,6 +77,15 @@ const thClass =
 const tdClass = "border-border border-b px-4 py-3 text-sm";
 const leadClass = `${tdClass} text-foreground`;
 const mutedClass = `${tdClass} text-muted-foreground`;
+/** Outside `.prose` — Blume chips don't apply; style explicitly. */
+const codeChip =
+  "rounded bg-muted px-1 font-mono text-xs text-foreground";
+const inlineParts = (text: string) =>
+  text.split(/(`[^`]+`)/u).map((part) =>
+    part.startsWith("`") && part.endsWith("`")
+      ? { kind: "code" as const, value: part.slice(1, -1) }
+      : { kind: "text" as const, value: part },
+  );
 ---
 
 <section>
@@ -111,7 +120,13 @@ const mutedClass = `${tdClass} text-muted-foreground`;
             <tr>
               <td class={leadClass}>{row.useCase}</td>
               <td class={mutedClass}>
-                <code class="text-foreground text-xs">{row.involves}</code>
+                {inlineParts(row.involves).map((part) =>
+                  part.kind === "code" ? (
+                    <code class={codeChip}>{part.value}</code>
+                  ) : (
+                    part.value
+                  ),
+                )}
               </td>
               <td class={tdClass}>
                 <span
@@ -150,7 +165,15 @@ const mutedClass = `${tdClass} text-muted-foreground`;
         {
           skip.map((row) => (
             <tr>
-              <td class={leadClass}>{row.useCase}</td>
+              <td class={leadClass}>
+                {inlineParts(row.useCase).map((part) =>
+                  part.kind === "code" ? (
+                    <code class={codeChip}>{part.value}</code>
+                  ) : (
+                    part.value
+                  ),
+                )}
+              </td>
               <td class={mutedClass}>{row.fit}</td>
             </tr>
           ))

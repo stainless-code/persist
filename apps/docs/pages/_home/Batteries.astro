@@ -2,6 +2,10 @@
 import Card from "blume/components/content/Card.astro";
 import CardGroup from "blume/components/content/CardGroup.astro";
 import { contentHref } from "blume/components/content/base-href.ts";
+
+/** Card is `not-prose` — Blume chips don't apply; style explicitly. */
+const codeChip =
+  "rounded bg-muted px-1 font-mono text-xs text-foreground";
 ---
 
 <section>
@@ -24,8 +28,9 @@ import { contentHref } from "blume/components/content/base-href.ts";
         icon="layers"
         title="Compose backend × codec × source"
       >
-        <code>createStorage</code> + <code>persistSource</code> — swap IndexedDB
-        or seroval without touching the store.
+        <code class={codeChip}>createStorage</code> +{" "}
+        <code class={codeChip}>persistSource</code> — swap IndexedDB or seroval
+        without touching the store.
       </Card>
       <Card
         arrow
@@ -33,8 +38,8 @@ import { contentHref } from "blume/components/content/base-href.ts";
         icon="droplets"
         title="Gate UI until hydration settles"
       >
-        <code>toHydrationSignal</code> + <code>useHydrated</code> — no flash on
-        async backends.
+        <code class={codeChip}>toHydrationSignal</code> +{" "}
+        <code class={codeChip}>useHydrated</code> — no flash on async backends.
       </Card>
       <Card
         arrow
@@ -42,8 +47,9 @@ import { contentHref } from "blume/components/content/base-href.ts";
         icon="git-branch"
         title="Migrate versioned payloads"
       >
-        <code>version</code> + <code>migrate</code> /
-        <code>createMigrationChain</code> for long-lived keys.
+        <code class={codeChip}>version</code> +{" "}
+        <code class={codeChip}>migrate</code> /{" "}
+        <code class={codeChip}>createMigrationChain</code> for long-lived keys.
       </Card>
       <Card
         arrow
@@ -51,8 +57,8 @@ import { contentHref } from "blume/components/content/base-href.ts";
         icon="radio"
         title="Sync tabs without custom listeners"
       >
-        Built-in <code>crossTab</code>; BroadcastChannel over IDB via
-        <code>./transport/crosstab</code>.
+        Built-in <code class={codeChip}>crossTab</code>; BroadcastChannel over
+        IDB via <code class={codeChip}>./transport/crosstab</code>.
       </Card>
       <Card
         arrow
@@ -60,8 +66,8 @@ import { contentHref } from "blume/components/content/base-href.ts";
         icon="shield"
         title="Survive quota without clobbering"
       >
-        <code>retryWrite</code> shrinks-or-gives-up with a write-generation
-        guard.
+        <code class={codeChip}>retryWrite</code> shrinks-or-gives-up with a
+        write-generation guard.
       </Card>
       <Card
         arrow
@@ -69,8 +75,8 @@ import { contentHref } from "blume/components/content/base-href.ts";
         icon="lock"
         title="Encrypt or compress the wire"
       >
-        Stack <code>./backends/encrypted</code> and
-        <code>./backends/compressed</code> over any storage.
+        Stack <code class={codeChip}>./backends/encrypted</code> and{" "}
+        <code class={codeChip}>./backends/compressed</code> over any storage.
       </Card>
       <Card
         arrow
@@ -78,8 +84,8 @@ import { contentHref } from "blume/components/content/base-href.ts";
         icon="braces"
         title="Validate or rich-serialize"
       >
-        <code>./codecs/zod</code> for schema checks;
-        <code>./codecs/seroval</code> for Date/Map/Set.
+        <code class={codeChip}>./codecs/zod</code> for schema checks;{" "}
+        <code class={codeChip}>./codecs/seroval</code> for Date/Map/Set.
       </Card>
       <Card
         arrow
@@ -87,8 +93,8 @@ import { contentHref } from "blume/components/content/base-href.ts";
         icon="box"
         title="Wrap any store shape"
       >
-        Shipped adapters for TanStack Store, zustand, jotai, valtio, mobx — or
-        a hand-rolled <code>PersistableSource</code>.
+        Shipped adapters for TanStack Store, zustand, jotai, valtio, mobx — or a
+        hand-rolled <code class={codeChip}>PersistableSource</code>.
       </Card>
       <Card
         arrow
@@ -96,8 +102,9 @@ import { contentHref } from "blume/components/content/base-href.ts";
         icon="puzzle"
         title="No framework in the core"
       >
-        Zero-dep engine — adapters mount <code>HydrationSignal</code> into
-        React, Preact, Solid, Angular, Vue, Lit, Alpine, Svelte.
+        Zero-dep engine — adapters mount{" "}
+        <code class={codeChip}>HydrationSignal</code> into React, Preact, Solid,
+        Angular, Vue, Lit, Alpine, Svelte.
       </Card>
     </CardGroup>
   </div>

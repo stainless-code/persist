@@ -41,6 +41,9 @@ const thClass =
   "border-border border-b px-3 py-2 text-left font-medium text-foreground text-xs sm:px-4 sm:text-sm";
 const tdClass =
   "border-border border-b px-3 py-2 text-muted-foreground text-xs sm:px-4 sm:text-sm";
+/** Outside `.prose` — Blume chips don't apply; style explicitly. */
+const codeChip =
+  "rounded bg-muted px-1 font-mono text-xs text-foreground";
 ---
 
 <section>
@@ -102,33 +105,33 @@ const tdClass =
         <tr>
           <td class={tdClass}>Wire format / validation</td>
           <td class={tdClass}
-            ><code class="text-foreground text-xs">./codecs/*</code></td
+            ><code class={codeChip}>./codecs/*</code></td
           >
         </tr>
         <tr>
           <td class={tdClass}>Durable key/value IO</td>
           <td class={tdClass}
-            ><code class="text-foreground text-xs">./backends/*</code> · core
-            factories</td
+            ><code class={codeChip}>./backends/*</code> · core factories</td
           >
         </tr>
         <tr>
-          <td class={tdClass}>Store shape → PersistableSource</td>
           <td class={tdClass}
-            ><code class="text-foreground text-xs">./sources/*</code></td
+            >Store shape → <code class={codeChip}>PersistableSource</code></td
+          >
+          <td class={tdClass}
+            ><code class={codeChip}>./sources/*</code></td
           >
         </tr>
         <tr>
           <td class={tdClass}>Hydration gate in UI</td>
           <td class={tdClass}
-            ><code class="text-foreground text-xs">./frameworks/*</code></td
+            ><code class={codeChip}>./frameworks/*</code></td
           >
         </tr>
         <tr>
           <td class={tdClass}>Multi-tab over async backends</td>
           <td class={tdClass}
-            ><code class="text-foreground text-xs">./transport/crosstab</code
-            ></td
+            ><code class={codeChip}>./transport/crosstab</code></td
           >
         </tr>
       </tbody>
