@@ -8,7 +8,11 @@ import type {
   StorageCodec,
   StorageValue,
 } from "../../core/persist-core";
-import { createStorage, jsonCodec } from "../../core/persist-core";
+import {
+  createStorage,
+  jsonCodec,
+  PersistDecodeRethrowError,
+} from "../../core/persist-core";
 
 /**
  * Minimal vendored Standard Schema v1 types.
@@ -64,7 +68,9 @@ const ASYNC_VALIDATE_SYNC_LANE_MESSAGE =
 
 function isAsyncValidateSyncLaneError(error: unknown): boolean {
   return (
-    error instanceof Error && error.message === ASYNC_VALIDATE_SYNC_LANE_MESSAGE
+    error instanceof PersistDecodeRethrowError ||
+    (error instanceof Error &&
+      error.message === ASYNC_VALIDATE_SYNC_LANE_MESSAGE)
   );
 }
 
@@ -76,7 +82,8 @@ function validateSync<Output>(
   if (result instanceof Promise) {
     // Contain abandoned rejections — same pattern as persist-core write paths.
     void result.catch(() => {});
-    throw new Error(ASYNC_VALIDATE_SYNC_LANE_MESSAGE);
+    // PersistDecodeRethrowError — createStorage must not clearCorrupt this.
+    throw new PersistDecodeRethrowError(ASYNC_VALIDATE_SYNC_LANE_MESSAGE);
   }
   if (result.issues) {
     throw new Error(
@@ -102,9 +109,8 @@ async function validateAsync<Output>(
 /**
  * Sync `~standard` codec for `state` only. Encode persists schema `value`
  * (defaults/transforms); throws → `onError` `"write"`. Decode failures →
- * corrupt path (`null` / `clearCorruptOnFailure`). Async validate throws —
- * under `createStorage` + `clearCorruptOnFailure` that throw is treated as
- * corrupt (prefer `withStandardSchema`, which rethrows wrong-lane errors).
+ * corrupt path (`null` / `clearCorruptOnFailure`). Async validate throws
+ * {@link PersistDecodeRethrowError} (not clearCorrupt under `createStorage`).
  * Envelope `version` / `timestamp` / `buster` are not schema-checked.
  */
 export function standardSchemaCodec<Output>(

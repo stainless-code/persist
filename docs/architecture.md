@@ -68,7 +68,7 @@ A per-entry self-check test pins the invariant: every adapter's relative imports
 
 ## Sync vs async
 
-One API. Sync backends (localStorage) settle hydration before first paint; async backends (IndexedDB) ride the same `getItem` Promise branch — `getItem` returning a native `Promise` switches the read path to async (deliberately `instanceof Promise`, not thenable duck-typing, so a stored value carrying a `then` property is never mistaken for a pending read). Gate UI on `useHydrated` for async backends. Standard Schema also offers `PersistStorage` wraps (`withStandardSchema` / `withStandardSchemaAsync`) for sync vs async `~standard` lanes — JSON factories are sugar over those wraps.
+One API. Sync backends (localStorage) settle hydration before first paint; async backends (IndexedDB) ride the same `getItem` Promise branch (`instanceof Promise`, not thenable duck-typing — a stored value with `then` is never a pending read). Gate UI on `useHydrated` for async backends. Standard Schema: `withStandardSchema` / `withStandardSchemaAsync` for sync vs async `~standard`; JSON factories are sugar. `PersistDecodeRethrowError` from `decode` is rethrown by `createStorage` (not clearCorrupt).
 
 ## Beyond Query-persister parity
 

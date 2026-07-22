@@ -591,6 +591,23 @@ describe("standardSchemaCodec direct seam", () => {
     const stored = await storage.getItem("direct-standard-schema");
     expect(stored?.state.count).toBe(7);
   });
+
+  it("async schema + clearCorruptOnFailure throws and does not clear the key", () => {
+    memory.setItem("keep", JSON.stringify({ state: { count: 1 }, version: 0 }));
+    const schema = fakeSchema<{ count: number }>({
+      validate: async (input) => ({ value: input as { count: number } }),
+    });
+    const storage = createStorage<{ count: number }>(
+      () => memory,
+      standardSchemaCodec(schema),
+      { clearCorruptOnFailure: true },
+    )!;
+    const asyncMessage =
+      "[@stainless-code/persist] Async Standard Schema validation is not supported — use withStandardSchemaAsync.";
+
+    expect(() => storage.getItem("keep")).toThrow(asyncMessage);
+    expect(memory.getItem("keep")).not.toBeNull();
+  });
 });
 
 describe("standard-schema dependency isolation", () => {

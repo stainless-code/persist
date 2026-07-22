@@ -38,7 +38,7 @@ const prefs = z.object({ theme: z.enum(["light", "dark"]) });
 
 jsonCodec(); // core default — plain JSON
 serovalCodec(); // Set / Map / Date / cycles, inert JSON-shaped output
-standardSchemaCodec(prefs); // schema-gated (~standard) — invalid state never writes; corrupt reads discard
+standardSchemaCodec(prefs); // schema-gated (~standard) — invalid writes throw; corrupt reads discard via createStorage
 // or wrap after createStorage: withStandardSchema(storage, prefs) / withStandardSchemaAsync (Yup / async ~standard)
 identityCodec(); // structured-clone backends only — zero serialization
 // custom — any pair of pure functions:
