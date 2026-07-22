@@ -32,6 +32,7 @@
     "store",
     "svelte",
     "tanstack",
+    "tanstack-intent",
     "tanstack-store",
     "typescript",
     "valtio",

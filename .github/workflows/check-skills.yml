@@ -37,7 +37,7 @@ jobs:
           node-version: 20
 
       - name: Install intent
-        run: npm install -g @tanstack/intent@0.3.4
+        run: npm install -g @tanstack/intent@0.3.5
 
       - name: Validate skills
         run: intent validate --github-summary
@@ -61,7 +61,7 @@ jobs:
           node-version: 20
 
       - name: Install intent
-        run: npm install -g @tanstack/intent@0.3.4
+        run: npm install -g @tanstack/intent@0.3.5
 
       - name: Check skills
         id: stale

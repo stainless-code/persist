@@ -1,14 +1,16 @@
 ---
-name: tanstack-store
+name: persist-tanstack-store
 description: Persist a @tanstack/store Store or writable Atom with @stainless-code/persist (persistStore/persistAtom). Use when persisting TanStack Store state to localStorage/sessionStorage/IndexedDB, gating UI on hydration for an async backend, or deciding persistStore vs persistSource.
 license: MIT
 metadata:
+  type: composition
   library: "@stainless-code/persist"
   library_version: "0.4.0"
-  framework: "tanstack-store"
+  framework: "@tanstack/store"
 sources:
-  - README.md
-  - docs/architecture.md
+  - stainless-code/persist:README.md
+  - stainless-code/persist:docs/architecture.md
+  - stainless-code/persist:src/adapters/sources/tanstack-store.ts
 ---
 
 # Persisting TanStack Store
@@ -21,7 +23,7 @@ sources:
 - You need a hydration signal to gate UI flash on async backends (IndexedDB).
 - You're deciding between `persistStore` and dropping to `persistSource`.
 
-If you're persisting zustand / Redux / a hand-rolled atom instead, skip to `persistSource` — the adapters here only earn their keep for `@tanstack/store` shapes.
+Zustand → `persist-zustand`. Other libraries with a first-party adapter → that `persist-*` skill. Hand-rolled shapes → `persistSource`.
 
 ## Install
 
@@ -132,11 +134,11 @@ persistStore(store, {
 
 Use `persistSource({ getState, setState, subscribe }, opts)` directly when:
 
-- The store isn't `@tanstack/store` (zustand, Redux, hand-rolled atom).
+- There is no first-party `./sources/*` adapter for the store (hand-rolled atom).
 - You want to control subscription timing without the adapter's opinion.
 - You're building a framework adapter (the React `useHydrated` hook is the template — a thin layer over `HydrationSignal`; see its JSDoc for the subscribe contract).
 
-The TanStack adapters exist because `Store`/`Atom` have a known shape; anything else is `persistSource`.
+See also: `persist-zustand` — same core options over zustand's `StoreApi`.
 
 ## Common mistakes
 
