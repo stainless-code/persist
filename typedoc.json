@@ -4,7 +4,7 @@
   "entryPoints": [
     "src/core/index.ts",
     "src/adapters/codecs/seroval.ts",
-    "src/adapters/codecs/zod.ts",
+    "src/adapters/codecs/standard-schema.ts",
     "src/adapters/backends/idb.ts",
     "src/adapters/backends/async-storage.ts",
     "src/adapters/backends/mmkv.ts",

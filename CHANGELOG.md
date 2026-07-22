@@ -1,5 +1,13 @@
 # @stainless-code/persist
 
+## 0.4.0
+
+### Minor Changes
+
+- [#36](https://github.com/stainless-code/persist/pull/36) [`4cc9ec6`](https://github.com/stainless-code/persist/commit/4cc9ec672e881f054ec2da04c3b76cbe6779d592) Thanks [@SutuSebastian](https://github.com/SutuSebastian)! - Add `./codecs/standard-schema` — sync `~standard` codec, `PersistStorage` wraps (`withStandardSchema` / `withStandardSchemaAsync`), and JSON factories. Types vendored; no runtime peer. `createStorage` rethrows `PersistDecodeRethrowError` from decode (wrong-lane / programmer errors — not clearCorrupt).
+
+  Remove `./codecs/zod`. Migrate to `createStandardSchemaStorage(getStorage, schema)` (Zod ≥3.24 / v4 via `~standard`). Encode writes schema `value` (defaults/transforms). Yup / async `~standard.validate` → async lane (async hydrate — gate UI).
+
 ## 0.3.0
 
 ### Minor Changes

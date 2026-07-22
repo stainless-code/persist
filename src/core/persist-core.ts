@@ -74,6 +74,15 @@ export interface StorageCodec<S, TRaw = string> {
   decode: (raw: TRaw) => StorageValue<S>;
 }
 
+/**
+ * Programmer / wrong-lane errors from `StorageCodec.decode` that must not be
+ * treated as corrupt payload. {@link createStorage} rethrows these instead of
+ * returning `null` or running `clearCorruptOnFailure`.
+ */
+export class PersistDecodeRethrowError extends Error {
+  override readonly name = "PersistDecodeRethrowError";
+}
+
 /** Standard `JSON.parse` reviver / `JSON.stringify` replacer pass-throughs. */
 export interface JsonStorageOptions {
   reviver?: (key: string, value: unknown) => unknown;
@@ -83,8 +92,8 @@ export interface JsonStorageOptions {
 export interface CreateStorageOptions {
   /**
    * Remove the storage key when `codec.decode` throws (corrupt-payload
-   * self-heal). When off, a corrupt payload hydrates to nothing and stays in
-   * storage.
+   * self-heal). {@link PersistDecodeRethrowError} is never treated as corrupt.
+   * When off, a corrupt payload hydrates to nothing and stays in storage.
    * @default false
    */
   clearCorruptOnFailure?: boolean;
@@ -592,7 +601,9 @@ export function createStorage<S, TRaw = string>(
     if (raw === null) return null;
     try {
       return codec.decode(raw);
-    } catch {
+    } catch (error) {
+      // Wrong-lane / programmer decode errors must surface — not clearCorrupt.
+      if (error instanceof PersistDecodeRethrowError) throw error;
       if (options?.clearCorruptOnFailure) {
         // Best-effort cleanup; an async backend's rejected removeItem must not
         // become an unhandled rejection outside every containment path.

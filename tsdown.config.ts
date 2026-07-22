@@ -11,7 +11,7 @@ export default defineConfig({
   entry: {
     "core/index": "src/core/index.ts",
     "codecs/seroval": "src/adapters/codecs/seroval.ts",
-    "codecs/zod": "src/adapters/codecs/zod.ts",
+    "codecs/standard-schema": "src/adapters/codecs/standard-schema.ts",
     "backends/idb": "src/adapters/backends/idb.ts",
     "backends/async-storage": "src/adapters/backends/async-storage.ts",
     "backends/mmkv": "src/adapters/backends/mmkv.ts",
@@ -47,7 +47,6 @@ export default defineConfig({
       "idb-keyval",
       "@tanstack/store",
       "react",
-      "zod",
       "solid-js",
       "svelte",
       "@angular/core",

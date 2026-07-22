@@ -11,6 +11,7 @@ import {
   createStorage,
   identityCodec,
   jsonCodec,
+  PersistDecodeRethrowError,
   persistSource,
 } from "./persist-core";
 import type {
@@ -90,6 +91,23 @@ describe("createJSONStorage codec seam", () => {
 
     expect(await storage.getItem("corrupt")).toBeNull();
     expect(memory.getItem("corrupt")).toBeNull();
+  });
+
+  it("PersistDecodeRethrowError from decode is rethrown and does not clearCorrupt", () => {
+    memory.setItem("keep", JSON.stringify({ state: { count: 1 }, version: 0 }));
+    const storage = createStorage<{ count: number }>(
+      () => memory,
+      {
+        encode: jsonCodec<{ count: number }>().encode,
+        decode: () => {
+          throw new PersistDecodeRethrowError("wrong lane");
+        },
+      },
+      { clearCorruptOnFailure: true },
+    )!;
+
+    expect(() => storage.getItem("keep")).toThrow("wrong lane");
+    expect(memory.getItem("keep")).not.toBeNull();
   });
 
   it("createStorage returns undefined when getStorage throws", () => {
