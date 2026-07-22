@@ -5,23 +5,4 @@ search:
   tags: ["guide", "faq"]
 ---
 
-**Why does my UI flash?**  
-Async backend (IndexedDB, AsyncStorage, SecureStore, Node fs) without a hydration gate. Gate with your framework adapter — [`useHydrated`](/adapters/framework-adapter), `hydratedRune`, or `hydratedStore`. Don't manually defer writes — the middleware already gates them until hydrated; double-gating drops legitimate updates.
-
-**IDB cross-tab isn't syncing**  
-IndexedDB fires no `storage` events. Use `@stainless-code/persist/transport/crosstab` (`createBroadcastCrossTab`) as the `crossTabEventTarget` + `bridge.wrap(...)`. See [Cross-tab over IndexedDB](/recipes/crosstab).
-
-**Quota exceeded / storage full**  
-`retryWrite: ({ state, errorCount }) => ...` — shrink to retry, `undefined` to give up. The write-generation guard ensures stale retries never clobber newer state. See [retryWrite](/recipes/options#retrywrite--shrink-or-give-up-on-quota).
-
-**Set / Map / Date don't round-trip**  
-Use `@stainless-code/persist/codecs/seroval` for string-wire backends, or `@stainless-code/persist/backends/idb` (`createIdbStorage` — structured-clone, no codec). Never pair `identityCodec` with a string-only backend. See [Choosing a codec](/concepts/choosing-codec).
-
-**How do I clear all persisted keys on logout?**  
-`createPersistRegistry()` from core; pass `registry` to each store; `await registry.clearAll()`. See [Clear-all on logout](/recipes/options#clear-all-on-logout).
-
-**How do I encrypt at rest?**  
-`@stainless-code/persist/backends/encrypted` (`createEncryptedStorage`) — wraps any backend with AES-GCM. See [Recipes](/recipes) for compress-then-encrypt stacks.
-
-**The store is not a singleton — how do I clean up?**  
-`persist.destroy()` on unmount (e.g. `useEffect` cleanup). See [IndexedDB + React, end to end](/guides/idb-react).
+<FaqSection />

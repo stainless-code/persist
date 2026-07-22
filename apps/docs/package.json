@@ -11,6 +11,6 @@
     "validate": "blume validate"
   },
   "dependencies": {
-    "blume": "1.1.0"
+    "blume": "1.1.3"
   }
 }

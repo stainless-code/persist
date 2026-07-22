@@ -7,31 +7,30 @@ export interface SourceSnippet {
   code: string;
 }
 
-/** Order: tanstack-store → zustand → jotai → valtio → mobx → custom */
+export const defaultSourceId = "tanstack-store";
+
+/** Order: tanstack-store → zustand → jotai → valtio → mobx → pinia → redux → custom */
 export const sourceSnippets: SourceSnippet[] = [
   {
     id: "tanstack-store",
     label: "TanStack Store",
-    icon: "database",
+    icon: "/brands/tanstack.svg",
     lang: "ts",
-    installCommand:
-      "bun add @stainless-code/persist @tanstack/store idb-keyval seroval",
+    installCommand: "bun add @stainless-code/persist @tanstack/store",
     code: `import { Store } from "@tanstack/store";
-import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
+import { createJSONStorage } from "@stainless-code/persist";
 import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
-import { toHydrationSignal } from "@stainless-code/persist";
 
 const store = new Store({ theme: "light" });
-const persist = persistStore(store, {
+persistStore(store, {
   name: "app:prefs:v1",
-  storage: createSerovalStorage(() => localStorage),
-});
-export const prefsHydration = toHydrationSignal(persist);`,
+  storage: createJSONStorage(() => localStorage),
+});`,
   },
   {
     id: "zustand",
-    label: "zustand",
-    icon: "boxes",
+    label: "Zustand",
+    icon: "/brands/zustand.png",
     lang: "ts",
     installCommand: "bun add @stainless-code/persist zustand",
     code: `import { create } from "zustand";
@@ -46,8 +45,8 @@ persistStore(usePrefs, {
   },
   {
     id: "jotai",
-    label: "jotai",
-    icon: "atom",
+    label: "Jotai",
+    icon: "/brands/jotai.png",
     lang: "ts",
     installCommand: "bun add @stainless-code/persist jotai",
     code: `import { atom, createStore } from "jotai";
@@ -63,8 +62,8 @@ persistAtom(store, themeAtom, {
   },
   {
     id: "valtio",
-    label: "valtio",
-    icon: "activity",
+    label: "Valtio",
+    icon: "/brands/valtio.svg",
     lang: "ts",
     installCommand: "bun add @stainless-code/persist valtio",
     code: `import { proxy } from "valtio";
@@ -79,8 +78,8 @@ persistProxy(prefs, {
   },
   {
     id: "mobx",
-    label: "mobx",
-    icon: "network",
+    label: "MobX",
+    icon: "/brands/mobx.svg",
     lang: "ts",
     installCommand: "bun add @stainless-code/persist mobx",
     code: `import { observable } from "mobx";
@@ -94,6 +93,43 @@ persistObservable(prefs, {
 });`,
   },
   {
+    id: "pinia",
+    label: "Pinia",
+    icon: "/brands/pinia.svg",
+    lang: "ts",
+    installCommand: "bun add @stainless-code/persist pinia",
+    code: `import { defineStore } from "pinia";
+import { createJSONStorage } from "@stainless-code/persist";
+import { persistStore } from "@stainless-code/persist/sources/pinia";
+
+const usePrefs = defineStore("prefs", {
+  state: () => ({ theme: "light" as const }),
+});
+persistStore(usePrefs(), {
+  name: "app:prefs:v1",
+  storage: createJSONStorage(() => localStorage),
+});`,
+  },
+  {
+    id: "redux",
+    label: "Redux",
+    icon: "/brands/redux.svg",
+    lang: "ts",
+    installCommand: "bun add @stainless-code/persist redux",
+    code: `import { createStore } from "redux";
+import { createJSONStorage } from "@stainless-code/persist";
+import {
+  persistStore,
+  persistableReducer,
+} from "@stainless-code/persist/sources/redux";
+
+const store = createStore(persistableReducer(rootReducer));
+persistStore(store, {
+  name: "app:root:v1",
+  storage: createJSONStorage(() => localStorage),
+});`,
+  },
+  {
     id: "custom",
     label: "Any source",
     icon: "code",
@@ -103,9 +139,11 @@ persistObservable(prefs, {
 
 persistSource(
   {
-    getState: () => myStore.get(),
-    setState: (next) => myStore.set(next),
-    subscribe: (listener) => myStore.subscribe(listener),
+    getState: () => myStore.getState(),
+    setState: (updater) => myStore.setState(updater),
+    subscribe: (listener) => ({
+      unsubscribe: myStore.subscribe(() => listener()),
+    }),
   },
   {
     name: "app:prefs:v1",
