@@ -14,6 +14,10 @@ permissions:
   contents: write
   pull-requests: write
   id-token: write
+  # Tag push after `changeset publish` is rejected without this when the tip
+  # (or a concurrent main push) touches `.github/workflows/*` — GITHUB_TOKEN
+  # cannot create/update workflow files unless granted `workflows` write.
+  workflows: write
 
 jobs:
   release:
