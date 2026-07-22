@@ -10,7 +10,7 @@ Persist ships adapters as opt-in subpaths — import only what you use. Each sea
 | Seam           | What it is                                                                  | Where to look                                                                             |
 | -------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | **Backends**   | `StateStorage` implementations (IDB, RN, encrypted, compressed, Node fs, …) | [Choosing a storage](/concepts/choosing-storage) · [Entry points](/concepts/entry-points) |
-| **Codecs**     | `StorageCodec` encode/decode (JSON, seroval, zod, identity)                 | [Choosing a codec](/concepts/choosing-codec)                                              |
+| **Codecs**     | `StorageCodec` encode/decode (JSON, seroval, Standard Schema, identity)     | [Choosing a codec](/concepts/choosing-codec)                                              |
 | **Sources**    | Thin wrappers that adapt a store library to `PersistableSource`             | [Wrapping stores](/recipes/wrapping-stores)                                               |
 | **Frameworks** | Hydration gates (`useHydrated`, `hydratedRune`, …)                          | [Writing a framework adapter](/adapters/framework-adapter)                                |
 | **Transport**  | Cross-tab bridges (BroadcastChannel)                                        | [Cross-tab](/recipes/crosstab)                                                            |

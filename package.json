@@ -68,9 +68,9 @@
       "types": "./dist/codecs/seroval.d.mts",
       "import": "./dist/codecs/seroval.mjs"
     },
-    "./codecs/zod": {
-      "types": "./dist/codecs/zod.d.mts",
-      "import": "./dist/codecs/zod.mjs"
+    "./codecs/standard-schema": {
+      "types": "./dist/codecs/standard-schema.d.mts",
+      "import": "./dist/codecs/standard-schema.mjs"
     },
     "./backends/idb": {
       "types": "./dist/backends/idb.d.mts",
@@ -282,7 +282,6 @@
     "svelte": ">=3.0.0",
     "valtio": ">=1.0.0",
     "vue": ">=3.3.0",
-    "zod": ">=3.20.0",
     "zustand": ">=4.0.0"
   },
   "peerDependenciesMeta": {
@@ -317,9 +316,6 @@
       "optional": true
     },
     "alpinejs": {
-      "optional": true
-    },
-    "zod": {
       "optional": true
     },
     "@react-native-async-storage/async-storage": {

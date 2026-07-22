@@ -30,8 +30,8 @@
     "gzip": true
   },
   {
-    "name": "zod",
-    "path": "dist/codecs/zod.mjs",
+    "name": "standard-schema",
+    "path": "dist/codecs/standard-schema.mjs",
     "limit": "2 KB",
     "gzip": true
   },

@@ -1,0 +1,69 @@
+---
+title: Standard Schema–validated storage
+description: Schema-gate PersistStorage with any ~standard library — sync/async wraps or JSON factories.
+search:
+  tags: ["recipe", "standard-schema", "codec"]
+---
+
+Invalid prefs must not survive a refresh. Pass any sync `~standard` schema — Persist validates on write and on read; `clearCorruptOnFailure` deletes the key.
+
+```ts
+import { z } from "zod";
+// or: import * as v from "valibot"; // any ~standard schema works
+import { createStandardSchemaStorage } from "@stainless-code/persist/codecs/standard-schema";
+import { persistStore } from "@stainless-code/persist/sources/zustand";
+
+const prefs = z.object({
+  theme: z.enum(["light", "dark"]),
+  density: z.enum(["comfortable", "compact"]).default("comfortable"),
+});
+type Prefs = z.infer<typeof prefs>;
+
+const storage = createStandardSchemaStorage<Prefs>(() => localStorage, prefs, {
+  clearCorruptOnFailure: true,
+})!;
+
+persistStore(usePrefs, {
+  name: "app:prefs:v1",
+  storage,
+  onError: (error, { phase }) => {
+    // phase "write" = schema rejected outbound state
+    report({ error, phase });
+  },
+});
+```
+
+`createStandardSchemaStorage` is JSON sugar over `withStandardSchema`. Wraps are the primitive — compose after any `PersistStorage` (don't stack wrap + `standardSchemaCodec`; that double-validates):
+
+```ts
+import { createIdbStorage } from "@stainless-code/persist/backends/idb";
+import { withStandardSchema } from "@stainless-code/persist/codecs/standard-schema";
+
+const storage = withStandardSchema(createIdbStorage<Prefs>()!, prefs, {
+  clearCorruptOnFailure: true,
+});
+```
+
+### Async lane (Yup / Promise-returning validate)
+
+`~standard.validate` may return a `Promise` (Yup, async refine). Codecs stay sync — use the async wrap / factory:
+
+```ts
+import { createStandardSchemaStorageAsync } from "@stainless-code/persist/codecs/standard-schema";
+
+const storage = createStandardSchemaStorageAsync(() => localStorage, yupSchema)!;
+// or: withStandardSchemaAsync(anyPersistStorage, yupSchema)
+```
+
+That lane forces async hydrate even over localStorage — gate UI like IDB (`useHydrated`). Prefer the sync wrap when validate is sync.
+
+Anything with sync `~standard.validate` works on the sync lane. Fact-checked implementers:
+
+- [ArkType](https://github.com/arktypeio/arktype), [Valibot](https://github.com/fabian-hiller/valibot), [Zod](https://github.com/colinhacks/zod) (v3.24+), [Raptor Validator](https://raptorjs.com/docs/validation) (v0.9.0+) — on the [official list](https://standardschema.dev/)
+- [Typia](https://typia.io/docs/validators/validate/) — `createValidate` / `createValidateEquals` (v9.2+)
+- [Effect Schema](https://effect.website/docs/schema/standard-schema/) — wrap with `Schema.standardSchemaV1`
+- [TypeMap](https://github.com/sinclairzx81/typemap) — `Compile(...)` for TypeBox (and others); TypeBox schematics alone do **not** implement `~standard`
+
+[Yup](https://github.com/jquense/yup) implements the spec, but its `~standard.validate` returns a `Promise` — use the async lane above (or a sync Standard Schema wrapper around `validateSync`).
+
+Encode writes the schema `value` (defaults/transforms). Date/Map/Set without a schema → [`./codecs/seroval`](/concepts/choosing-codec).
