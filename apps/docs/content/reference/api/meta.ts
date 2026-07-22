@@ -6,7 +6,7 @@ export default defineMeta({
   pages: [
     "core",
     "adapters-codecs-seroval",
-    "adapters-codecs-zod",
+    "adapters-codecs-standard-schema",
     "adapters-backends-idb",
     "adapters-backends-async-storage",
     "adapters-backends-mmkv",

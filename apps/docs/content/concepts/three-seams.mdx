@@ -30,15 +30,16 @@ import {
   createStorage,
 } from "@stainless-code/persist";
 import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
-import { zodCodec } from "@stainless-code/persist/codecs/zod";
+import { standardSchemaCodec } from "@stainless-code/persist/codecs/standard-schema";
 import { idbStateStorage } from "@stainless-code/persist/backends/idb";
 import { z } from "zod";
 
-const PrefsSchema = z.object({ theme: z.enum(["light", "dark"]) });
+const prefs = z.object({ theme: z.enum(["light", "dark"]) });
 
 jsonCodec(); // core default — plain JSON
 serovalCodec(); // Set / Map / Date / cycles, inert JSON-shaped output
-zodCodec(PrefsSchema); // schema-gated persistence — invalid state never writes; corrupt reads discard
+standardSchemaCodec(prefs); // schema-gated (~standard) — invalid state never writes; corrupt reads discard
+// or wrap after createStorage: withStandardSchema(storage, prefs) / withStandardSchemaAsync (Yup / async ~standard)
 identityCodec(); // structured-clone backends only — zero serialization
 // custom — any pair of pure functions:
 const superjsonCodec = { encode: superjson.stringify, decode: superjson.parse }; // class instances via registerCustom

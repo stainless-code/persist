@@ -8,7 +8,7 @@ export default defineMeta({
     "options",
     "wrapping-stores",
     "crosstab",
-    "zod",
+    "standard-schema",
     "react-native",
     "node-fs",
   ],

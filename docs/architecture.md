@@ -20,7 +20,7 @@ Persistence is bound to a structural `PersistableSource` (`getState` / `setState
 | ------------------------------------------------- | ------------------------------------------- | --------------------------------------------- |
 | `@stainless-code/persist`                         | `core/index` (`persist-core` + `hydration`) | none (zero-dep core, enforced by a gate test) |
 | `@stainless-code/persist/codecs/seroval`          | `adapters/codecs/seroval`                   | `seroval`                                     |
-| `@stainless-code/persist/codecs/zod`              | `adapters/codecs/zod`                       | `zod`                                         |
+| `@stainless-code/persist/codecs/standard-schema`  | `adapters/codecs/standard-schema`           | none                                          |
 | `@stainless-code/persist/backends/idb`            | `adapters/backends/idb`                     | `idb-keyval`                                  |
 | `@stainless-code/persist/backends/async-storage`  | `adapters/backends/async-storage`           | `@react-native-async-storage/async-storage`   |
 | `@stainless-code/persist/backends/mmkv`           | `adapters/backends/mmkv`                    | `react-native-mmkv`                           |
@@ -46,7 +46,7 @@ Persistence is bound to a structural `PersistableSource` (`getState` / `setState
 | `@stainless-code/persist/frameworks/svelte`       | `adapters/frameworks/svelte`                | `svelte` (>=5.7 runes)                        |
 | `@stainless-code/persist/frameworks/svelte-store` | `adapters/frameworks/svelte-store`          | `svelte` (>=3 store)                          |
 
-No barrel — importing a subpath is the dependency opt-in. Each subpath entry owns its optional peer dep when the adapter needs one — the no-peer entries are the core, encrypted, compressed, node-fs, and crosstab subpaths — and the peer stays external in the build (`tsdown.config.ts` `neverBundle`) so consumers tree-shake cleanly.
+No barrel — importing a subpath is the dependency opt-in. Each subpath entry owns its optional peer dep when the adapter needs one — the no-peer entries are the core, standard-schema, encrypted, compressed, node-fs, and crosstab subpaths — and the peer stays external in the build (`tsdown.config.ts` `neverBundle`) so consumers tree-shake cleanly.
 
 ## Folder layout
 
@@ -54,7 +54,7 @@ No barrel — importing a subpath is the dependency opt-in. Each subpath entry o
 
 - **`core/`** — the zero-dep engine (`persist-core.ts`, `hydration.ts`) plus `index.ts` (the `.` entry that re-exports both). Nothing in `core/` imports an adapter.
 - **`adapters/<seam>/`** — opt-in entries that own an optional peer and import only from `core/`:
-  - `codecs/` — `StorageCodec` adapters (seroval, zod)
+  - `codecs/` — `StorageCodec` adapters (seroval, Standard Schema) + Standard Schema `PersistStorage` wraps
   - `backends/` — `StateStorage` adapters + wrappers (idb, async-storage, mmkv, secure-store, encrypted, compressed, node-fs)
   - `transport/` — `CrossTabEventTarget` adapters (crosstab — BroadcastChannel bridge)
   - `sources/` — `PersistableSource` adapters (tanstack-store, zustand, jotai, valtio, mobx, pinia, redux). Shape-named, not library-named — same persistable shape → same name → same merge semantics; the subpath carries the library. Alias when importing two same-shape adapters into one module.
@@ -68,7 +68,7 @@ A per-entry self-check test pins the invariant: every adapter's relative imports
 
 ## Sync vs async
 
-One API. Sync backends (localStorage) settle hydration before first paint; async backends (IndexedDB) ride the same `getItem` Promise branch — `getItem` returning a native `Promise` switches the read path to async (deliberately `instanceof Promise`, not thenable duck-typing, so a stored value carrying a `then` property is never mistaken for a pending read). Gate UI on `useHydrated` for async backends.
+One API. Sync backends (localStorage) settle hydration before first paint; async backends (IndexedDB) ride the same `getItem` Promise branch — `getItem` returning a native `Promise` switches the read path to async (deliberately `instanceof Promise`, not thenable duck-typing, so a stored value carrying a `then` property is never mistaken for a pending read). Gate UI on `useHydrated` for async backends. Standard Schema also offers `PersistStorage` wraps (`withStandardSchema` / `withStandardSchemaAsync`) for sync vs async `~standard` lanes — JSON factories are sugar over those wraps.
 
 ## Beyond Query-persister parity
 
