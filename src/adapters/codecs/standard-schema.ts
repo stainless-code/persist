@@ -126,6 +126,16 @@ export function standardSchemaCodec<Output>(
  * Sync `~standard` wrap over an existing `PersistStorage` (typed envelope
  * already decoded). Promise-aware for backend `getItem` only — async schemas
  * throw toward `withStandardSchemaAsync`.
+ *
+ * @example
+ * ```ts
+ * import { createIdbStorage } from "@stainless-code/persist/backends/idb";
+ * import { withStandardSchema } from "@stainless-code/persist/codecs/standard-schema";
+ *
+ * const storage = withStandardSchema(createIdbStorage<Prefs>()!, prefs, {
+ *   clearCorruptOnFailure: true,
+ * });
+ * ```
  */
 export function withStandardSchema<S>(
   storage: PersistStorage<S>,
@@ -178,7 +188,19 @@ export function withStandardSchema<S>(
 /**
  * Async `~standard` wrap over an existing `PersistStorage`. Awaits validate
  * (sync schemas OK). Prefer this for Yup / async refine; use
- * `withStandardSchema` for sync-only schemas.
+ * `withStandardSchema` when validate is sync. Forces async hydrate even over
+ * `localStorage` — gate UI with `useHydrated` (same as IndexedDB).
+ *
+ * @example
+ * ```ts
+ * import { createJSONStorage } from "@stainless-code/persist";
+ * import { withStandardSchemaAsync } from "@stainless-code/persist/codecs/standard-schema";
+ *
+ * const storage = withStandardSchemaAsync(
+ *   createJSONStorage<Prefs>(() => localStorage)!,
+ *   yupSchema,
+ * );
+ * ```
  */
 export function withStandardSchemaAsync<S>(
   storage: PersistStorage<S>,
@@ -242,14 +264,17 @@ export function createStandardSchemaStorage<Output>(
 
 /**
  * JSON sugar over `withStandardSchemaAsync` for async `~standard` schemas
- * (Yup, async refine). Sync schemas also work through this lane.
+ * (Yup, async refine). Sync schemas also work through this lane. Forces async
+ * hydrate even over `localStorage` — gate UI with `useHydrated`.
  *
  * @example
  * ```ts
- * // Async ~standard (Yup / async refine) — or a sync schema like zod.
- * const storage = createStandardSchemaStorageAsync<{ count: number }>(
+ * import { createStandardSchemaStorageAsync } from "@stainless-code/persist/codecs/standard-schema";
+ *
+ * // Pass any async ~standard schema (Yup, async refine, …).
+ * const storage = createStandardSchemaStorageAsync<Prefs>(
  *   () => localStorage,
- *   schema,
+ *   yupSchema,
  *   { clearCorruptOnFailure: true },
  * );
  * ```

@@ -350,6 +350,33 @@ describe("withStandardSchema", () => {
     expect(inner.store.has("keep")).toBe(true);
   });
 
+  it("Promise getItem + async schema throws and does not clearCorrupt", async () => {
+    const store = new Map<string, StorageValue<{ count: number }>>();
+    store.set("keep", { state: { count: 1 }, version: 0 });
+    const inner: PersistStorage<{ count: number }> = {
+      getItem(name) {
+        return Promise.resolve(store.get(name) ?? null);
+      },
+      setItem(name, value) {
+        store.set(name, value);
+      },
+      removeItem(name) {
+        store.delete(name);
+      },
+    };
+    const schema = fakeSchema<{ count: number }>({
+      validate: async (input) => ({ value: input as { count: number } }),
+    });
+    const storage = withStandardSchema(inner, schema, {
+      clearCorruptOnFailure: true,
+    });
+    const asyncMessage =
+      "[@stainless-code/persist] Async Standard Schema validation is not supported — use withStandardSchemaAsync.";
+
+    await expect(storage.getItem("keep")).rejects.toThrow(asyncMessage);
+    expect(store.has("keep")).toBe(true);
+  });
+
   it("composes over createStorage + jsonCodec (non-codec-coupled path)", async () => {
     const memory = new MemoryStorage();
     const inner = createStorage<{ count: number }>(
@@ -463,6 +490,27 @@ describe("withStandardSchemaAsync", () => {
   });
 });
 
+describe("createStandardSchemaStorage", () => {
+  it("wrong-lane async schema on get throws and does not clearCorrupt", async () => {
+    const memory = new MemoryStorage();
+    memory.setItem("keep", JSON.stringify({ state: { count: 1 }, version: 0 }));
+    const schema = fakeSchema<{ count: number }>({
+      validate: async (input) => ({ value: input as { count: number } }),
+    });
+    const storage = createStandardSchemaStorage<{ count: number }>(
+      () => memory,
+      schema,
+      { clearCorruptOnFailure: true },
+    )!;
+    const asyncMessage =
+      "[@stainless-code/persist] Async Standard Schema validation is not supported — use withStandardSchemaAsync.";
+
+    // Sync JSON backend → sync throw (not a rejected Promise).
+    expect(() => storage.getItem("keep")).toThrow(asyncMessage);
+    expect(memory.getItem("keep")).not.toBeNull();
+  });
+});
+
 describe("createStandardSchemaStorageAsync", () => {
   it("round-trips via fake async schema over MemoryStorage", async () => {
     const memory = new MemoryStorage();
@@ -486,6 +534,31 @@ describe("createStandardSchemaStorageAsync", () => {
     });
     const stored = await storage.getItem("async-sugar");
     expect(stored?.state.count).toBe(8);
+  });
+
+  it("invalid get returns null and clearCorruptOnFailure removes the key", async () => {
+    const memory = new MemoryStorage();
+    memory.setItem(
+      "corrupt",
+      JSON.stringify({ state: { count: "bad" }, version: 0 }),
+    );
+    const schema = fakeSchema<{ count: number }>({
+      validate: async (input) => {
+        const value = input as { count: number };
+        if (typeof value?.count !== "number") {
+          return { issues: [{ message: "count must be a number" }] };
+        }
+        return { value };
+      },
+    });
+    const storage = createStandardSchemaStorageAsync<{ count: number }>(
+      () => memory,
+      schema,
+      { clearCorruptOnFailure: true },
+    )!;
+
+    await expect(storage.getItem("corrupt")).resolves.toBeNull();
+    expect(memory.getItem("corrupt")).toBeNull();
   });
 });
 
