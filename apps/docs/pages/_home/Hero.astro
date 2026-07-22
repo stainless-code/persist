@@ -3,14 +3,13 @@ import CodeBlock from "blume/components/content/CodeBlock.astro";
 import Icon from "blume/components/Icon.astro";
 import { contentHref } from "blume/components/content/base-href.ts";
 import InstallBox from "./InstallBox.astro";
-import { sourceSnippets } from "./source-snippets.ts";
+import { defaultSourceId, sourceSnippets } from "./source-snippets.ts";
 
 const pillBase =
   "cursor-pointer rounded-full border px-3 py-1 text-xs transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
 const pillActive = "border-accent bg-accent/10 font-medium text-accent";
 const pillMuted =
   "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground";
-const defaultSource = "tanstack-store";
 ---
 
 <section class="text-center">
@@ -28,7 +27,9 @@ const defaultSource = "tanstack-store";
 
   <p class="mx-auto mt-4 max-w-2xl text-balance text-muted-foreground">
     Zero-dep
-    <code class="rounded bg-muted px-1 font-mono text-sm">persistSource</code>
+    <code class="mx-0.5 rounded bg-muted px-1.5 font-mono text-sm"
+      >persistSource</code
+    >
     core; codecs, backends, transport, and framework gates are opt-in subpaths.
   </p>
 
@@ -54,12 +55,16 @@ const defaultSource = "tanstack-store";
     {
       sourceSnippets.map((snippet) => (
         <button
-          class={`inline-flex items-center gap-1.5 ${pillBase} ${snippet.id === defaultSource ? pillActive : pillMuted}`}
+          class={`inline-flex items-center gap-1.5 ${pillBase} ${snippet.id === defaultSourceId ? pillActive : pillMuted}`}
           data-install-command={snippet.installCommand}
           data-source={snippet.id}
           type="button"
         >
-          <Icon class="size-4 shrink-0" name={snippet.icon} size={16} />
+          <Icon
+            class="size-4 shrink-0 object-contain"
+            name={snippet.icon}
+            size={16}
+          />
           {snippet.label}
         </button>
       ))
@@ -70,7 +75,7 @@ const defaultSource = "tanstack-store";
     {
       sourceSnippets.map((snippet) => (
         <div
-          class={snippet.id === defaultSource ? undefined : "hidden"}
+          class={snippet.id === defaultSourceId ? undefined : "hidden"}
           data-code={snippet.id}
         >
           <CodeBlock code={snippet.code} lang={snippet.lang} />
@@ -168,9 +173,14 @@ const defaultSource = "tanstack-store";
       });
 
       if (installBox && installCommand) {
-        const codeEl = installBox.querySelector("code");
+        installBox.querySelectorAll("[data-install-cmd]").forEach((block) => {
+          if (block.dataset.installCmd === source) {
+            block.classList.remove("hidden");
+          } else {
+            block.classList.add("hidden");
+          }
+        });
         const copyBtn = installBox.querySelector("[data-blume-copy-install]");
-        if (codeEl) codeEl.textContent = installCommand;
         if (copyBtn) copyBtn.dataset.command = installCommand;
       }
     });

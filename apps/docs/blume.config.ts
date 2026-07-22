@@ -2,12 +2,17 @@ import { defineConfig } from "blume";
 
 import { CURATED_POPULAR } from "./components/curated-popular";
 
+const title = "Persist";
+/** Custom `.astro` pages have no frontmatter — name OG cards (else humanized segment). */
+const homeTitle = `${title} — any store, any storage, one middleware`;
+const notFoundTitle = "Page not found";
+
 export default defineConfig({
-  title: "Persist",
+  title,
   description:
     "Hydration-aware persistence for any reactive store — zero-dep persistSource core; codecs, backends, cross-tab transport, and source + framework adapters ship as opt-in subpaths",
 
-  logo: { image: "/logo.svg", text: "Persist" },
+  logo: { image: "/logo.svg", text: title },
 
   github: {
     owner: "stainless-code",
@@ -85,7 +90,10 @@ export default defineConfig({
   },
 
   seo: {
-    og: { enabled: true },
+    og: {
+      enabled: true,
+      titles: { "/": homeTitle, "/404": notFoundTitle },
+    },
     rss: { enabled: true, types: ["changelog"] },
     sitemap: true,
     robots: true,

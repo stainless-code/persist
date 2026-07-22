@@ -38,7 +38,7 @@ Then open a PR on GitHub into **`main`**. PRs that change the public docs site (
 
 ### Git hooks
 
-[Husky](https://github.com/typicode/husky) + [lint-staged](https://github.com/lint-staged/lint-staged) — see [`.husky/pre-commit`](../.husky/pre-commit). Pre-commit runs **`lint-staged`** only when `CURSOR_AGENT`, `CLAUDECODE`, or `AI_AGENT` is set (AI/agent commits). Staged files get `bun run format:check` (`oxfmt --check`), `oxlint`, staged-only **`tsgo`**, and **`bun test`** on `*.test.ts` / paired co-located tests.
+[Husky](https://github.com/typicode/husky) + [lint-staged](https://github.com/lint-staged/lint-staged) — see [`.husky/pre-commit`](../.husky/pre-commit). Every commit runs **`lint-staged`** on staged files: `bun run format:check` (`oxfmt --check`), `oxlint`, staged-only **`tsgo`**, and **`bun test`** on `*.test.ts` / paired co-located tests.
 
 ### Style
 

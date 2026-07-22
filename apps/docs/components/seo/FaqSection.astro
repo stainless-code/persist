@@ -1,0 +1,53 @@
+---
+import Accordion from "blume/components/content/Accordion.astro";
+import AccordionItem from "blume/components/content/AccordionItem.astro";
+import { contentHref } from "blume/components/content/base-href.ts";
+import { PERSIST_FAQS } from "./persist-faqs.ts";
+
+/** Markdown → HTML; `contentHref` rebases under deployment.base. */
+const toAnswerHtml = (text: string): string =>
+  text
+    .replaceAll(/`([^`]+)`/gu, "<code>$1</code>")
+    .replaceAll(
+      /\[([^\]]+)\]\(([^)]+)\)/gu,
+      (_match, label: string, href: string) => {
+        const safeHref = contentHref(href).replaceAll('"', "&quot;");
+        return `<a href="${safeHref}">${label}</a>`;
+      },
+    );
+
+const toPlainAnswer = (text: string): string =>
+  text
+    .replaceAll(/\[([^\]]+)\]\([^)]+\)/gu, "$1")
+    .replaceAll(/`([^`]+)`/gu, "$1");
+
+const faqJsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: PERSIST_FAQS.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: toPlainAnswer(faq.answer),
+    },
+  })),
+}).replaceAll("<", "\\u003c");
+---
+
+{/* Accordion is not-prose — Blume's `.prose code` chips skip those descendants.
+    Mirror Update.astro slot styles so set:html `<code>` matches body prose. */}
+<Accordion>
+  {
+    PERSIST_FAQS.map((faq) => (
+      <AccordionItem title={faq.question}>
+        <p
+          class="text-muted-foreground text-sm leading-relaxed [&_a]:font-medium [&_a]:text-foreground [&_a]:underline [&_a]:decoration-dotted [&_code]:rounded [&_code]:bg-[var(--blume-code-background)] [&_code]:px-[0.35em] [&_code]:py-[0.15em] [&_code]:font-mono [&_code]:font-medium [&_code]:text-foreground"
+          set:html={toAnswerHtml(faq.answer)}
+        />
+      </AccordionItem>
+    ))
+  }
+</Accordion>
+
+<script is:inline set:html={faqJsonLd} type="application/ld+json" />

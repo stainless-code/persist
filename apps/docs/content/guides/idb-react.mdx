@@ -7,8 +7,8 @@ search:
 
 IndexedDB reads are Promise-backed — they cannot settle before first paint. This guide wires `createIdbStorage`, TanStack Store, and a React hydration gate.
 
-```bash
-bun add @stainless-code/persist @tanstack/store react idb-keyval
+```package-install
+npm i @stainless-code/persist @tanstack/store react idb-keyval
 ```
 
 **Store module** — `createIdbStorage` runs structured-clone mode: `Set` / `Map` / `Date` round-trip natively, no codec. The persist + hydration signal live at module scope for an app-lifetime singleton store.

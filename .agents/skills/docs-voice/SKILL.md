@@ -33,8 +33,8 @@ was rejected) and the "when **not** to use it" anti-sell — keep both.
   Section `meta.ts` icons and tab icons stay.
 - **Adapter / listing order:** core → backends → codecs → sources → frameworks
   → transport. Within sources: tanstack-store → zustand → jotai → valtio →
-  mobx → custom. Within frameworks: react → preact → solid → angular → vue →
-  svelte (runes → store).
+  mobx → pinia → redux → custom. Within frameworks: react → preact → solid →
+  angular → vue → lit → alpine → svelte (runes → store).
 
 ## Don't
 

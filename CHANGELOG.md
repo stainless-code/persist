@@ -1,5 +1,23 @@
 # @stainless-code/persist
 
+## 0.3.0
+
+### Minor Changes
+
+- [#34](https://github.com/stainless-code/persist/pull/34) [`470ef1d`](https://github.com/stainless-code/persist/commit/470ef1dfbd702c506674b6639d14f26acf921dc2) Thanks [@SutuSebastian](https://github.com/SutuSebastian)! - Add Alpine framework adapter (`./frameworks/alpine`) — `useHydrated` + `$hydrated` plugin over `HydrationSignal`.
+
+- [#34](https://github.com/stainless-code/persist/pull/34) [`470ef1d`](https://github.com/stainless-code/persist/commit/470ef1dfbd702c506674b6639d14f26acf921dc2) Thanks [@SutuSebastian](https://github.com/SutuSebastian)! - Add Lit `HydrationController` framework adapter (`./frameworks/lit`).
+
+- [#31](https://github.com/stainless-code/persist/pull/31) [`f7d4abc`](https://github.com/stainless-code/persist/commit/f7d4abcbb39c1f7c4d4ec0a63324188ec5d85c60) Thanks [@SutuSebastian](https://github.com/SutuSebastian)! - Add first-party Pinia source adapter (`./sources/pinia`) with shape-named `persistStore` over `persistSource`.
+
+- [#31](https://github.com/stainless-code/persist/pull/31) [`f7d4abc`](https://github.com/stainless-code/persist/commit/f7d4abcbb39c1f7c4d4ec0a63324188ec5d85c60) Thanks [@SutuSebastian](https://github.com/SutuSebastian)! - Add first-party Redux source adapter (`./sources/redux`) with `persistStore` and companion `persistableReducer` (classic + RTK).
+
+## 0.2.1
+
+### Patch Changes
+
+- [#20](https://github.com/stainless-code/persist/pull/20) [`cb6ca1d`](https://github.com/stainless-code/persist/commit/cb6ca1dce91dc9f4716a5ac35f1cf4e6e707967c) Thanks [@SutuSebastian](https://github.com/SutuSebastian)! - Ship the public docs site at https://stainless-code.com/persist (`apps/docs`); README is now the npm landing digest that links there.
+
 ## 0.2.0
 
 ### Minor Changes
