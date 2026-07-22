@@ -55,15 +55,15 @@ const storage = createStandardSchemaStorageAsync(() => localStorage, yupSchema)!
 // or: withStandardSchemaAsync(anyPersistStorage, yupSchema)
 ```
 
-That lane forces async hydrate even over localStorage — gate UI like IDB (`useHydrated`). Prefer the sync wrap when validate is sync.
+Async hydrate even over localStorage — gate UI like IDB (`useHydrated`). Prefer the sync wrap when validate is sync.
 
-Anything with sync `~standard.validate` works on the sync lane. Fact-checked implementers:
+Sync-lane implementers (fact-checked):
 
 - [ArkType](https://github.com/arktypeio/arktype), [Valibot](https://github.com/fabian-hiller/valibot), [Zod](https://github.com/colinhacks/zod) (v3.24+), [Raptor Validator](https://raptorjs.com/docs/validation) (v0.9.0+) — on the [official list](https://standardschema.dev/)
 - [Typia](https://typia.io/docs/validators/validate/) — `createValidate` / `createValidateEquals` (v9.2+)
 - [Effect Schema](https://effect.website/docs/schema/standard-schema/) — wrap with `Schema.standardSchemaV1`
 - [TypeMap](https://github.com/sinclairzx81/typemap) — `Compile(...)` for TypeBox (and others); TypeBox schematics alone do **not** implement `~standard`
 
-[Yup](https://github.com/jquense/yup) implements the spec, but its `~standard.validate` returns a `Promise` — use the async lane above (or a sync Standard Schema wrapper around `validateSync`).
+[Yup](https://github.com/jquense/yup) implements `~standard` as always-async — use the async lane (or wrap `validateSync` for sync hydrate).
 
 Encode writes the schema `value` (defaults/transforms). Date/Map/Set without a schema → [`./codecs/seroval`](/concepts/choosing-codec).

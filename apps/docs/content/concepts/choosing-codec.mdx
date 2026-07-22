@@ -15,4 +15,4 @@ localStorage stays JSON by default. Reach for seroval when Set/Map/Date must rou
 | `identityCodec`       | ✅ (structured clone)                      | `StorageValue<S>` (object) | ❌                | structured-clone only (IDB) | core                       |
 | custom `StorageCodec` | yours                                      | yours                      | yours             | any                         | custom `encode`/`decode`   |
 
-`standardSchemaCodec` accepts any sync [`~standard`](https://standardschema.dev/) schema and persists its `value`. Schema gating also composes via `withStandardSchema` / `withStandardSchemaAsync` over any `PersistStorage` (sync vs async lanes) — library matrix and Yup notes in the [Standard Schema recipe](/recipes/standard-schema). Composition: [The three seams](/concepts/three-seams).
+`standardSchemaCodec` is sync [`~standard`](https://standardschema.dev/) over JSON. Prefer `withStandardSchema` / `withStandardSchemaAsync` over any `PersistStorage` when you need non-JSON compose or async validate — [recipe](/recipes/standard-schema). Composition: [The three seams](/concepts/three-seams).
