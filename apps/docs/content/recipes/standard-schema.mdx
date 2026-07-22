@@ -5,7 +5,7 @@ search:
   tags: ["recipe", "standard-schema", "codec"]
 ---
 
-Invalid prefs must not survive a refresh. Pass any sync `~standard` schema — Persist validates on write and on read; `clearCorruptOnFailure` deletes the key.
+Invalid prefs must not survive a refresh. Pass any sync `~standard` schema — Persist validates on write and on read; `clearCorruptOnFailure` attempts to remove the key.
 
 ```ts
 import { z } from "zod";
