@@ -16,12 +16,23 @@ sources:
 
 For backends with **no** `storage` events (IndexedDB). Must **`wrap(storage)`** and pass `crossTabEventTarget` with `crossTab: true`. Posts `storageArea: null` (key-only match — each tab owns its backend instance). Returns `undefined` if `BroadcastChannel` missing. Call `close()` on teardown.
 
+## Install
+
+```bash
+bun add @stainless-code/persist idb-keyval @tanstack/store
+```
+
+Example peers: `idb-keyval` (IDB backend) + `@tanstack/store` (source). Swap either for your stack.
+
 ## Minimal wiring
 
 ```ts
+import { Store } from "@tanstack/store";
 import { createIdbStorage } from "@stainless-code/persist/backends/idb";
+import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
 import { createBroadcastCrossTab } from "@stainless-code/persist/transport/crosstab";
 
+const store = new Store({ theme: "light" });
 const bridge = createBroadcastCrossTab({ channelName: "app:prefs" })!;
 const persist = persistStore(store, {
   name: "app:prefs:v1",

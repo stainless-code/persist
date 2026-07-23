@@ -23,6 +23,8 @@ Thin adapters over `persistSource` — shared Options / gate / throttle / cross-
 
 ```bash
 bun add @stainless-code/persist @tanstack/store
+# Set/Map/Date on string-wire backends:
+bun add seroval
 ```
 
 `@tanstack/store` is an optional peer of `/sources/tanstack-store`.
@@ -31,15 +33,17 @@ bun add @stainless-code/persist @tanstack/store
 
 ```ts
 import { Store } from "@tanstack/store";
-import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
+import { createJSONStorage } from "@stainless-code/persist";
 import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
 
 const store = new Store({ theme: "light" });
 const persist = persistStore(store, {
   name: "app:prefs:v1",
-  storage: createSerovalStorage(() => localStorage),
+  storage: createJSONStorage(() => localStorage),
 });
 ```
+
+`Set`/`Map`/`Date` → `createSerovalStorage` from `/codecs/seroval` (see `persist-seroval`).
 
 Keep the `PersistApi` for `rehydrate()` / `destroy()` / `onHydrate` / `clearStorage()`. Non-singletons must `destroy()` on teardown.
 

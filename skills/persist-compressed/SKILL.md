@@ -19,15 +19,16 @@ sources:
 ## Minimal wiring
 
 ```ts
-import { createStorage } from "@stainless-code/persist";
+import { createStorage, jsonCodec } from "@stainless-code/persist";
 import { createCompressedStorage } from "@stainless-code/persist/backends/compressed";
-import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
 
 const storage = createStorage<Prefs>(
   () => createCompressedStorage(() => localStorage)!,
-  serovalCodec(),
+  jsonCodec(),
 );
 ```
+
+Richer graphs → `persist-seroval` as the codec.
 
 Formats: `gzip` | `deflate` | `deflate-raw` (`deflate-raw` needs Node `20.12+`).
 

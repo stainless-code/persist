@@ -19,17 +19,16 @@ Exports **`nodeFsStateStorage({ dir })` only** — compose with `createStorage` 
 ## Minimal wiring
 
 ```ts
-import { createStorage } from "@stainless-code/persist";
+import { createStorage, jsonCodec } from "@stainless-code/persist";
 import { nodeFsStateStorage } from "@stainless-code/persist/backends/node-fs";
-import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
 
 const storage = createStorage<Prefs>(
   () => nodeFsStateStorage({ dir: "./.persist" }),
-  serovalCodec(),
+  jsonCodec(),
 );
 ```
 
-No optional peer — uses `node:fs`.
+No optional peer for this backend — uses `node:fs`. Richer graphs → `persist-seroval` as the codec.
 
 ## Common mistakes
 
@@ -40,5 +39,3 @@ No optional peer — uses `node:fs`.
 ## API surface
 
 - `nodeFsStateStorage({ dir }) → StateStorage<string>`
-
-See also: `persist-seroval`.

@@ -20,18 +20,22 @@ For **tokens / small secrets**, not full app state (~**2KB/key**). Async → gat
 ## Install
 
 ```bash
-bun add @stainless-code/persist expo-secure-store
+bun add @stainless-code/persist expo-secure-store zustand
 ```
 
-Peer: `expo-secure-store` `>=12.0.0`.
+Peers: `expo-secure-store` `>=12.0.0`; example uses `zustand` (any `./sources/*` adapter works).
 
 ## Minimal wiring
 
 ```ts
+import { create } from "zustand";
 import { createSecureStoreStorage } from "@stainless-code/persist/backends/secure-store";
+import { persistStore } from "@stainless-code/persist/sources/zustand";
 
-const storage = createSecureStoreStorage<AuthToken>()!;
-persistStore(store, {
+type Auth = { token: string };
+const useAuth = create<Auth>(() => ({ token: "" }));
+const storage = createSecureStoreStorage<string>()!;
+persistStore(useAuth, {
   name: "auth:token:v1",
   storage,
   partialize: (s) => s.token,

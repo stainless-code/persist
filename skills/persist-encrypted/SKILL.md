@@ -21,18 +21,22 @@ Decrypt failure (wrong key / tamper) → backend `getItem` **rejects** → `onEr
 ## Minimal wiring
 
 ```ts
-import { createStorage } from "@stainless-code/persist";
+import { createStorage, jsonCodec } from "@stainless-code/persist";
 import { createEncryptedStorage } from "@stainless-code/persist/backends/encrypted";
-import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
 
+const key = await crypto.subtle.generateKey(
+  { name: "AES-GCM", length: 256 },
+  true,
+  ["encrypt", "decrypt"],
+);
 const storage = createStorage<Prefs>(
   () => createEncryptedStorage(() => localStorage, { key })!,
-  serovalCodec(),
+  jsonCodec(),
   { clearCorruptOnFailure: true },
 );
 ```
 
-`key` is a `CryptoKey` for AES-GCM.
+Richer graphs → compose with `persist-seroval` instead of `jsonCodec`.
 
 ## Common mistakes
 
@@ -44,4 +48,4 @@ const storage = createStorage<Prefs>(
 
 - `createEncryptedStorage(getStorage, { key }) → StateStorage<string> | undefined`
 
-See also: `persist-compressed`; `persist-seroval`.
+See also: `persist-compressed`.
