@@ -18,7 +18,7 @@ skills:
     path: skills/persist/SKILL.md
     status: shipped
 
-  # Sources (composition) — persist-<adapter>
+  # Sources
   - slug: persist-tanstack-store
     type: composition
     path: skills/persist-tanstack-store/SKILL.md
@@ -48,7 +48,53 @@ skills:
     path: skills/persist-redux/SKILL.md
     status: shipped
 
-  # Frameworks — <framework>-persist (all require `persist`)
+  # Codecs
+  - slug: persist-seroval
+    type: composition
+    path: skills/persist-seroval/SKILL.md
+    status: shipped
+  - slug: persist-standard-schema
+    type: composition
+    path: skills/persist-standard-schema/SKILL.md
+    status: shipped
+
+  # Backends
+  - slug: persist-idb
+    type: composition
+    path: skills/persist-idb/SKILL.md
+    status: shipped
+  - slug: persist-async-storage
+    type: composition
+    path: skills/persist-async-storage/SKILL.md
+    status: shipped
+  - slug: persist-mmkv
+    type: composition
+    path: skills/persist-mmkv/SKILL.md
+    status: shipped
+  - slug: persist-secure-store
+    type: composition
+    path: skills/persist-secure-store/SKILL.md
+    status: shipped
+  - slug: persist-encrypted
+    type: composition
+    path: skills/persist-encrypted/SKILL.md
+    status: shipped
+  - slug: persist-compressed
+    type: composition
+    path: skills/persist-compressed/SKILL.md
+    status: shipped
+  - slug: persist-node-fs
+    type: composition
+    path: skills/persist-node-fs/SKILL.md
+    status: shipped
+
+  # Transport
+  - slug: persist-crosstab
+    type: composition
+    path: skills/persist-crosstab/SKILL.md
+    status: shipped
+
+  # Frameworks — <framework>-persist
   - slug: react-persist
     type: framework
     path: skills/react-persist/SKILL.md
