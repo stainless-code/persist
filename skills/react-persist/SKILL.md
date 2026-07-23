@@ -16,8 +16,6 @@ sources:
 
 # React hydration gate
 
-This skill builds on `persist`. Read it first for `persistSource` / Options / `toHydrationSignal`.
-
 `@stainless-code/persist/frameworks/react` exports `useHydrated(signal)` — a thin `useSyncExternalStore` wrapper over `HydrationSignal`. It does **not** persist state; pair it with a `./sources/*` adapter (`persist-zustand`, `persist-tanstack-store`, …).
 
 ## When to use this skill
@@ -73,4 +71,4 @@ return <PrefsView prefs={prefs} />;
 - `useHydrated(signal: HydrationSignal | null | undefined) → { hydrated: boolean }`
 - Core helper: `toHydrationSignal(persist)` from `@stainless-code/persist`
 
-See also: the `persist-*` source skill for your store library; sibling framework skills (`vue-persist`, `solid-persist`, `svelte-persist`, `svelte-store-persist`, `preact-persist`, `angular-persist`, `lit-persist`, `alpine-persist`).
+See also: the matching `persist-*` source skill for your store.

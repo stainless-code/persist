@@ -15,8 +15,6 @@ sources:
 
 # Vue hydration gate
 
-This skill builds on `persist`. Read it first for `toHydrationSignal`.
-
 `@stainless-code/persist/frameworks/vue` returns a `Ref<boolean>` (`shallowRef`). Call inside `setup()` / an active `effectScope()` so `onScopeDispose` unsubscribes.
 
 ## Install
@@ -47,10 +45,10 @@ const hydrated = useHydrated(prefsHydration);
 
 - **Calling outside setup / scope** — leak or no teardown.
 - **Treating the ref as store state.**
-- **SSR expects `false`.** Server renders hydrated `true`.
+- **SSR / null signal.** Null stays `true`; there is no separate server snapshot (unlike React `getServerSnapshot`).
 
 ## API surface
 
 - `useHydrated(signal) → Ref<boolean>`
 
-See also: `persist-pinia` for Pinia store wiring; `persist`.
+See also: `persist-pinia` for Pinia store wiring.

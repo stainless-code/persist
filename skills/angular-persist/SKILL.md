@@ -15,9 +15,7 @@ sources:
 
 # Angular hydration gate
 
-This skill builds on `persist`. Read it first for `toHydrationSignal`.
-
-`@stainless-code/persist/frameworks/angular` returns a readonly `Signal<boolean>`. Must be called in an **injection context** (`effect()` requires it — typically a component field initializer).
+`@stainless-code/persist/frameworks/angular` returns a readonly `Signal<boolean>`. A real signal needs an **injection context** (`effect()`); null/undefined returns a shared `signal(true)` without `effect()`.
 
 ## Install
 
@@ -54,5 +52,3 @@ export class PrefsComponent {
 ## API surface
 
 - `useHydrated(signal) → Signal<boolean>` (readonly)
-
-See also: `persist`.

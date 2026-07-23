@@ -15,8 +15,6 @@ sources:
 
 # Solid hydration gate
 
-This skill builds on `persist`. Read it first for `toHydrationSignal`.
-
 `@stainless-code/persist/frameworks/solid` returns an `Accessor<boolean>` — call `hydrated()` inside tracking scopes (`createEffect`, JSX, …).
 
 ## Install
@@ -36,6 +34,10 @@ const hydrated = useHydrated(prefsHydration);
 // <Show when={hydrated()} fallback={<Skeleton />}>…</Show>
 ```
 
+## Contracts
+
+Null/undefined signal → hydrated `true`. SSR policy: treat as hydrated `true`.
+
 ## Common mistakes
 
 - **Using `hydrated` as a boolean** — it's an accessor; call it.
@@ -45,5 +47,3 @@ const hydrated = useHydrated(prefsHydration);
 ## API surface
 
 - `useHydrated(signal) → Accessor<boolean>`
-
-See also: `persist`.

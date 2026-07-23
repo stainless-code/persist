@@ -23,7 +23,7 @@ sources:
 - You're migrating off `zustand/middleware`'s `persist`.
 - You need async-backend hydration gating (`useHydrated`) shared with other Persist sources.
 
-Other sources → matching `persist-*` skill (`persist-jotai`, `persist-redux`, …). Hand-rolled shapes → `persistSource`. UI gate → `react-persist`.
+Other sources → matching `persist-*` skill. UI gate → `*-persist`.
 
 ## Install
 
@@ -95,6 +95,4 @@ useEffect(() => {
 ## API surface for this skill
 
 - `persistStore(store, options) → PersistApi` — `store: StoreApi<TState>`
-- Options / `PersistApi`: same as `persistSource` (see JSDoc on `@stainless-code/persist` and `persist-tanstack-store` for the full list)
-
-See also: `persist-tanstack-store` — shared Options semantics (`throttleMs`, `crossTab`, `migrate`, `maxAge`) with TanStack Store examples.
+- Options / `PersistApi`: see skill `persist`.

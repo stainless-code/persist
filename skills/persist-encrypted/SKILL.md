@@ -14,8 +14,6 @@ sources:
 
 # Encrypted backend wrapper
 
-This skill builds on `persist`.
-
 **Not a `StorageCodec`.** Wraps an inner string `StateStorage` with WebCrypto AES-GCM (`base64(iv).base64(ct)`). Returns `undefined` if `crypto.subtle` missing. Stack with compression: **compress → encrypt**.
 
 Decrypt failure (wrong key / tamper) → backend `getItem` **rejects** → `onError` phase `"hydrate"` — **not** the codec `clearCorruptOnFailure` path.
@@ -46,4 +44,4 @@ const storage = createStorage<Prefs>(
 
 - `createEncryptedStorage(getStorage, { key }) → StateStorage<string> | undefined`
 
-See also: `persist-compressed`; `persist-seroval`; `persist`.
+See also: `persist-compressed`; `persist-seroval`.

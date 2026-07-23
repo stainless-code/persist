@@ -1,6 +1,6 @@
 ---
 name: alpine-persist
-description: Gate Alpine.js UI on Persist hydration via Alpine.plugin(persist) and useHydrated / $hydrated magic. Use when wiring HydrationSignal into Alpine data components.
+description: Gate Alpine.js UI on Persist hydration (Alpine.plugin + useHydrated / $hydrated). Use when wiring HydrationSignal into Alpine data components.
 license: MIT
 metadata:
   type: framework
@@ -14,8 +14,6 @@ sources:
 ---
 
 # Alpine hydration gate
-
-This skill builds on `persist`. Read it first for `toHydrationSignal`.
 
 `@stainless-code/persist/frameworks/alpine` is **plugin-first**: `Alpine.plugin(persist)` registers `$hydrated` and enables reactive `useHydrated`. Call `destroy()` from `Alpine.data` teardown.
 
@@ -50,17 +48,15 @@ Alpine.data("prefs", () => {
 });
 ```
 
-Template: `x-show="hydrated"` / `$hydrated` magic (cached per element).
+Template: `x-show="$hydrated(prefsHydration).hydrated"` — `$hydrated(signal)` returns a **bag** (`{ hydrated, destroy }`), not a boolean (a bare bag is always truthy in `x-show`). Magic caches per element.
 
 ## Common mistakes
 
 - **Skipping `Alpine.plugin(persist)`.** `useHydrated` falls back to a plain object + one-time non-prod warn.
+- **`x-show="$hydrated(...)"` without `.hydrated`.**
 - **Not forwarding `destroy()`** from `Alpine.data`.
-- **Stacking manual `$hydrated` subscriptions** — magic already caches per element.
 
 ## API surface
 
-- default/`persist(Alpine)` — plugin
-- `useHydrated(signal) → { hydrated; destroy() }`
-
-See also: `persist`.
+- default/`persist(Alpine)` — plugin; registers `$hydrated(signal) → HydratedBag`
+- `useHydrated(signal) → { hydrated; destroy() }` (null signal → `{ hydrated: true }`)

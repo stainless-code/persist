@@ -6,7 +6,7 @@ metadata:
   type: composition
   library: "@stainless-code/persist"
   library_version: "0.4.0"
-  framework: "mmkv"
+  framework: "react-native-mmkv"
 requires:
   - persist
 sources:
@@ -14,8 +14,6 @@ sources:
 ---
 
 # MMKV backend
-
-This skill builds on `persist`.
 
 **Sync** backend — no hydrate UI gate required for flash. JSON string-wire. `id` namespaces the MMKV file. `encryptionKey` is MMKV's own key (max **16 bytes**), not `persist-encrypted`.
 
@@ -45,4 +43,4 @@ const storage = createMmkvStorage<Prefs>({ id: "app-prefs" })!;
 
 - `createMmkvStorage({ id, path?, encryptionKey? })` · `mmkvStateStorage(instance)`
 
-See also: `persist-async-storage`; `persist-encrypted` for WebCrypto AES-GCM; `persist`.
+See also: `persist-async-storage`; `persist-encrypted` for WebCrypto AES-GCM.

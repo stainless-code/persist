@@ -15,8 +15,6 @@ sources:
 
 # Seroval codec
 
-This skill builds on `persist`. Read it first for `createStorage` / `clearCorruptOnFailure`.
-
 `@stainless-code/persist/codecs/seroval` round-trips values JSON cannot (`Set`/`Map`/`Date`) via `seroval` `toJSON`/`fromJSON` on string-wire backends (`localStorage`, etc.).
 
 ## Install
@@ -50,4 +48,4 @@ Or `createStorage(getStorage, serovalCodec(), opts)`.
 - `serovalCodec<S>() → StorageCodec<S>`
 - `createSerovalStorage(getStorage, options?) → PersistStorage | undefined`
 
-See also: `persist-idb` for structured-clone without seroval; `persist`.
+See also: `persist-idb` for structured-clone without seroval.

@@ -49,10 +49,11 @@ JSON sugar: `createStandardSchemaStorage(() => localStorage, schema)`.
 - **Treating wrong-lane throws as corrupt** — they must not clear storage.
 - **Schema-checking the whole envelope** — only `state`.
 - **Skipping `useHydrated` on the async lane.**
+- **Stacking wrap + `standardSchemaCodec`** — double-validates; pick one.
 
 ## API surface
 
 - `standardSchemaCodec(schema)` · `withStandardSchema` / `withStandardSchemaAsync`
 - `createStandardSchemaStorage` / `createStandardSchemaStorageAsync`
 
-See also: `persist`; `persist-idb` for async backends.
+See also: `persist-idb` for async backends.

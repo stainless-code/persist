@@ -14,8 +14,6 @@ sources:
 
 # Node filesystem backend
 
-This skill builds on `persist`.
-
 Exports **`nodeFsStateStorage({ dir })` only** — compose with `createStorage` + a codec. One file per key; sanitized name + **djb2 hash** suffix (collision-safe). Refuses keys that sanitize to `.` / `..` / `""`. ENOENT → null / no-op remove.
 
 ## Minimal wiring
@@ -43,4 +41,4 @@ No optional peer — uses `node:fs`.
 
 - `nodeFsStateStorage({ dir }) → StateStorage<string>`
 
-See also: `persist-seroval`; `persist`.
+See also: `persist-seroval`.

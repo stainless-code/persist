@@ -1,6 +1,6 @@
 ---
 name: persist-pinia
-description: Persist a Pinia store instance with @stainless-code/persist (persistStore). Use when wiring Pinia option/setup stores to localStorage/sessionStorage/IndexedDB; hydrate replaces $state (not $patch).
+description: Persist a Pinia store instance with @stainless-code/persist (persistStore). Use when wiring Pinia option/setup stores to storage; hydrate applies via $state = (not $patch), with default shallow merge.
 license: MIT
 metadata:
   type: composition
@@ -14,7 +14,7 @@ sources:
 
 # Persisting Pinia
 
-`@stainless-code/persist/sources/pinia` maps a **store instance** onto `persistSource`. Hydrate assigns **`$state`** (full replace). Subscribe uses `$subscribe(…, { detached: true })` so the listener survives Vue `effectScope` stop.
+`@stainless-code/persist/sources/pinia` maps a **store instance** onto `persistSource`. Hydrate applies via **`$state =`** (not `$patch`); default `merge` still shallow-spreads, so keys absent from the payload can remain. Subscribe uses `$subscribe(…, { detached: true })` so the listener survives Vue `effectScope` stop.
 
 ## When to use this skill
 
@@ -50,7 +50,7 @@ const persist = persistStore(store, {
 ## Common mistakes
 
 - **Passing `defineStore(...)` / the factory** instead of `usePrefs()` instance.
-- **Expecting `$patch` semantics on hydrate.** Persist replaces `$state`.
+- **Expecting `$patch` semantics on hydrate.** Persist assigns `$state` after `merge`.
 - **Name clash with Redux `persistStore`.** Import from `/sources/pinia` (or alias).
 - **Call before `setActivePinia` / app.use(pinia).** Same as any Pinia store use.
 

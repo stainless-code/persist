@@ -15,8 +15,6 @@ sources:
 
 # Svelte stores hydration gate
 
-This skill builds on `persist`. Read it first for `toHydrationSignal`.
-
 `@stainless-code/persist/frameworks/svelte-store` exports `hydratedStore(signal) → Readable<boolean>`. Use `$hydrated` auto-subscribe in templates. **Separate public entry** from `./frameworks/svelte` (runes).
 
 ## Install
@@ -42,6 +40,10 @@ Peer: `svelte` `>=3.0.0`.
 {/if}
 ```
 
+## Contracts
+
+Null/undefined → `readable(true)`. SSR: hydrated `true`.
+
 ## Common mistakes
 
 - **Using this for Svelte 5 runes UI.** Use `svelte-persist` / `hydratedRune`.
@@ -52,4 +54,4 @@ Peer: `svelte` `>=3.0.0`.
 
 - `hydratedStore(signal) → Readable<boolean>`
 
-See also: `svelte-persist`; `persist`.
+See also: `svelte-persist`.

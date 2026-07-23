@@ -14,7 +14,7 @@ sources:
 
 # Persist
 
-Zero-dep `persistSource(source, options)` owns hydrate → subscribe → write. First-party `./sources/*` adapters only supply a `PersistableSource` shape (`getState` / `setState` / `subscribe`).
+Zero-dep `persistSource(source, options)` owns hydrate → subscribe → write. First-party `./sources/*` adapters map library APIs onto `PersistableSource` (`getState` / `setState` / `subscribe`) and may add opinions (default `merge`, reducer wraps, assign vs `$patch`).
 
 ## When to use this skill
 
@@ -53,7 +53,8 @@ const persist = persistSource(
 - **`throttleMs`** — trailing-only; first write waits out the window. `destroy()` flushes pending writes.
 - **`maxAge`** — opt-in; prefs should not silently expire.
 - **`instanceof Promise`** on reads — not thenable duck-typing.
-- **`PersistDecodeRethrowError`** — decode errors that must not hit `clearCorrupt` (wrong sync/async lane).
+- **`PersistDecodeRethrowError`** — decode errors that must rethrow / skip `clearCorrupt` (e.g. wrong sync/async schema lane).
+- **`migrate`** — called once with `(state, fromVersion)`; multi-step chains → `createMigrationChain`.
 - **Teardown** — `persist.destroy()` for non-singleton lifetimes.
 
 ## `PersistApi` (keep the reference)

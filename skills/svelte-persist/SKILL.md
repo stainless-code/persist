@@ -15,8 +15,6 @@ sources:
 
 # Svelte 5 runes hydration gate
 
-This skill builds on `persist`. Read it first for `toHydrationSignal`.
-
 `@stainless-code/persist/frameworks/svelte` exports `hydratedRune(signal)` → `{ readonly current: boolean }`. Read `.current` inside `$derived` / `$effect` / `{#if}` (createSubscriber is lazy inside a reactive owner).
 
 **Stores / Svelte 3–4 / Svelte 5 store users → `svelte-store-persist`** (`./frameworks/svelte-store`).
@@ -44,6 +42,10 @@ Needs Svelte **5.7+** for `svelte/reactivity` `createSubscriber` (package peer a
 {/if}
 ```
 
+## Contracts
+
+Null/undefined → `current: true`. SSR: hydrated `true`.
+
 ## Common mistakes
 
 - **Using this entry for store-based UI.** Import `svelte-store-persist`.
@@ -54,4 +56,4 @@ Needs Svelte **5.7+** for `svelte/reactivity` `createSubscriber` (package peer a
 
 - `hydratedRune(signal) → { readonly current: boolean }`
 
-See also: `svelte-store-persist`; `persist`.
+See also: `svelte-store-persist`.

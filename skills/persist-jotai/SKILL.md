@@ -55,12 +55,10 @@ Default `merge` is `(persisted) => persisted`. Shallow-spreading a primitive cor
 ## Common mistakes
 
 - **Omitting `createStore`.** `persistAtom(store, atom, opts)` — store first.
-- **Readonly / computed atoms.** Only writable atoms; no `set` → not persistable.
+- **Readonly / computed atoms.** Typed as `WritableAtom` only — **no** runtime throw (unlike TanStack `persistAtom`).
 - **Assuming object shallow-merge.** Primitives need replace (the default).
 
 ## API surface
 
 - `persistAtom(store, atom, options) → PersistApi`
-- Options / `PersistApi`: same as `persistSource` (see `persist-tanstack-store` for the shared list)
-
-See also: `persist-tanstack-store` (`persistAtom` there has the same replace-merge opinionation).
+- Options / `PersistApi`: see skill `persist`. Replace-merge also used by TanStack `persistAtom` (`persist-tanstack-store`).

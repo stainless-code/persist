@@ -15,8 +15,6 @@ sources:
 
 # Preact hydration gate
 
-This skill builds on `persist`. Read it first for `toHydrationSignal`.
-
 `@stainless-code/persist/frameworks/preact` mirrors the React adapter via `preact/compat` `useSyncExternalStore` (SSR snapshot always `true`). Not a state source — pair with a `./sources/*` adapter.
 
 ## Install
@@ -49,4 +47,4 @@ return <PrefsView />;
 
 - `useHydrated(signal) → { hydrated: boolean }`
 
-See also: `react-persist` (same contract); `persist`.
+See also: `react-persist` (same contract).

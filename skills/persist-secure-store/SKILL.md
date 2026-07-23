@@ -15,8 +15,6 @@ sources:
 
 # SecureStore backend
 
-This skill builds on `persist`.
-
 For **tokens / small secrets**, not full app state (~**2KB/key**). Async → gate UI. Keys sanitized to `/^[\w.-]+$/` (`:` → `_`).
 
 ## Install
@@ -50,4 +48,4 @@ persistStore(store, {
 
 - `createSecureStoreStorage()` · `secureStoreStateStorage()`
 
-See also: `persist-mmkv`; `persist-encrypted`; `persist`.
+See also: `persist-mmkv`; `persist-encrypted`.

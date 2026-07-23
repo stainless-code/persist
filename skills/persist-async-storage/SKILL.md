@@ -6,7 +6,7 @@ metadata:
   type: composition
   library: "@stainless-code/persist"
   library_version: "0.4.0"
-  framework: "async-storage"
+  framework: "@react-native-async-storage/async-storage"
 requires:
   - persist
 sources:
@@ -15,8 +15,6 @@ sources:
 
 # AsyncStorage backend
 
-This skill builds on `persist`.
-
 JSON via `createJSONStorage` under the hood. Fully **async** → **`useHydrated` mandatory**. Factory does **not** accept `clearCorruptOnFailure` — use `createStorage(() => asyncStorageStateStorage(), jsonCodec(), opts)` when you need it.
 
 ## Install
@@ -24,6 +22,8 @@ JSON via `createJSONStorage` under the hood. Fully **async** → **`useHydrated`
 ```bash
 bun add @stainless-code/persist @react-native-async-storage/async-storage
 ```
+
+Peer: `@react-native-async-storage/async-storage` `>=1.0.0`.
 
 ## Minimal wiring
 
@@ -45,4 +45,4 @@ Optional custom instance for namespacing: `createAsyncStorage(myAsyncStorage)`.
 
 - `createAsyncStorage(storage?)` · `asyncStorageStateStorage(storage?)`
 
-See also: `persist-mmkv` (sync RN); `persist`.
+See also: `persist-mmkv` (sync RN).

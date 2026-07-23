@@ -14,8 +14,6 @@ sources:
 
 # Compressed backend wrapper
 
-This skill builds on `persist`.
-
 **Not a `StorageCodec`.** Uses `CompressionStream` / `DecompressionStream` (default `gzip`); output is **base64** on the string wire. Returns `undefined` if streams unavailable. Documented stack with encryption: **compress → encrypt**.
 
 ## Minimal wiring
@@ -31,7 +29,7 @@ const storage = createStorage<Prefs>(
 );
 ```
 
-Formats: `gzip` | `deflate` | `deflate-raw` (`deflate-raw` needs newer Node).
+Formats: `gzip` | `deflate` | `deflate-raw` (`deflate-raw` needs Node `20.12+`).
 
 ## Common mistakes
 
@@ -43,4 +41,4 @@ Formats: `gzip` | `deflate` | `deflate-raw` (`deflate-raw` needs newer Node).
 
 - `createCompressedStorage(getStorage, { format? }) → StateStorage<string> | undefined`
 
-See also: `persist-encrypted`; `persist`.
+See also: `persist-encrypted`.

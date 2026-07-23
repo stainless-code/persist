@@ -15,8 +15,6 @@ sources:
 
 # Lit hydration gate
 
-This skill builds on `persist`. Read it first for `toHydrationSignal`.
-
 `@stainless-code/persist/frameworks/lit` exports `HydrationController` — a `ReactiveController`, not a hook. Constructor calls `host.addController(this)`; subscribes on `hostConnected`, tears down on `hostDisconnected`.
 
 ## Install
@@ -47,11 +45,9 @@ class PrefsEl extends LitElement {
 ## Common mistakes
 
 - **Inventing `useHydrated` for Lit.** Use the controller.
-- **Reading `hydrated` once at construct** without rendering from it after connect (reconnect / late hydrate need `requestUpdate`).
+- **Caching `hydrated` outside render** — the controller already `requestUpdate`s on connect/change; read the getter in `render()`.
 - **Null signal ≠ loading** → `hydrated` true, no subscribe.
 
 ## API surface
 
 - `new HydrationController(host, signal)` — getter `hydrated: boolean`
-
-See also: `persist`.

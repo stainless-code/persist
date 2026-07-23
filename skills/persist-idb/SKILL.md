@@ -15,8 +15,6 @@ sources:
 
 # IndexedDB backend
 
-This skill builds on `persist`.
-
 `createIdbStorage` uses **structured clone** + `identityCodec` — `Set`/`Map`/`Date` work without seroval. Fully **async** → gate UI. No `storage` events → use `persist-crosstab` for multi-tab.
 
 ## Install
@@ -35,13 +33,13 @@ import { createIdbStorage } from "@stainless-code/persist/backends/idb";
 const storage = createIdbStorage<Prefs>();
 ```
 
-Custom codec / encrypt: `createStorage(() => idbStateStorage(store), codec, opts)`.
+Custom codec: `createStorage(() => idbStateStorage(store), codec, opts)`. Encrypt wraps the **backend**, not the codec arg — `createStorage(() => createEncryptedStorage(() => idbStateStorage(), { key })!, codec, opts)` (see `persist-encrypted`).
 
 ## Gotchas
 
 - **`clearCorruptOnFailure` is inert** on the default identity path (identity never throws).
 - IDB missing → reject on first use (`onError` `"hydrate"`), not at construct.
-- `crossTab: true` alone does nothing — need `persist-crosstab`.
+- `crossTab: true` alone is useless on IDB — no `storage` events; use `persist-crosstab` (`wrap` + `crossTabEventTarget`).
 
 ## Common mistakes
 
@@ -53,4 +51,4 @@ Custom codec / encrypt: `createStorage(() => idbStateStorage(store), codec, opts
 
 - `createIdbStorage(options?)` · `idbStateStorage(store?)`
 
-See also: `persist-crosstab`; `react-persist` (or other `*-persist`); `persist`.
+See also: `persist-crosstab`; `*-persist` for UI gates.

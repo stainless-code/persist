@@ -14,8 +14,6 @@ sources:
 
 # BroadcastChannel cross-tab transport
 
-This skill builds on `persist`.
-
 For backends with **no** `storage` events (IndexedDB). Must **`wrap(storage)`** and pass `crossTabEventTarget` with `crossTab: true`. Posts `storageArea: null` (key-only match — each tab owns its backend instance). Returns `undefined` if `BroadcastChannel` missing. Call `close()` on teardown.
 
 ## Minimal wiring
@@ -46,4 +44,4 @@ const persist = persistStore(store, {
 
 - `createBroadcastCrossTab({ channelName }) → { crossTabEventTarget, wrap, close } | undefined`
 
-See also: `persist-idb`; `persist`.
+See also: `persist-idb`.
