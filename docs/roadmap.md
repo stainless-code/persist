@@ -6,6 +6,7 @@ Forward-looking plans only — **not** a mirror of `src/`. **Doc index:** [READM
 
 ## Next
 
+- **Multi-package split** — layers-shaped monorepo; zero-peer `@stainless-code/persist` in `packages/core` + opt-in `persist-*` / `<fw>-persist` packages; hard cut at **0.5.0** (v1 later = stability). Plan: [`plans/multi-package-split.md`](./plans/multi-package-split.md).
 - **Remaining ROI work** — actionable items not yet shipped: TanStack Query bridge, `examples/` workspace, real-browser + SSR + framework-runtime test matrix, React ergonomics layer, OPFS/SQLite/Cloudflare adapters, playground. Plan: [`plans/remaining-roi.md`](./plans/remaining-roi.md).
 - **Upstream TanStack Persist collaboration** — pitch the `persistSource` middleware model (structural `PersistableSource` + first-class hydration lifecycle) to the TanStack Persist maintainers as a merge target, after the stainless-code publish stabilises. Draft: [`plans/upstream-tanstack-pitch.md`](./plans/upstream-tanstack-pitch.md).
 
