@@ -1,6 +1,11 @@
 # [Changesets](https://github.com/changesets/changesets): open a "Version packages" PR when
 # `.changeset/*.md` files land on `main`, then publish to npm when that PR merges via npm
 # trusted publishing (GitHub OIDC — no NPM_TOKEN; provenance auto-generated).
+#
+# Auth: a GitHub App installation token (not `permissions.workflows` on GITHUB_TOKEN —
+# that key is invalid for workflow YAML and causes startup_failure with 0 jobs). The App
+# needs Contents + Pull requests + Workflows so tag push still works when the tip range
+# touches `.github/workflows/*`. Setup: CONTRIBUTING.md § Releases.
 name: Release
 
 on:
@@ -14,8 +19,6 @@ permissions:
   contents: write
   pull-requests: write
   id-token: write
-  # Post-publish tag push fails without this if the tip tree includes workflow files.
-  workflows: write
 
 jobs:
   release:
@@ -23,10 +26,31 @@ jobs:
     runs-on: ubuntu-latest
     environment: release
     steps:
+      - name: Require Release GitHub App credentials
+        if: ${{ vars.RELEASE_APP_CLIENT_ID == '' }}
+        run: |
+          echo "::error::Missing vars.RELEASE_APP_CLIENT_ID (and secret RELEASE_APP_PRIVATE_KEY) on the \`release\` environment. See .github/CONTRIBUTING.md § Releases."
+          exit 1
+
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          # Required so post-publish tag push is allowed when the tip range
+          # modified `.github/workflows/*` (GITHUB_TOKEN cannot do this).
+          permission-workflows: write
+
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
+          # Prefer the App token for any git auth from later steps.
+          persist-credentials: false
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup Bun and install
         uses: ./.github/actions/setup
@@ -44,9 +68,9 @@ jobs:
       # Opens/updates the Version PR when `.changeset/*.md` exist. When there are none, the action
       # can still run `publish` (see changesets/action) so a just-merged Version PR can ship.
       # `changeset publish` should exit 0 when there is nothing new to publish. If this job fails,
-      # read the step log: common causes are OIDC/trusted-publishing misconfig (`id-token: write`,
-      # the `release` environment, or the npm trusted-publisher binding), registry/network errors,
-      # or a real publish failure — not assumed from the runner alone.
+      # read the step log: common causes are missing Release App credentials, OIDC/trusted-publishing
+      # misconfig (`id-token: write`, the `release` environment, or the npm trusted-publisher binding),
+      # registry/network errors, or a real publish failure.
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1
@@ -57,5 +81,8 @@ jobs:
           title: "chore: version packages"
           commit: "chore: version packages"
           createGithubReleases: true
+          # App-authored API commits/tags; avoids GITHUB_TOKEN workflow-file push rejection.
+          commitMode: github-api
+          github-token: ${{ steps.app-token.outputs.token }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
