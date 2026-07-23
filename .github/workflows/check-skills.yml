@@ -1,10 +1,4 @@
-# check-skills.yml — Validates intent skills on PRs. After a release or manual
-# run, opens or updates one review PR when existing skills, artifact coverage,
-# or workspace package coverage need review.
-#
-# Triggers: pull requests touching skills/artifacts, new release published, or
-# manual workflow_dispatch.
-#
+# Validate skills on PR; post-release/manual: open Intent stale-coverage review PR.
 # intent-workflow-version: 3
 
 name: Check Skills
@@ -14,8 +8,6 @@ on:
     paths:
       - "skills/**"
       - "**/skills/**"
-      - "_artifacts/**"
-      - "**/_artifacts/**"
   release:
     types: [published]
   workflow_dispatch: {}

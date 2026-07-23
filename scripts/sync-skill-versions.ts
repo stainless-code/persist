@@ -11,7 +11,7 @@ const FIELD = /^( *library_version:\s*")([^"]*)(")/m;
 
 function* walkSkillFiles(dir: string): Generator<string> {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name === "_artifacts") continue;
+    if (!entry.isDirectory()) continue;
     const nested = join(dir, entry.name);
     const skill = join(nested, "SKILL.md");
     if (existsSync(skill)) yield skill;
