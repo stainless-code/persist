@@ -1,10 +1,4 @@
-# check-skills.yml — Validates intent skills on PRs. After a release or manual
-# run, opens or updates one review PR when existing skills, artifact coverage,
-# or workspace package coverage need review.
-#
-# Triggers: pull requests touching skills/artifacts, new release published, or
-# manual workflow_dispatch.
-#
+# Validate skills on PR; post-release/manual: open Intent stale-coverage review PR.
 # intent-workflow-version: 3
 
 name: Check Skills
@@ -14,8 +8,6 @@ on:
     paths:
       - "skills/**"
       - "**/skills/**"
-      - "_artifacts/**"
-      - "**/_artifacts/**"
   release:
     types: [published]
   workflow_dispatch: {}
@@ -31,16 +23,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: 20
-
-      - name: Install intent
-        run: npm install -g @tanstack/intent@0.3.4
+      - name: Setup Bun and install
+        uses: ./.github/actions/setup
 
       - name: Validate skills
-        run: intent validate --github-summary
+        run: bun run intent:validate -- --github-summary
 
   review:
     name: Check intent skill coverage
@@ -55,18 +42,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: 20
-
-      - name: Install intent
-        run: npm install -g @tanstack/intent@0.3.4
+      - name: Setup Bun and install
+        uses: ./.github/actions/setup
 
       - name: Check skills
         id: stale
         run: |
-          intent stale --github-review --package-label "@stainless-code/persist"
+          bun run intent:stale -- --github-review --package-label "@stainless-code/persist"
 
       - name: Open or update review PR
         if: steps.stale.outputs.has_review == 'true'
