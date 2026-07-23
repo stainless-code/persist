@@ -48,14 +48,14 @@ Match Oxfmt/Oxlint; prefer **straight-line code** and extracted helpers over lon
 
 [@changesets/cli](https://github.com/changesets/changesets) — run **`bunx changeset`** when your PR should bump the version, and commit the `.changeset/*.md` file. The Release workflow opens a "Version packages" PR and publishes to npm on merge via trusted publishing (GitHub OIDC; no `NPM_TOKEN`); Sigstore provenance is auto-generated.
 
-Release git auth uses a **GitHub App** (not `GITHUB_TOKEN`): App tokens can push tags when the tip range touched `.github/workflows/*`. `permissions.workflows` on `GITHUB_TOKEN` is invalid in workflow YAML and causes `startup_failure` (0 jobs).
+Release git uses a **GitHub App** install token (Contents + Pull requests + Workflows) so tag push works after workflow edits — `GITHUB_TOKEN` cannot.
 
 **One-time App setup** (org owner):
 
 1. Create an App under the org ([New GitHub App](https://github.com/organizations/stainless-code/settings/apps/new)) — name e.g. `stainless-code-release`; homepage any; **no** webhook.
-2. Repository permissions: **Contents** read/write, **Pull requests** read/write, **Workflows** read/write.
-3. Install the App on `stainless-code/persist` (or all org repos).
-4. On the repo **`release` environment**: variable `RELEASE_APP_CLIENT_ID` = App client ID; secret `RELEASE_APP_PRIVATE_KEY` = App private key PEM.
+2. Repository permissions: **Contents**, **Pull requests**, **Workflows** — read/write.
+3. Install on `stainless-code/persist`.
+4. Repo **`release` environment**: variable `RELEASE_APP_CLIENT_ID`; secret `RELEASE_APP_PRIVATE_KEY` (PEM).
 
 ### Issues
 
