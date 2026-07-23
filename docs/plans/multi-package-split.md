@@ -8,19 +8,19 @@ When this ships: lift durable bits into `docs/architecture.md` + README story + 
 
 - **Install burden** — consumers must not carry peers/deps for adapters they never import. Optional peers on one package still tax the graph and optics.
 - **Product tenets** — open/agnostic core; adapters layered and opt-in; predictable package scope.
-- **Naming** — framework packages are `<fw>-persist`; concern packages are `persist-<leaf>` (skills already use these names).
+- **Naming** — framework packages are `<fw>-persist`; concern packages are `persist-<leaf>`; core compose subpaths are flat `/<leaf>` (skill leaf without the `persist-` prefix). Seams stay in docs/src, not in the public path.
 - **Skills lead** — `skills/` is already split 1:1 with intended namespaces (v0.4.1). Package layout should match.
 - **Workspace infra** — match [layers](https://github.com/stainless-code/layers): private root, `packages/*`, per-package build/skills/README.
 
 ## Rules
 
 1. **Core has zero peers** — no `peerDependencies` / `peerDependenciesMeta` on `@stainless-code/persist`.
-2. **Npm peer ⇒ own package** — that peer is **required** on the satellite (not optional). Zero-peer compose (platform globals, vendored types, Node built-ins) stays on core as subpaths — skill ≠ package. Includes `node-fs` (`node:fs` is not an npm peer).
+2. **Npm peer ⇒ own package** — that peer is **required** on the satellite (not optional). Zero-peer compose (platform globals, vendored types, Node built-ins) stays on core as **flat** subpaths (`./encrypted`, not `./backends/encrypted`) — skill ≠ package. Includes `node-fs` (`node:fs` is not an npm peer).
 3. **Satellites depend on core** — `dependencies: { "@stainless-code/persist": "workspace:*" }` (like layers). Not a peerDependency; Rule 5 is about import composition, not a second `bun add`.
 4. **Skill ships with the package that owns the code** — move root `skills/` into `packages/*/skills/`; delete the root bag.
 5. **No core re-export from satellites** — consumers compose ≥2 import surfaces (source + storage ± gate). Unlike layers adapters, satellites do not re-export core.
 6. **Framework packages are hydration bindings only** — `useHydrated` / `HydrationController` / etc.; not a UI kit. Name: `<fw>-persist`.
-7. **Breaking cut at 0.5.0** — hard cut (remove peer-backed subpaths); CHANGELOG + migration path table; no codemod (pre-1.0). No forever mega-package that re-exports every satellite. **1.0.0 later** = stability seal only, not another package-shape break.
+7. **Breaking cut at 0.5.0** — hard cut: peel peer-backed entries **and** flatten zero-peer core subpaths; CHANGELOG + migration path table; no codemod (pre-1.0). No forever mega-package that re-exports every satellite. **1.0.0 later** = stability seal only, not another package-shape break.
 8. **Independent versions** — changesets `fixed: []`; `updateInternalDependencies: "patch"`. First publish wave: all packages at **0.5.0**; independent afterward.
 9. **No breaking npm until the full set is ready** — infra may land early if the `0.4.x` publish surface is unchanged; do not publish a half-split.
 
@@ -28,16 +28,16 @@ When this ships: lift durable bits into `docs/architecture.md` + README story + 
 
 ### `@stainless-code/persist` — zero peer (`packages/core`)
 
-| Subpath                    | Skill                     | Symbols                                                                               |
-| -------------------------- | ------------------------- | ------------------------------------------------------------------------------------- |
-| `.`                        | `persist`                 | `persistSource`, storage/codec factories, hydration signal APIs, types                |
-| `./backends/encrypted`     | `persist-encrypted`       | `createEncryptedStorage`                                                              |
-| `./backends/compressed`    | `persist-compressed`      | `createCompressedStorage`                                                             |
-| `./backends/node-fs`       | `persist-node-fs`         | `nodeFsStateStorage`                                                                  |
-| `./transport/crosstab`     | `persist-crosstab`        | `createBroadcastCrossTab`                                                             |
-| `./codecs/standard-schema` | `persist-standard-schema` | `withStandardSchema*`, `createStandardSchemaStorage` (vendored `~standard` — no peer) |
+| Subpath             | Skill                     | Symbols                                                                               |
+| ------------------- | ------------------------- | ------------------------------------------------------------------------------------- |
+| `.`                 | `persist`                 | `persistSource`, storage/codec factories, hydration signal APIs, types                |
+| `./encrypted`       | `persist-encrypted`       | `createEncryptedStorage`                                                              |
+| `./compressed`      | `persist-compressed`      | `createCompressedStorage`                                                             |
+| `./node-fs`         | `persist-node-fs`         | `nodeFsStateStorage`                                                                  |
+| `./crosstab`        | `persist-crosstab`        | `createBroadcastCrossTab`                                                             |
+| `./standard-schema` | `persist-standard-schema` | `withStandardSchema*`, `createStandardSchemaStorage` (vendored `~standard` — no peer) |
 
-Deps/peers: **none**.
+Deps/peers: **none**. Public path = skill leaf (drop `persist-` prefix). Seam folders (`backends/` / `codecs/` / `transport/`) are maintainer layout / docs vocabulary only — not part of the import.
 
 ### Concern satellites — `persist-<leaf>`, required peer
 
@@ -90,35 +90,35 @@ Today `src/testing/` is already omitted from `dist` / typedoc. Do **not** publis
 
 ## Old path → new
 
-| Old                         | New                                      |
-| --------------------------- | ---------------------------------------- |
-| `@stainless-code/persist`   | same                                     |
-| `…/backends/encrypted`      | same                                     |
-| `…/backends/compressed`     | same                                     |
-| `…/backends/node-fs`        | same                                     |
-| `…/transport/crosstab`      | same                                     |
-| `…/codecs/standard-schema`  | same                                     |
-| `…/codecs/seroval`          | `@stainless-code/persist-seroval`        |
-| `…/backends/idb`            | `@stainless-code/persist-idb`            |
-| `…/backends/async-storage`  | `@stainless-code/persist-async-storage`  |
-| `…/backends/mmkv`           | `@stainless-code/persist-mmkv`           |
-| `…/backends/secure-store`   | `@stainless-code/persist-secure-store`   |
-| `…/sources/tanstack-store`  | `@stainless-code/persist-tanstack-store` |
-| `…/sources/zustand`         | `@stainless-code/persist-zustand`        |
-| `…/sources/jotai`           | `@stainless-code/persist-jotai`          |
-| `…/sources/valtio`          | `@stainless-code/persist-valtio`         |
-| `…/sources/mobx`            | `@stainless-code/persist-mobx`           |
-| `…/sources/pinia`           | `@stainless-code/persist-pinia`          |
-| `…/sources/redux`           | `@stainless-code/persist-redux`          |
-| `…/frameworks/react`        | `@stainless-code/react-persist`          |
-| `…/frameworks/preact`       | `@stainless-code/preact-persist`         |
-| `…/frameworks/vue`          | `@stainless-code/vue-persist`            |
-| `…/frameworks/solid`        | `@stainless-code/solid-persist`          |
-| `…/frameworks/angular`      | `@stainless-code/angular-persist`        |
-| `…/frameworks/lit`          | `@stainless-code/lit-persist`            |
-| `…/frameworks/alpine`       | `@stainless-code/alpine-persist`         |
-| `…/frameworks/svelte`       | `@stainless-code/svelte-persist`         |
-| `…/frameworks/svelte-store` | `@stainless-code/svelte-store-persist`   |
+| Old                         | New                                       |
+| --------------------------- | ----------------------------------------- |
+| `@stainless-code/persist`   | same                                      |
+| `…/backends/encrypted`      | `@stainless-code/persist/encrypted`       |
+| `…/backends/compressed`     | `@stainless-code/persist/compressed`      |
+| `…/backends/node-fs`        | `@stainless-code/persist/node-fs`         |
+| `…/transport/crosstab`      | `@stainless-code/persist/crosstab`        |
+| `…/codecs/standard-schema`  | `@stainless-code/persist/standard-schema` |
+| `…/codecs/seroval`          | `@stainless-code/persist-seroval`         |
+| `…/backends/idb`            | `@stainless-code/persist-idb`             |
+| `…/backends/async-storage`  | `@stainless-code/persist-async-storage`   |
+| `…/backends/mmkv`           | `@stainless-code/persist-mmkv`            |
+| `…/backends/secure-store`   | `@stainless-code/persist-secure-store`    |
+| `…/sources/tanstack-store`  | `@stainless-code/persist-tanstack-store`  |
+| `…/sources/zustand`         | `@stainless-code/persist-zustand`         |
+| `…/sources/jotai`           | `@stainless-code/persist-jotai`           |
+| `…/sources/valtio`          | `@stainless-code/persist-valtio`          |
+| `…/sources/mobx`            | `@stainless-code/persist-mobx`            |
+| `…/sources/pinia`           | `@stainless-code/persist-pinia`           |
+| `…/sources/redux`           | `@stainless-code/persist-redux`           |
+| `…/frameworks/react`        | `@stainless-code/react-persist`           |
+| `…/frameworks/preact`       | `@stainless-code/preact-persist`          |
+| `…/frameworks/vue`          | `@stainless-code/vue-persist`             |
+| `…/frameworks/solid`        | `@stainless-code/solid-persist`           |
+| `…/frameworks/angular`      | `@stainless-code/angular-persist`         |
+| `…/frameworks/lit`          | `@stainless-code/lit-persist`             |
+| `…/frameworks/alpine`       | `@stainless-code/alpine-persist`          |
+| `…/frameworks/svelte`       | `@stainless-code/svelte-persist`          |
+| `…/frameworks/svelte-store` | `@stainless-code/svelte-store-persist`    |
 
 ## Monorepo layout
 
@@ -176,7 +176,7 @@ bun add @stainless-code/persist-mmkv
 ## Migration
 
 - Baseline: freeze last single-package **`0.4.x`**.
-- Ship multi-package as **`0.5.0`** across all 22 publishables: move the 21 peer-backed entries; leave zero-peer subpaths on core.
+- Ship multi-package as **`0.5.0`** across all 22 publishables: move the 21 peer-backed entries; keep zero-peer compose on core but **flatten** their public subpaths (`./backends/encrypted` → `./encrypted`, etc.).
 - **No codemod** — CHANGELOG breaking section + old→new table (above) + docs install paths.
 - No runtime shim / core re-export of satellites (recreates peer soup).
 - Update `apps/docs`, per-package READMEs, skill `library:` metadata, typedoc entry points, `sync-skill-versions` for multi-package.
@@ -184,6 +184,7 @@ bun add @stainless-code/persist-mmkv
 ## Non-goals
 
 - One package per zero-peer wrapper (`persist-encrypted` / `persist-node-fs` as npm) — skill yes, package no.
+- Keeping seam folders in public core exports (`./backends/*`, `./codecs/*`, `./transport/*`) — rejected; flatten at 0.5.
 - Umbrella / suite meta-package that re-aggregates all peers.
 - Renaming framework packages to `persist-react` — rejected; keep `<fw>-persist`.
 - Folding `svelte-store-persist` into `svelte-persist/store` — skills already chose two packages.
@@ -196,6 +197,6 @@ bun add @stainless-code/persist-mmkv
 - [ ] Each satellite declares exactly one required peer (svelte pair: both peer `svelte`) + `dependencies` on core.
 - [ ] Skills live under owning package; root `skills/` gone; `library` metadata points at that package.
 - [ ] Isolation + zero-dep core gates green; sherif/knip green.
-- [ ] CHANGELOG + docs cover old→new table; no half-split publish.
+- [ ] CHANGELOG + docs cover old→new table (peer peels **and** core subpath flatten); no half-split publish.
 - [ ] Root README = monorepo index; per-package npm READMEs; docs-governance README surfaces updated.
 - [ ] Happy-path installs above typecheck without unrelated peers in the lockfile noise.
