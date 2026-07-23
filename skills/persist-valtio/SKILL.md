@@ -5,7 +5,7 @@ license: MIT
 metadata:
   type: composition
   library: "@stainless-code/persist"
-  library_version: "0.4.0"
+  library_version: "0.4.1"
   framework: "valtio"
 sources:
   - stainless-code/persist:src/adapters/sources/valtio.ts

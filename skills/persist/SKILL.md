@@ -5,7 +5,7 @@ license: MIT
 metadata:
   type: core
   library: "@stainless-code/persist"
-  library_version: "0.4.0"
+  library_version: "0.4.1"
 sources:
   - stainless-code/persist:src/core/persist-core.ts
   - stainless-code/persist:docs/architecture.md
