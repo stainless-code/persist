@@ -73,4 +73,4 @@ return <PrefsView prefs={prefs} />;
 - `useHydrated(signal: HydrationSignal | null | undefined) → { hydrated: boolean }`
 - Core helper: `toHydrationSignal(persist)` from `@stainless-code/persist`
 
-See also: the `persist-*` source skill for your store library; other UI frameworks under `/frameworks/*` (`vue`, `solid`, `svelte`, …).
+See also: the `persist-*` source skill for your store library; sibling framework skills (`persist-vue`, `persist-solid`, `persist-svelte`, `persist-svelte-store`, `persist-preact`, `persist-angular`, `persist-lit`, `persist-alpine`).

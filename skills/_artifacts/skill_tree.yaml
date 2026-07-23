@@ -1,4 +1,4 @@
-# Intent skill tree — planned vs shipped skills for @stainless-code/persist.
+# Intent skill tree for @stainless-code/persist.
 # `_artifacts/` is excluded from the npm tarball.
 library:
   name: "@stainless-code/persist"
@@ -14,6 +14,8 @@ skills:
     type: core
     path: skills/persist-core/SKILL.md
     status: shipped
+
+  # Sources (composition)
   - slug: persist-tanstack-store
     type: composition
     path: skills/persist-tanstack-store/SKILL.md
@@ -42,37 +44,41 @@ skills:
     type: composition
     path: skills/persist-redux/SKILL.md
     status: shipped
+
+  # Frameworks (all require persist-core)
   - slug: persist-react
     type: framework
     path: skills/persist-react/SKILL.md
     status: shipped
-
-  # Remaining framework hydration adapters.
-  - slug: persist-vue
-    type: framework
-    path: skills/persist-vue/SKILL.md
-    status: planned
-  - slug: persist-solid
-    type: framework
-    path: skills/persist-solid/SKILL.md
-    status: planned
-  - slug: persist-svelte
-    type: framework
-    path: skills/persist-svelte/SKILL.md
-    status: planned
   - slug: persist-preact
     type: framework
     path: skills/persist-preact/SKILL.md
-    status: planned
+    status: shipped
+  - slug: persist-vue
+    type: framework
+    path: skills/persist-vue/SKILL.md
+    status: shipped
+  - slug: persist-solid
+    type: framework
+    path: skills/persist-solid/SKILL.md
+    status: shipped
   - slug: persist-angular
     type: framework
     path: skills/persist-angular/SKILL.md
-    status: planned
+    status: shipped
   - slug: persist-lit
     type: framework
     path: skills/persist-lit/SKILL.md
-    status: planned
+    status: shipped
   - slug: persist-alpine
     type: framework
     path: skills/persist-alpine/SKILL.md
-    status: planned
+    status: shipped
+  - slug: persist-svelte
+    type: framework
+    path: skills/persist-svelte/SKILL.md
+    status: shipped
+  - slug: persist-svelte-store
+    type: framework
+    path: skills/persist-svelte-store/SKILL.md
+    status: shipped

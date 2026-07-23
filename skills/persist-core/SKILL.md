@@ -77,4 +77,4 @@ export const hydration = toHydrationSignal(persist);
 | `Set`/`Map`/`Date` | `localStorage` | seroval codec       |
 | Structured clone   | IndexedDB      | `identityCodec`     |
 
-See also: `persist-react` for the React gate; composition skills for zustand / jotai / Redux / …
+See also: framework skills (`persist-react`, `persist-vue`, `persist-svelte`, …) for UI gates; composition skills for each `./sources/*` adapter.
