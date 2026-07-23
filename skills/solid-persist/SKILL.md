@@ -1,5 +1,5 @@
 ---
-name: persist-solid
+name: solid-persist
 description: Gate Solid UI on Persist hydration with useHydrated (Accessor). Use when avoiding flash of default state on async backends; read hydrated() in reactive scopes.
 license: MIT
 metadata:
@@ -8,14 +8,14 @@ metadata:
   library_version: "0.4.0"
   framework: "solid"
 requires:
-  - persist-core
+  - persist
 sources:
   - stainless-code/persist:src/adapters/frameworks/solid.ts
 ---
 
 # Solid hydration gate
 
-This skill builds on `persist-core`. Read it first for `toHydrationSignal`.
+This skill builds on `persist`. Read it first for `toHydrationSignal`.
 
 `@stainless-code/persist/frameworks/solid` returns an `Accessor<boolean>` — call `hydrated()` inside tracking scopes (`createEffect`, JSX, …).
 
@@ -46,4 +46,4 @@ const hydrated = useHydrated(prefsHydration);
 
 - `useHydrated(signal) → Accessor<boolean>`
 
-See also: `persist-core`.
+See also: `persist`.

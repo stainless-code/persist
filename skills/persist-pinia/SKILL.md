@@ -59,4 +59,4 @@ const persist = persistStore(store, {
 - `persistStore(store, options) → PersistApi` — `store` is a Pinia `Store`
 - Options / `PersistApi`: same as `persistSource`
 
-See also: `persist-react` / Vue hydration adapters for UI gating on async backends.
+See also: `react-persist` / Vue hydration adapters for UI gating on async backends.

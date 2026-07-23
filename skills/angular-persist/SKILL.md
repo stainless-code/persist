@@ -1,5 +1,5 @@
 ---
-name: persist-angular
+name: angular-persist
 description: Gate Angular UI on Persist hydration with useHydrated (readonly Signal). Call inside an injection context; use when avoiding flash of default state on async backends.
 license: MIT
 metadata:
@@ -8,14 +8,14 @@ metadata:
   library_version: "0.4.0"
   framework: "angular"
 requires:
-  - persist-core
+  - persist
 sources:
   - stainless-code/persist:src/adapters/frameworks/angular.ts
 ---
 
 # Angular hydration gate
 
-This skill builds on `persist-core`. Read it first for `toHydrationSignal`.
+This skill builds on `persist`. Read it first for `toHydrationSignal`.
 
 `@stainless-code/persist/frameworks/angular` returns a readonly `Signal<boolean>`. Must be called in an **injection context** (`effect()` requires it — typically a component field initializer).
 
@@ -55,4 +55,4 @@ export class PrefsComponent {
 
 - `useHydrated(signal) → Signal<boolean>` (readonly)
 
-See also: `persist-core`.
+See also: `persist`.

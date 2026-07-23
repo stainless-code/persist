@@ -1,5 +1,5 @@
 ---
-name: persist-vue
+name: vue-persist
 description: Gate Vue 3 UI on Persist hydration with useHydrated (shallowRef). Use in setup/effectScope when avoiding flash of default state on async backends.
 license: MIT
 metadata:
@@ -8,14 +8,14 @@ metadata:
   library_version: "0.4.0"
   framework: "vue"
 requires:
-  - persist-core
+  - persist
 sources:
   - stainless-code/persist:src/adapters/frameworks/vue.ts
 ---
 
 # Vue hydration gate
 
-This skill builds on `persist-core`. Read it first for `toHydrationSignal`.
+This skill builds on `persist`. Read it first for `toHydrationSignal`.
 
 `@stainless-code/persist/frameworks/vue` returns a `Ref<boolean>` (`shallowRef`). Call inside `setup()` / an active `effectScope()` so `onScopeDispose` unsubscribes.
 
@@ -53,4 +53,4 @@ const hydrated = useHydrated(prefsHydration);
 
 - `useHydrated(signal) → Ref<boolean>`
 
-See also: `persist-pinia` for Pinia store wiring; `persist-core`.
+See also: `persist-pinia` for Pinia store wiring; `persist`.

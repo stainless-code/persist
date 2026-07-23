@@ -1,5 +1,10 @@
 # Intent skill tree for @stainless-code/persist.
 # `_artifacts/` is excluded from the npm tarball.
+#
+# Naming:
+# - core → `persist`
+# - frameworks → `<framework>-persist`
+# - sources / codecs / backends / transport → `persist-<name>`
 library:
   name: "@stainless-code/persist"
   version: "0.4.0"
@@ -7,15 +12,13 @@ library:
   description: "Hydration-aware persistence for any reactive store"
 generated_at: "2026-07-23"
 
-# Flat leaves (`persist-<peer>`) avoid clashing with upstream library skill names.
-# Intent load: `@stainless-code/persist#<leaf>`.
 skills:
-  - slug: persist-core
+  - slug: persist
     type: core
-    path: skills/persist-core/SKILL.md
+    path: skills/persist/SKILL.md
     status: shipped
 
-  # Sources (composition)
+  # Sources (composition) — persist-<adapter>
   - slug: persist-tanstack-store
     type: composition
     path: skills/persist-tanstack-store/SKILL.md
@@ -45,40 +48,40 @@ skills:
     path: skills/persist-redux/SKILL.md
     status: shipped
 
-  # Frameworks (all require persist-core)
-  - slug: persist-react
+  # Frameworks — <framework>-persist (all require `persist`)
+  - slug: react-persist
     type: framework
-    path: skills/persist-react/SKILL.md
+    path: skills/react-persist/SKILL.md
     status: shipped
-  - slug: persist-preact
+  - slug: preact-persist
     type: framework
-    path: skills/persist-preact/SKILL.md
+    path: skills/preact-persist/SKILL.md
     status: shipped
-  - slug: persist-vue
+  - slug: vue-persist
     type: framework
-    path: skills/persist-vue/SKILL.md
+    path: skills/vue-persist/SKILL.md
     status: shipped
-  - slug: persist-solid
+  - slug: solid-persist
     type: framework
-    path: skills/persist-solid/SKILL.md
+    path: skills/solid-persist/SKILL.md
     status: shipped
-  - slug: persist-angular
+  - slug: angular-persist
     type: framework
-    path: skills/persist-angular/SKILL.md
+    path: skills/angular-persist/SKILL.md
     status: shipped
-  - slug: persist-lit
+  - slug: lit-persist
     type: framework
-    path: skills/persist-lit/SKILL.md
+    path: skills/lit-persist/SKILL.md
     status: shipped
-  - slug: persist-alpine
+  - slug: alpine-persist
     type: framework
-    path: skills/persist-alpine/SKILL.md
+    path: skills/alpine-persist/SKILL.md
     status: shipped
-  - slug: persist-svelte
+  - slug: svelte-persist
     type: framework
-    path: skills/persist-svelte/SKILL.md
+    path: skills/svelte-persist/SKILL.md
     status: shipped
-  - slug: persist-svelte-store
+  - slug: svelte-store-persist
     type: framework
-    path: skills/persist-svelte-store/SKILL.md
+    path: skills/svelte-store-persist/SKILL.md
     status: shipped

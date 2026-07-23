@@ -1,5 +1,5 @@
 ---
-name: persist-react
+name: react-persist
 description: Gate React UI on Persist hydration with useHydrated + toHydrationSignal. Use when avoiding flash of default state on async backends (IndexedDB), SSR snapshot true, or wiring HydrationSignal into React 18/19.
 license: MIT
 metadata:
@@ -8,7 +8,7 @@ metadata:
   library_version: "0.4.0"
   framework: "react"
 requires:
-  - persist-core
+  - persist
 sources:
   - stainless-code/persist:src/adapters/frameworks/react.ts
   - stainless-code/persist:docs/architecture.md
@@ -16,7 +16,7 @@ sources:
 
 # React hydration gate
 
-This skill builds on `persist-core`. Read it first for `persistSource` / Options / `toHydrationSignal`.
+This skill builds on `persist`. Read it first for `persistSource` / Options / `toHydrationSignal`.
 
 `@stainless-code/persist/frameworks/react` exports `useHydrated(signal)` — a thin `useSyncExternalStore` wrapper over `HydrationSignal`. It does **not** persist state; pair it with a `./sources/*` adapter (`persist-zustand`, `persist-tanstack-store`, …).
 
@@ -73,4 +73,4 @@ return <PrefsView prefs={prefs} />;
 - `useHydrated(signal: HydrationSignal | null | undefined) → { hydrated: boolean }`
 - Core helper: `toHydrationSignal(persist)` from `@stainless-code/persist`
 
-See also: the `persist-*` source skill for your store library; sibling framework skills (`persist-vue`, `persist-solid`, `persist-svelte`, `persist-svelte-store`, `persist-preact`, `persist-angular`, `persist-lit`, `persist-alpine`).
+See also: the `persist-*` source skill for your store library; sibling framework skills (`vue-persist`, `solid-persist`, `svelte-persist`, `svelte-store-persist`, `preact-persist`, `angular-persist`, `lit-persist`, `alpine-persist`).

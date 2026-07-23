@@ -1,6 +1,6 @@
 ---
-name: persist-svelte-store
-description: Gate Svelte store-based UI on Persist hydration with hydratedStore (Readable). Use for Svelte 3–4 or Svelte 5 apps that still use stores; runes UI → persist-svelte.
+name: svelte-store-persist
+description: Gate Svelte store-based UI on Persist hydration with hydratedStore (Readable). Use for Svelte 3–4 or Svelte 5 apps that still use stores; runes UI → svelte-persist.
 license: MIT
 metadata:
   type: framework
@@ -8,14 +8,14 @@ metadata:
   library_version: "0.4.0"
   framework: "svelte-store"
 requires:
-  - persist-core
+  - persist
 sources:
   - stainless-code/persist:src/adapters/frameworks/svelte-store.ts
 ---
 
 # Svelte stores hydration gate
 
-This skill builds on `persist-core`. Read it first for `toHydrationSignal`.
+This skill builds on `persist`. Read it first for `toHydrationSignal`.
 
 `@stainless-code/persist/frameworks/svelte-store` exports `hydratedStore(signal) → Readable<boolean>`. Use `$hydrated` auto-subscribe in templates. **Separate public entry** from `./frameworks/svelte` (runes).
 
@@ -44,7 +44,7 @@ Peer: `svelte` `>=3.0.0`.
 
 ## Common mistakes
 
-- **Using this for Svelte 5 runes UI.** Use `persist-svelte` / `hydratedRune`.
+- **Using this for Svelte 5 runes UI.** Use `svelte-persist` / `hydratedRune`.
 - **Forgetting the `$` prefix** in templates.
 - **Null signal ≠ loading** → `readable(true)`.
 
@@ -52,4 +52,4 @@ Peer: `svelte` `>=3.0.0`.
 
 - `hydratedStore(signal) → Readable<boolean>`
 
-See also: `persist-svelte`; `persist-core`.
+See also: `svelte-persist`; `persist`.

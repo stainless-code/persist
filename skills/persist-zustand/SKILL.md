@@ -23,7 +23,7 @@ sources:
 - You're migrating off `zustand/middleware`'s `persist`.
 - You need async-backend hydration gating (`useHydrated`) shared with other Persist sources.
 
-Other sources → matching `persist-*` skill (`persist-jotai`, `persist-redux`, …). Hand-rolled shapes → `persistSource`. UI gate → `persist-react`.
+Other sources → matching `persist-*` skill (`persist-jotai`, `persist-redux`, …). Hand-rolled shapes → `persistSource`. UI gate → `react-persist`.
 
 ## Install
 

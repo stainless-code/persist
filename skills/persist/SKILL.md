@@ -1,5 +1,5 @@
 ---
-name: persist-core
+name: persist
 description: Core @stainless-code/persist concepts — persistSource, PersistOptions, PersistApi, hydration gate, throttle, cross-tab, migrate. Load before framework hydration skills or when wiring a custom PersistableSource.
 license: MIT
 metadata:
@@ -12,7 +12,7 @@ sources:
   - stainless-code/persist:README.md
 ---
 
-# Persist core
+# Persist
 
 Zero-dep `persistSource(source, options)` owns hydrate → subscribe → write. First-party `./sources/*` adapters only supply a `PersistableSource` shape (`getState` / `setState` / `subscribe`).
 
@@ -20,7 +20,7 @@ Zero-dep `persistSource(source, options)` owns hydrate → subscribe → write. 
 
 - Custom store shape (no `persist-*` adapter).
 - Shared Options / `PersistApi` semantics across adapters.
-- Before `persist-react` (and other framework hydration skills).
+- Before `react-persist` (and other framework hydration skills).
 
 Library-specific wiring → the matching `persist-*` composition skill.
 
@@ -66,7 +66,7 @@ const persist = persistSource(
 import { toHydrationSignal } from "@stainless-code/persist";
 
 export const hydration = toHydrationSignal(persist);
-// frameworks/react → useHydrated(hydration) — see persist-react
+// frameworks/react → useHydrated(hydration) — see react-persist
 ```
 
 ## Backend × codec (short)
@@ -77,4 +77,4 @@ export const hydration = toHydrationSignal(persist);
 | `Set`/`Map`/`Date` | `localStorage` | seroval codec       |
 | Structured clone   | IndexedDB      | `identityCodec`     |
 
-See also: framework skills (`persist-react`, `persist-vue`, `persist-svelte`, …) for UI gates; composition skills for each `./sources/*` adapter.
+See also: framework skills (`react-persist`, `vue-persist`, `svelte-persist`, …) for UI gates; composition skills for each `./sources/*` adapter.

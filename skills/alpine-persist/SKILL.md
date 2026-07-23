@@ -1,5 +1,5 @@
 ---
-name: persist-alpine
+name: alpine-persist
 description: Gate Alpine.js UI on Persist hydration via Alpine.plugin(persist) and useHydrated / $hydrated magic. Use when wiring HydrationSignal into Alpine data components.
 license: MIT
 metadata:
@@ -8,14 +8,14 @@ metadata:
   library_version: "0.4.0"
   framework: "alpine"
 requires:
-  - persist-core
+  - persist
 sources:
   - stainless-code/persist:src/adapters/frameworks/alpine.ts
 ---
 
 # Alpine hydration gate
 
-This skill builds on `persist-core`. Read it first for `toHydrationSignal`.
+This skill builds on `persist`. Read it first for `toHydrationSignal`.
 
 `@stainless-code/persist/frameworks/alpine` is **plugin-first**: `Alpine.plugin(persist)` registers `$hydrated` and enables reactive `useHydrated`. Call `destroy()` from `Alpine.data` teardown.
 
@@ -63,4 +63,4 @@ Template: `x-show="hydrated"` / `$hydrated` magic (cached per element).
 - default/`persist(Alpine)` — plugin
 - `useHydrated(signal) → { hydrated; destroy() }`
 
-See also: `persist-core`.
+See also: `persist`.

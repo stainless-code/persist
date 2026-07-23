@@ -1,5 +1,5 @@
 ---
-name: persist-preact
+name: preact-persist
 description: Gate Preact UI on Persist hydration with useHydrated (preact/compat useSyncExternalStore). Use when avoiding flash of default state on async backends or wiring HydrationSignal into Preact.
 license: MIT
 metadata:
@@ -8,14 +8,14 @@ metadata:
   library_version: "0.4.0"
   framework: "preact"
 requires:
-  - persist-core
+  - persist
 sources:
   - stainless-code/persist:src/adapters/frameworks/preact.ts
 ---
 
 # Preact hydration gate
 
-This skill builds on `persist-core`. Read it first for `toHydrationSignal`.
+This skill builds on `persist`. Read it first for `toHydrationSignal`.
 
 `@stainless-code/persist/frameworks/preact` mirrors the React adapter via `preact/compat` `useSyncExternalStore` (SSR snapshot always `true`). Not a state source — pair with a `./sources/*` adapter.
 
@@ -49,4 +49,4 @@ return <PrefsView />;
 
 - `useHydrated(signal) → { hydrated: boolean }`
 
-See also: `persist-react` (same contract); `persist-core`.
+See also: `react-persist` (same contract); `persist`.

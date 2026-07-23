@@ -1,5 +1,5 @@
 ---
-name: persist-lit
+name: lit-persist
 description: Gate Lit element UI on Persist hydration with HydrationController. Use when wiring HydrationSignal into a ReactiveControllerHost; not a hook.
 license: MIT
 metadata:
@@ -8,14 +8,14 @@ metadata:
   library_version: "0.4.0"
   framework: "lit"
 requires:
-  - persist-core
+  - persist
 sources:
   - stainless-code/persist:src/adapters/frameworks/lit.ts
 ---
 
 # Lit hydration gate
 
-This skill builds on `persist-core`. Read it first for `toHydrationSignal`.
+This skill builds on `persist`. Read it first for `toHydrationSignal`.
 
 `@stainless-code/persist/frameworks/lit` exports `HydrationController` — a `ReactiveController`, not a hook. Constructor calls `host.addController(this)`; subscribes on `hostConnected`, tears down on `hostDisconnected`.
 
@@ -54,4 +54,4 @@ class PrefsEl extends LitElement {
 
 - `new HydrationController(host, signal)` — getter `hydrated: boolean`
 
-See also: `persist-core`.
+See also: `persist`.
