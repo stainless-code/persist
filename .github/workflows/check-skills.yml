@@ -23,16 +23,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: 20
-
-      - name: Install intent
-        run: npm install -g @tanstack/intent@0.3.5
+      - name: Setup Bun and install
+        uses: ./.github/actions/setup
 
       - name: Validate skills
-        run: intent validate --github-summary
+        run: bun run intent:validate -- --github-summary
 
   review:
     name: Check intent skill coverage
@@ -47,18 +42,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: 20
-
-      - name: Install intent
-        run: npm install -g @tanstack/intent@0.3.5
+      - name: Setup Bun and install
+        uses: ./.github/actions/setup
 
       - name: Check skills
         id: stale
         run: |
-          intent stale --github-review --package-label "@stainless-code/persist"
+          bun run intent:stale -- --github-review --package-label "@stainless-code/persist"
 
       - name: Open or update review PR
         if: steps.stale.outputs.has_review == 'true'
