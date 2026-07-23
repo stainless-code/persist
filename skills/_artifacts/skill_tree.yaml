@@ -1,61 +1,78 @@
-# Intent skill tree — planned vs shipped composition skills for
-# @stainless-code/persist. `_artifacts/` is excluded from the npm tarball.
+# Intent skill tree — planned vs shipped skills for @stainless-code/persist.
+# `_artifacts/` is excluded from the npm tarball.
 library:
   name: "@stainless-code/persist"
   version: "0.4.0"
   repository: "https://github.com/stainless-code/persist"
   description: "Hydration-aware persistence for any reactive store"
-generated_at: "2026-07-22"
+generated_at: "2026-07-23"
 
-# Flat composition leaves (`persist-<peer>`) avoid clashing with upstream
-# library skill names (e.g. a future `@tanstack/store` skill named
-# `tanstack-store`). Intent load stays `@stainless-code/persist#<leaf>`.
+# Flat leaves (`persist-<peer>`) avoid clashing with upstream library skill names.
+# Intent load: `@stainless-code/persist#<leaf>`.
 skills:
-  - name: Persist TanStack Store
-    slug: persist-tanstack-store
+  - slug: persist-core
+    type: core
+    path: skills/persist-core/SKILL.md
+    status: shipped
+  - slug: persist-tanstack-store
     type: composition
     path: skills/persist-tanstack-store/SKILL.md
     status: shipped
-    description: persistStore/persistAtom over @tanstack/store Store and Atom.
-
-  - name: Persist zustand
-    slug: persist-zustand
+  - slug: persist-zustand
     type: composition
     path: skills/persist-zustand/SKILL.md
     status: shipped
-    description: persistStore over zustand StoreApi.
-
-  # Remaining source adapters (same composition pattern).
-  - name: Persist Jotai
-    slug: persist-jotai
+  - slug: persist-jotai
     type: composition
     path: skills/persist-jotai/SKILL.md
-    status: planned
-  - name: Persist Valtio
-    slug: persist-valtio
+    status: shipped
+  - slug: persist-valtio
     type: composition
     path: skills/persist-valtio/SKILL.md
-    status: planned
-  - name: Persist MobX
-    slug: persist-mobx
+    status: shipped
+  - slug: persist-mobx
     type: composition
     path: skills/persist-mobx/SKILL.md
-    status: planned
-  - name: Persist Pinia
-    slug: persist-pinia
+    status: shipped
+  - slug: persist-pinia
     type: composition
     path: skills/persist-pinia/SKILL.md
-    status: planned
-  - name: Persist Redux
-    slug: persist-redux
+    status: shipped
+  - slug: persist-redux
     type: composition
     path: skills/persist-redux/SKILL.md
-    status: planned
-
-  # Framework hydration adapters (type: framework) — after sources.
-  - name: Persist React hydration
-    slug: persist-react
+    status: shipped
+  - slug: persist-react
     type: framework
     path: skills/persist-react/SKILL.md
+    status: shipped
+
+  # Remaining framework hydration adapters.
+  - slug: persist-vue
+    type: framework
+    path: skills/persist-vue/SKILL.md
     status: planned
-    note: useHydrated over HydrationSignal; other frameworks follow.
+  - slug: persist-solid
+    type: framework
+    path: skills/persist-solid/SKILL.md
+    status: planned
+  - slug: persist-svelte
+    type: framework
+    path: skills/persist-svelte/SKILL.md
+    status: planned
+  - slug: persist-preact
+    type: framework
+    path: skills/persist-preact/SKILL.md
+    status: planned
+  - slug: persist-angular
+    type: framework
+    path: skills/persist-angular/SKILL.md
+    status: planned
+  - slug: persist-lit
+    type: framework
+    path: skills/persist-lit/SKILL.md
+    status: planned
+  - slug: persist-alpine
+    type: framework
+    path: skills/persist-alpine/SKILL.md
+    status: planned
