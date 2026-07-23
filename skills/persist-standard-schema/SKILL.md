@@ -15,7 +15,7 @@ sources:
 
 # Standard Schema codec / wraps
 
-This skill builds on `persist`. Types for `~standard` are **vendored** — no runtime peer. Bring Zod / Yup / Valibot yourself.
+Types for `~standard` are **vendored** — no runtime peer. Bring Zod / Yup / Valibot yourself.
 
 Validates persisted **`state` only** (not envelope `version` / `timestamp` / `buster`). Encode writes schema **output** (defaults/transforms applied).
 
