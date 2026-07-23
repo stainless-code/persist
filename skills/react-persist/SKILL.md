@@ -5,7 +5,7 @@ license: MIT
 metadata:
   type: framework
   library: "@stainless-code/persist"
-  library_version: "0.4.0"
+  library_version: "0.4.1"
   framework: "react"
 requires:
   - persist

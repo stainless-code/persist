@@ -1,5 +1,11 @@
 # @stainless-code/persist
 
+## 0.4.1
+
+### Patch Changes
+
+- [#39](https://github.com/stainless-code/persist/pull/39) [`4387948`](https://github.com/stainless-code/persist/commit/4387948554f6527515b4fb04632e893cf094e3ef) Thanks [@SutuSebastian](https://github.com/SutuSebastian)! - Ship Intent skills for the full public surface — core `persist`, `persist-*` (sources/codecs/backends/transport), and `<framework>-persist`. Re-run `npx @tanstack/intent@latest install` if agent config still points at `skills/tanstack-store`.
+
 ## 0.4.0
 
 ### Minor Changes
