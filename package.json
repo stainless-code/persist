@@ -349,8 +349,10 @@
   "overrides": {
     "@ai-sdk/provider-utils": "4.0.40",
     "@hono/node-server": "2.0.11",
+    "brace-expansion": "5.0.8",
     "fast-uri": "3.1.4",
     "path-to-regexp": "6.3.0",
+    "postcss": "8.5.24",
     "uuid": ">=11.1.1"
   },
   "engines": {
