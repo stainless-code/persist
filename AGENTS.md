@@ -10,6 +10,7 @@ Canonical read order: [`.agents/README.md`](.agents/README.md) (START HERE).
 | Pre-commit hooks | [`.agents/rules/no-bypass-hooks.md`](.agents/rules/no-bypass-hooks.md)                 |
 | Verify each step | [`.agents/rules/verify-after-each-step.md`](.agents/rules/verify-after-each-step.md)   |
 | Authoring        | [`.agents/rules/authoring-discipline.md`](.agents/rules/authoring-discipline.md)       |
+| Unslop           | [`.agents/skills/unslop/SKILL.md`](.agents/skills/unslop/SKILL.md)                     |
 | Architecture     | [`.agents/rules/architecture-priming.md`](.agents/rules/architecture-priming.md)       |
 | Lessons          | [`.agents/lessons.md`](.agents/lessons.md)                                             |
 

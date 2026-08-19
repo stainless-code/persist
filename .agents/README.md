@@ -1,19 +1,20 @@
 # `.agents/` — rules & skills
 
-Source of truth for AI agent configuration. Cursor consumes via symlinks in `.cursor/rules/` and `.cursor/skills/`.
+Source of truth for AI agent configuration. Cursor loads skills from `.agents/skills/` natively and rules via `.cursor/rules/*.mdc` → `.agents/rules/*.md` symlinks.
 
 ## Start here
 
-| Question                          | Read                                                                  |
-| --------------------------------- | --------------------------------------------------------------------- |
-| Repo-root stub (tools / humans)   | [`AGENTS.md`](../AGENTS.md) → this README                             |
-| Where files live, symlinks        | [rules/agents-first-convention.md](rules/agents-first-convention.md)  |
-| Tier 1 / 2 / 3 attachment modes   | [rules/agents-tier-system.md](rules/agents-tier-system.md)            |
-| Persist tier/pairing deltas       | [skills/writing-agents-config](skills/writing-agents-config/SKILL.md) |
-| Authoring new rules/skills (meta) | [`writing-great-skills`](skills/writing-great-skills/SKILL.md)        |
-| Product north-star (tenets)       | [`product-tenets`](skills/product-tenets/SKILL.md)                    |
-| Past corrections                  | [`lessons.md`](lessons.md)                                            |
-| What exists on disk right now     | `ls .agents/rules` · `ls .agents/skills`                              |
+| Question                               | Read                                                                  |
+| -------------------------------------- | --------------------------------------------------------------------- |
+| Repo-root stub (tools / humans)        | [`AGENTS.md`](../AGENTS.md) → this README                             |
+| Where files live, rule `.mdc` symlinks | [rules/agents-first-convention.md](rules/agents-first-convention.md)  |
+| Tier 1 / 2 / 3 attachment modes        | [rules/agents-tier-system.md](rules/agents-tier-system.md)            |
+| Persist tier/pairing deltas            | [skills/writing-agents-config](skills/writing-agents-config/SKILL.md) |
+| Authoring new rules/skills (meta)      | [`writing-great-skills`](skills/writing-great-skills/SKILL.md)        |
+| Product north-star (tenets)            | [`product-tenets`](skills/product-tenets/SKILL.md)                    |
+| Unslop (always-on)                     | [`unslop`](skills/unslop/SKILL.md)                                    |
+| Past corrections                       | [`lessons.md`](lessons.md)                                            |
+| What exists on disk right now          | `ls .agents/rules` · `ls .agents/skills`                              |
 
 ## Tier legend (summary)
 
@@ -38,6 +39,6 @@ Discover on disk via `ls` + the frontmatter audit in [`agents-tier-system`](rule
 ```text
 .agents/
   rules/<name>.md          → .cursor/rules/<name>.mdc (symlink)
-  skills/<name>/SKILL.md   → .cursor/skills/<name> (symlink)
+  skills/<name>/SKILL.md   → Cursor reads in place
   lessons.md               → .cursor/rules/lessons.mdc (symlink)
 ```

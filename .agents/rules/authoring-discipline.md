@@ -22,4 +22,4 @@ User-requested **doc audits** may slim redundant markdown; preservation above ap
 - **No brittle anchors** in commits — plain-English decisions; no design-tool node IDs / handoff URLs in source, JSDoc, or tests.
 - **End-of-turn:** cut duplicate tables/narration; after doc slim → [`docs-governance`](../skills/docs-governance/SKILL.md) slimming audit.
 
-Related: [`concise-reporting`](./concise-reporting.md) · [`docs-lifecycle-sweep`](../skills/docs-lifecycle-sweep/SKILL.md).
+Related: [`concise-reporting`](./concise-reporting.md) · [`docs-lifecycle-sweep`](../skills/docs-lifecycle-sweep/SKILL.md) · [`unslop`](../skills/unslop/SKILL.md).

@@ -63,6 +63,6 @@ Use the [GitHub issue templates](https://github.com/stainless-code/persist/issue
 
 ## Agent rules and skills (`.agents/`)
 
-Rules live under **`.agents/rules/`** as `.md` files; skills under **`.agents/skills/<name>/SKILL.md`**. Symlink into **`.cursor/`** with `.mdc` extension (Cursor requires `.mdc` for frontmatter parsing; see [`.agents/rules/agents-first-convention.md`](../.agents/rules/agents-first-convention.md)). Inventory and tier system: [`.agents/README.md`](../.agents/README.md) and [`.agents/rules/agents-tier-system.md`](../.agents/rules/agents-tier-system.md).
+Rules live under **`.agents/rules/`** as `.md` files; skills under **`.agents/skills/<name>/SKILL.md`**. Symlink rules into **`.cursor/rules/`** with the `.mdc` extension (Cursor loads skills from `.agents/skills/` natively — see [`.agents/rules/agents-first-convention.md`](../.agents/rules/agents-first-convention.md)). Inventory and tier system: [`.agents/README.md`](../.agents/README.md) and [`.agents/rules/agents-tier-system.md`](../.agents/rules/agents-tier-system.md).
 
 Thank you for making hydration-aware persistence reusable across stores and frameworks.
