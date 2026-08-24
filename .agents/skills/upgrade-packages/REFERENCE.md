@@ -63,7 +63,7 @@ Cutter caps (`tarball-delta.ts`): `PATCH_PATH_CAP` 40 paths on the second `bun p
 
 ## How to read it
 
-- **Verdict a package**: read `outdated[].bumpClass` + `audit.ghsa[].verdict` + `tarball.notes` + `deltas[<pkg>][].breaking`/`security` + `usage[<pkg>].importedSymbols`. Cite `tarball.notes`, a kept `patch`, `changelogUrl`, or advisory `url`.
+- **Verdict a package**: read `outdated[].bumpClass` + `audit.ghsa[].verdict` + `tarball.notes` + `deltas[<pkg>][].breaking`/`security`/`deprecations`/`peerEngine` + `usage[<pkg>]` (`importedSymbols`, `typeOnlySymbols`, `sites`, `callSites`). Phase 3 of the skill is mandatory for every break-risk delta. Cite `tarball.notes`, a kept `patch`, `changelogUrl`, or advisory `url`.
 - **`features`/`breaking` arrays are hints** — when a hint is empty but the delta is minor/major, read `releaseNotes` and kept patches before concluding "no changes".
 - **`error` on a delta** means `bun pm diff` failed for that span. `changelogUrl` is still the npm version page. Re-run evidence before marking **blocked**.
 - **`cleared-at-current`** = the GHSA advisory's fix already ships at the installed version — no bump needed, record the URL as evidence.
