@@ -1,13 +1,17 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": [
-    "scripts/**/*.ts",
-    "tests-dom/*.test.tsx",
-    "vitest.config.ts",
-    "tsdown.config.ts",
-    "lint-staged.config.js"
-  ],
+  "workspaces": {
+    ".": {
+      "entry": [
+        "scripts/*.ts",
+        "scripts/upgrade-packages/*.ts",
+        "src/**/*.test.ts",
+        "tests-dom/*.test.tsx"
+      ]
+    }
+  },
   "ignore": [".codemap/**"],
   "ignoreDependencies": ["@stainless-code/codemap"],
+  "ignoreBinaries": ["dedupe"],
   "ignoreWorkspaces": ["apps/*"]
 }
