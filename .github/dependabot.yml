@@ -20,3 +20,7 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    # Action v2 requires @changesets/cli v3. Stay on action v1 while CLI is 2.x.
+    ignore:
+      - dependency-name: "changesets/action"
+        update-types: ["version-update:semver-major"]
