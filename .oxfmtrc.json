@@ -4,6 +4,13 @@
   "sortPackageJson": {
     "sortScripts": true
   },
-  "ignorePatterns": ["node_modules", "dist", "coverage", "bun.lock"],
+  "ignorePatterns": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "bun.lock",
+    "scripts/upgrade-packages/.cache",
+    "scripts/upgrade-packages/artifact.json"
+  ],
   "printWidth": 80
 }

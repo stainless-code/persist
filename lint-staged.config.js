@@ -60,7 +60,7 @@ function relatedTests(filenames) {
   if (tests.length === 0) {
     return "true";
   }
-  return `bun test ${tests.join(" ")}`;
+  return `bun test --isolate ${tests.join(" ")}`;
 }
 
 /** Pick the test runner for staged `*.test.{ts,tsx}` by location:
@@ -74,7 +74,7 @@ function runStagedTest(filenames) {
   const src = files.filter((f) => f.startsWith("src/"));
   const tasks = [];
   if (dom) tasks.push("bun run test:dom");
-  if (src.length) tasks.push(`bun test ${src.join(" ")}`);
+  if (src.length) tasks.push(`bun test --isolate ${src.join(" ")}`);
   return tasks.length > 0 ? tasks.join(" && ") : "true";
 }
 
