@@ -3,7 +3,7 @@
 `@stainless-code/persist` is a small, freshly extracted library. Before large PRs, please open an issue so we can align on:
 
 - **Public surface** — anything exported from an entry point (`src/core/index.ts` and the opt-in adapter subpaths) is the public API and must carry JSDoc that reads well in hovers and published typings. See [`docs/architecture.md`](../docs/architecture.md) for the seam model.
-- **Runtimes** — **Node** `^20.19.0 || >=22.12.0` and **Bun** `>=1.0.0` (`package.json` **engines**). The core is zero-dep by design (enforced by a gate test on both `persist-core.ts` and `hydration.ts`); each subpath owns its optional peer.
+- **Runtimes** — **Node** `^20.19.0 || >=22.12.0` and **Bun** `>=1.0.0` (`package.json` **engines**). The core is zero-dep by design (enforced by a gate test on both `persist-core.ts` and `hydration.ts`); each subpath owns its optional peer. Maintainers use **Bun 1.4.0** (`packageManager`).
 
 ## Dev workflow
 
