@@ -212,7 +212,7 @@
     "version": "changeset version && bun scripts/sync-skill-versions.ts && bun run format CHANGELOG.md"
   },
   "devDependencies": {
-    "@angular/core": "22.0.5",
+    "@angular/core": "22.1.0",
     "@arethetypeswrong/cli": "0.18.4",
     "@changesets/changelog-github": "1.0.0",
     "@changesets/cli": "3.0.1",
@@ -249,7 +249,7 @@
     "react-dom": "19.2.7",
     "react-native-mmkv": "4.3.2",
     "redux": "5.0.1",
-    "seroval": "1.5.4",
+    "seroval": "1.6.8",
     "size-limit": "12.1.0",
     "solid-js": "1.9.14",
     "svelte": "5.56.4",
@@ -259,8 +259,8 @@
     "typedoc-plugin-markdown": "4.12.0",
     "typescript": "6.0.3",
     "valtio": "2.3.2",
-    "vitest": "4.1.9",
-    "vue": "3.5.39",
+    "vitest": "4.1.11",
+    "vue": "3.5.43",
     "zod": "4.4.3",
     "zustand": "5.0.14"
   },
@@ -349,11 +349,12 @@
     }
   },
   "overrides": {
-    "@ai-sdk/provider-utils": "4.0.40",
     "@hono/node-server": "2.0.11",
     "nanoid": "3.3.18",
     "path-to-regexp": "6.3.0",
+    "seroval": "1.6.8",
     "tar": "7.5.22",
+    "tinypool": "2.1.2",
     "uuid": ">=11.1.1"
   },
   "engines": {

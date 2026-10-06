@@ -3,12 +3,19 @@ title: IndexedDB + React, end to end
 description: Async IndexedDB storage, TanStack Store, and a React hydration gate.
 search:
   tags: ["guide", "indexeddb", "react"]
+  boost: 2
+  keywords: ["indexeddb", "async storage", "tutorial", "example"]
+related:
+  - /guides/hydration
+  - /guides/getting-started
+  - /concepts/choosing-storage
+  - /recipes/composition
 ---
 
 IndexedDB reads are Promise-backed — they cannot settle before first paint. This guide wires `createIdbStorage`, TanStack Store, and a React hydration gate.
 
 ```package-install
-npm i @stainless-code/persist @tanstack/store react idb-keyval
+npm i {{pkg}} @tanstack/store react idb-keyval
 ```
 
 **Store module** — `createIdbStorage` runs structured-clone mode: `Set` / `Map` / `Date` round-trip natively, no codec. The persist + hydration signal live at module scope for an app-lifetime singleton store.
@@ -16,9 +23,9 @@ npm i @stainless-code/persist @tanstack/store react idb-keyval
 ```ts ts2js
 // prefs-store.ts
 import { Store } from "@tanstack/store";
-import { toHydrationSignal } from "@stainless-code/persist";
-import { createIdbStorage } from "@stainless-code/persist/backends/idb";
-import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+import { toHydrationSignal } from "{{pkg}}";
+import { createIdbStorage } from "{{pkg}}/backends/idb";
+import { persistStore } from "{{pkg}}/sources/tanstack-store";
 
 export type Prefs = { theme: "light" | "dark"; recent: string[] };
 
@@ -36,7 +43,7 @@ export const prefsHydration = toHydrationSignal(persist);
 ```tsx
 // PrefsPanel.tsx
 import { useSelector } from "@tanstack/store";
-import { useHydrated } from "@stainless-code/persist/frameworks/react";
+import { useHydrated } from "{{pkg}}/frameworks/react";
 import { prefsStore, prefsHydration } from "./prefs-store";
 
 export function PrefsPanel() {

@@ -10,8 +10,8 @@ Invalid prefs must not survive a refresh. Pass any sync `~standard` schema — P
 ```ts ts2js
 import { z } from "zod";
 // or: import * as v from "valibot"; // any ~standard schema works
-import { createStandardSchemaStorage } from "@stainless-code/persist/codecs/standard-schema";
-import { persistStore } from "@stainless-code/persist/sources/zustand";
+import { createStandardSchemaStorage } from "{{pkg}}/codecs/standard-schema";
+import { persistStore } from "{{pkg}}/sources/zustand";
 
 const prefs = z.object({
   theme: z.enum(["light", "dark"]),
@@ -36,8 +36,8 @@ persistStore(usePrefs, {
 `createStandardSchemaStorage` is JSON sugar over `withStandardSchema`. Wraps are the primitive — compose after any `PersistStorage` (don't stack wrap + `standardSchemaCodec`; that double-validates):
 
 ```ts ts2js
-import { createIdbStorage } from "@stainless-code/persist/backends/idb";
-import { withStandardSchema } from "@stainless-code/persist/codecs/standard-schema";
+import { createIdbStorage } from "{{pkg}}/backends/idb";
+import { withStandardSchema } from "{{pkg}}/codecs/standard-schema";
 
 const storage = withStandardSchema(createIdbStorage<Prefs>()!, prefs, {
   clearCorruptOnFailure: true,
@@ -49,7 +49,7 @@ const storage = withStandardSchema(createIdbStorage<Prefs>()!, prefs, {
 `~standard.validate` may return a `Promise` (Yup, async refine). Codecs stay sync — use the async wrap / factory:
 
 ```ts ts2js
-import { createStandardSchemaStorageAsync } from "@stainless-code/persist/codecs/standard-schema";
+import { createStandardSchemaStorageAsync } from "{{pkg}}/codecs/standard-schema";
 
 const storage = createStandardSchemaStorageAsync(() => localStorage, yupSchema)!;
 // or: withStandardSchemaAsync(anyPersistStorage, yupSchema)

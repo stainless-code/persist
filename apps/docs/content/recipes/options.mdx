@@ -8,9 +8,9 @@ search:
 ## Clear-all on logout
 
 ```ts
-import { createPersistRegistry } from "@stainless-code/persist";
-import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
-import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+import { createPersistRegistry } from "{{pkg}}";
+import { createSerovalStorage } from "{{pkg}}/codecs/seroval";
+import { persistStore } from "{{pkg}}/sources/tanstack-store";
 
 // One registry for every persisted store — clearAll() at logout wipes all keys
 // (allSettled; first rejection rethrows; destroy() unregisters each store)
@@ -109,7 +109,7 @@ persistStore(store, {
 ## Migration chain
 
 ```ts
-import { createMigrationChain } from "@stainless-code/persist";
+import { createMigrationChain } from "{{pkg}}";
 
 // steps[N] takes vN → v(N+1). Start at a higher key to drop support for
 // old versions (onOlder discards by default).
@@ -145,7 +145,7 @@ persistStore(store, {
 ## createSessionStorage
 
 ```ts
-import { createSessionStorage } from "@stainless-code/persist";
+import { createSessionStorage } from "{{pkg}}";
 
 // Per-tab only — crossTab is meaningless here
 const storage = createSessionStorage<Prefs>()!;

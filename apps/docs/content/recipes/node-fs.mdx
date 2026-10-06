@@ -6,9 +6,9 @@ search:
 ---
 
 ```ts
-import { createStorage } from "@stainless-code/persist";
-import { nodeFsStateStorage } from "@stainless-code/persist/backends/node-fs";
-import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
+import { createStorage } from "{{pkg}}";
+import { nodeFsStateStorage } from "{{pkg}}/backends/node-fs";
+import { serovalCodec } from "{{pkg}}/codecs/seroval";
 
 // One file per key under ./.persist — async (fs.promises); gate UI on useHydrated in SSR
 const storage = createStorage<Prefs>(
