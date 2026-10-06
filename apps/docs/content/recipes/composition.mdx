@@ -6,15 +6,15 @@ search:
 ---
 
 ```ts
-import { createStorage } from "@stainless-code/persist";
+import { createStorage } from "{{pkg}}";
 import {
   idbStateStorage,
   createIdbStorage,
-} from "@stainless-code/persist/backends/idb";
-import { createEncryptedStorage } from "@stainless-code/persist/backends/encrypted";
-import { createCompressedStorage } from "@stainless-code/persist/backends/compressed";
-import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
-import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
+} from "{{pkg}}/backends/idb";
+import { createEncryptedStorage } from "{{pkg}}/backends/encrypted";
+import { createCompressedStorage } from "{{pkg}}/backends/compressed";
+import { serovalCodec } from "{{pkg}}/codecs/seroval";
+import { persistStore } from "{{pkg}}/sources/tanstack-store";
 
 // Encryption at rest (AES-GCM WebCrypto) over IndexedDB. Encryption is a
 // backend wrapper (crypto.subtle is async, the StorageCodec seam is sync),

@@ -5,14 +5,14 @@ search:
   tags: ["recipe", "zustand", "jotai", "valtio", "mobx", "pinia", "redux"]
 ---
 
-Same `getState`/`setState`/`subscribe` shape → same adapter name → same merge semantics, regardless of library. Naming is shape-based (`persistStore` / `persistAtom` / `persistProxy` / `persistObservable`); the subpath carries the library. Importing two same-shape adapters into one module? Alias one: `import { persistStore as persistZustand } from "@stainless-code/persist/sources/zustand"`. Escape hatch: pass a custom `PersistableSource` to `persistSource` directly.
+Same `getState`/`setState`/`subscribe` shape → same adapter name → same merge semantics, regardless of library. Naming is shape-based (`persistStore` / `persistAtom` / `persistProxy` / `persistObservable`); the subpath carries the library. Importing two same-shape adapters into one module? Alias one: `import { persistStore as persistZustand } from "{{pkg}}/sources/zustand"`. Escape hatch: pass a custom `PersistableSource` to `persistSource` directly.
 
 ## zustand
 
 ```ts
 import { create } from "zustand";
-import { createJSONStorage } from "@stainless-code/persist";
-import { persistStore } from "@stainless-code/persist/sources/zustand";
+import { createJSONStorage } from "{{pkg}}";
+import { persistStore } from "{{pkg}}/sources/zustand";
 
 const usePrefs = create(() => ({ theme: "light" as const }));
 const persist = persistStore(usePrefs, {
@@ -27,8 +27,8 @@ Or pass a custom `PersistableSource` to `persistSource` directly — the adapter
 
 ```ts
 import { atom, createStore } from "jotai";
-import { createJSONStorage } from "@stainless-code/persist";
-import { persistAtom } from "@stainless-code/persist/sources/jotai";
+import { createJSONStorage } from "{{pkg}}";
+import { persistAtom } from "{{pkg}}/sources/jotai";
 
 const store = createStore();
 const themeAtom = atom<"light" | "dark">("light");
@@ -44,8 +44,8 @@ Or pass a custom `PersistableSource` to `persistSource` directly — the adapter
 
 ```ts
 import { proxy } from "valtio";
-import { createJSONStorage } from "@stainless-code/persist";
-import { persistProxy } from "@stainless-code/persist/sources/valtio";
+import { createJSONStorage } from "{{pkg}}";
+import { persistProxy } from "{{pkg}}/sources/valtio";
 
 const prefs = proxy({ theme: "light" as const });
 const persist = persistProxy(prefs, {
@@ -60,8 +60,8 @@ Or pass a custom `PersistableSource` to `persistSource` directly — the adapter
 
 ```ts
 import { observable } from "mobx";
-import { createJSONStorage } from "@stainless-code/persist";
-import { persistObservable } from "@stainless-code/persist/sources/mobx";
+import { createJSONStorage } from "{{pkg}}";
+import { persistObservable } from "{{pkg}}/sources/mobx";
 
 const prefs = observable.object({ theme: "light" as const });
 const persist = persistObservable(prefs, {
@@ -76,8 +76,8 @@ Or pass a custom `PersistableSource` to `persistSource` directly — the adapter
 
 ```ts
 import { defineStore } from "pinia";
-import { createJSONStorage } from "@stainless-code/persist";
-import { persistStore } from "@stainless-code/persist/sources/pinia";
+import { createJSONStorage } from "{{pkg}}";
+import { persistStore } from "{{pkg}}/sources/pinia";
 
 const usePrefs = defineStore("prefs", {
   state: () => ({ theme: "light" as const }),
@@ -94,11 +94,11 @@ Wrap the root reducer with `persistableReducer` (not each slice) so hydrate can 
 
 ```ts
 import { createStore } from "redux";
-import { createJSONStorage } from "@stainless-code/persist";
+import { createJSONStorage } from "{{pkg}}";
 import {
   persistStore,
   persistableReducer,
-} from "@stainless-code/persist/sources/redux";
+} from "{{pkg}}/sources/redux";
 
 const store = createStore(persistableReducer(rootReducer));
 const persist = persistStore(store, {
@@ -110,7 +110,7 @@ const persist = persistStore(store, {
 ## Any other store
 
 ```ts
-import { createJSONStorage, persistSource } from "@stainless-code/persist";
+import { createJSONStorage, persistSource } from "{{pkg}}";
 
 const persist = persistSource(
   {

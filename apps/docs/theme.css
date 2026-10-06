@@ -42,3 +42,13 @@ a:has(> span > .logo-svg):hover .logo-ring {
 a:has(> span > .logo-svg):hover .logo-settled {
   transform: scale(1.08);
 }
+
+/* Landing measure: every band of the landing export (hero, sections, stats,
+   footer) sits in 140px gutters on a 1440 artboard, i.e. one shared 1160px
+   (72.5rem) content column. Fluid gutters reproduce that exactly at 1440,
+   hold a 24px floor on small screens, and keep the column capped and centered
+   above 1440 so the page always reads as contained. Opt-in: only landing
+   bands use this class. */
+.landing-gutter {
+  padding-inline: max(1.5rem, calc((100vw - 72.5rem) / 2));
+}

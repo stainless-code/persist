@@ -1,4 +1,6 @@
 import { defineConfig } from "blume";
+import { orama } from "blume/search";
+import { filesystem, githubReleases } from "blume/sources";
 
 import { CURATED_POPULAR } from "./components/curated-popular";
 
@@ -6,6 +8,10 @@ const title = "Persist";
 /** Custom `.astro` pages have no frontmatter — name OG cards (else humanized segment). */
 const homeTitle = `${title} — any store, any storage, one middleware`;
 const notFoundTitle = "Page not found";
+
+/** GitHub owner + repo — shared by `github` and the releases source. */
+const owner = "stainless-code";
+const repo = "persist";
 
 export default defineConfig({
   title,
@@ -15,44 +21,61 @@ export default defineConfig({
   logo: { image: "/logo.svg", text: title },
 
   github: {
-    owner: "stainless-code",
-    repo: "persist",
+    owner,
+    repo,
     branch: "main",
     dir: "apps/docs",
   },
 
-  lastModified: true,
+  lastModified: "git",
+
+  variables: {
+    pkg: "@stainless-code/persist",
+  },
 
   content: {
     sources: [
-      { type: "filesystem", root: "content" },
-      {
-        type: "github-releases",
+      filesystem({ root: "content" }),
+      githubReleases({
         prefix: "changelog",
-        owner: "stainless-code",
-        repo: "persist",
+        owner,
+        repo,
         limit: 100,
-      },
+      }),
     ],
   },
 
   navigation: {
     tabs: [
-      { label: "Guides", path: "/guides", icon: "book-open" },
-      { label: "Recipes", path: "/recipes", icon: "flask-conical" },
-      { label: "Concepts", path: "/concepts", icon: "lightbulb" },
-      { label: "Adapters", path: "/adapters", icon: "puzzle" },
-      { label: "Reference", path: "/reference", icon: "code" },
+      { label: "Guides", path: "/guides" },
+      { label: "Recipes", path: "/recipes" },
+      { label: "Concepts", path: "/concepts" },
+      { label: "Adapters", path: "/adapters" },
+      { label: "Reference", path: "/reference" },
     ],
     featured: [
       { label: "Changelog", href: "/changelog", icon: "sparkles" },
       {
         label: "GitHub",
-        href: "https://github.com/stainless-code/persist",
+        href: `https://github.com/${owner}/${repo}`,
         icon: "github",
       },
     ],
     sidebar: { display: "flat" },
+  },
+
+  // Built-in footer for docs pages; the homepage slots its own Footer.
+  footer: {
+    links: [
+      { label: "Getting started", href: "/guides/getting-started" },
+      { label: "Guides", href: "/guides" },
+      { label: "Concepts", href: "/concepts" },
+      { label: "Recipes", href: "/recipes" },
+      { label: "Changelog", href: "/changelog" },
+    ],
+    socials: {
+      github: `https://github.com/${owner}/${repo}`,
+    },
   },
 
   // Amber-copper brand; theme.css owns full light/dark token map.
@@ -68,7 +91,7 @@ export default defineConfig({
     },
   },
   search: {
-    provider: "orama",
+    provider: orama(),
     // Cmd+K empty-state + shared with 404 via CURATED_POPULAR.
     popular: CURATED_POPULAR.map(({ route, label }) => ({
       href: route,
@@ -77,16 +100,20 @@ export default defineConfig({
   },
 
   markdown: {
-    code: { icons: true },
-    codeBlocks: { theme: { light: "github-light", dark: "github-dark" } },
+    externalLinks: true,
+    code: {
+      icons: true,
+      theme: { light: "github-light", dark: "github-dark" },
+    },
   },
 
   toc: { minHeadingLevel: 2, maxHeadingLevel: 3 },
 
   export: { epub: true, pdf: true },
 
-  ai: {
+  agents: {
     llmsTxt: true,
+    agentReadability: true,
   },
 
   seo: {
@@ -98,11 +125,9 @@ export default defineConfig({
     sitemap: true,
     robots: true,
     structuredData: true,
-    agentReadability: true,
   },
 
   deployment: {
-    output: "static",
     site: "https://stainless-code.com",
     base: "/persist",
   },

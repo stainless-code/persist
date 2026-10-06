@@ -7,13 +7,13 @@ search:
 
 ## Relationship to store persist middlewares
 
-zustand-persist, redux-persist, and pinia-persist each wire **one store library** to storage with a flat options bag. `@stainless-code/persist` binds to a structural `PersistableSource` (`getState`/`setState`/`subscribe`), so the same call persists TanStack Store, zustand, Redux, Pinia, or a hand-rolled atom. Three seams — backend (`StateStorage`), codec (`StorageCodec`), source (`PersistableSource`) — make every backend × codec cell a one-line composition. The hydration lifecycle (`onHydrate` / `onFinishHydration` / `hasHydrated`, via `HydrationSignal` and framework adapters) gates UI flash without coupling to the store's read path; versioned `migrate`, `crossTab` + `onCrossTabRemove`, and `retryWrite` cover schema evolution, multi-tab sync, and quota errors.
+zustand-persist, redux-persist, and pinia-persist each wire **one store library** to storage with a flat options bag. `{{pkg}}` binds to a structural `PersistableSource` (`getState`/`setState`/`subscribe`), so the same call persists TanStack Store, zustand, Redux, Pinia, or a hand-rolled atom. Three seams — backend (`StateStorage`), codec (`StorageCodec`), source (`PersistableSource`) — make every backend × codec cell a one-line composition. The hydration lifecycle (`onHydrate` / `onFinishHydration` / `hasHydrated`, via `HydrationSignal` and framework adapters) gates UI flash without coupling to the store's read path; versioned `migrate`, `crossTab` + `onCrossTabRemove`, and `retryWrite` cover schema evolution, multi-tab sync, and quota errors.
 
 ## Comparison with other store persist libraries
 
-Every row is a seam or lifecycle concern — not a roadmap item. `@stainless-code/persist` treats each as composable; incumbents bake most of them into framework-specific middleware.
+Every row is a seam or lifecycle concern — not a roadmap item. `{{pkg}}` treats each as composable; incumbents bake most of them into framework-specific middleware.
 
-| Capability                             | `@stainless-code/persist` | zustand-persist | redux-persist | pinia-persist |
+| Capability                             | `{{pkg}}` | zustand-persist | redux-persist | pinia-persist |
 | -------------------------------------- | :-----------------------: | :-------------: | :-----------: | :-----------: |
 | Store-agnostic (structural source)     |            ✅             |       ❌        |      ❌       |      ❌       |
 | Codec seam (swap serialization)        |            ✅             |       🟡        |      ✅       |      🟡       |

@@ -3,6 +3,13 @@ title: Getting started
 description: Install Persist and wire hydration-aware persistence into any reactive store.
 search:
   tags: ["guide", "install"]
+  boost: 3
+  keywords: ["setup", "quickstart", "installation"]
+related:
+  - /guides/hydration
+  - /guides/idb-react
+  - /concepts/three-seams
+  - /concepts/entry-points
 ---
 
 You already have a store. You need durable state without a first-paint flash — and without rewriting when the storage backend or store library changes.
@@ -10,7 +17,7 @@ You already have a store. You need durable state without a first-paint flash —
 ## Install
 
 ```package-install
-npm i @stainless-code/persist
+npm i {{pkg}}
 ```
 
 Core is zero-dep. Each subpath is an optional peer — install only what you import. Full table: [Entry points](/concepts/entry-points).
@@ -25,10 +32,10 @@ npm i seroval idb-keyval @tanstack/store react
 
 ```ts
 import { Store } from "@tanstack/store";
-import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
-import { persistStore } from "@stainless-code/persist/sources/tanstack-store";
-import { toHydrationSignal } from "@stainless-code/persist";
-import { useHydrated } from "@stainless-code/persist/frameworks/react";
+import { createSerovalStorage } from "{{pkg}}/codecs/seroval";
+import { persistStore } from "{{pkg}}/sources/tanstack-store";
+import { toHydrationSignal } from "{{pkg}}";
+import { useHydrated } from "{{pkg}}/frameworks/react";
 
 const store = new Store({ theme: "light" });
 const persist = persistStore(store, {

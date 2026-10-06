@@ -3,6 +3,13 @@ title: What does hydration-aware mean?
 description: Persist tracks whether stored state has finished loading — gate UI on async backends to avoid flash.
 search:
   tags: ["guide", "hydration"]
+  boost: 2
+  keywords: ["flash", "gate", "skeleton", "loading state"]
+related:
+  - /guides/getting-started
+  - /guides/idb-react
+  - /concepts/lifecycle
+  - /adapters/framework-adapter
 ---
 
 Between mount and the storage read resolving, the store holds its constructor default — theme `"light"` when storage says `"dark"`. Render persisted UI in that window and you get a flash. Persist answers one question via `HydrationSignal`: _has the stored snapshot landed yet?_ (Not React SSR hydration, not DOM rehydration.)
@@ -11,45 +18,45 @@ Sync backends (`localStorage`, `sessionStorage`) settle before first render when
 
 ```tsx
 // React
-import { useHydrated } from "@stainless-code/persist/frameworks/react";
+import { useHydrated } from "{{pkg}}/frameworks/react";
 const { hydrated } = useHydrated(prefsHydration);
 if (!hydrated) return <Skeleton />;
 ```
 
 ```ts
 // Preact — { hydrated: boolean }
-import { useHydrated } from "@stainless-code/persist/frameworks/preact";
+import { useHydrated } from "{{pkg}}/frameworks/preact";
 const { hydrated } = useHydrated(prefsHydration);
 ```
 
 ```ts
 // Solid — Accessor<boolean>
-import { useHydrated } from "@stainless-code/persist/frameworks/solid";
+import { useHydrated } from "{{pkg}}/frameworks/solid";
 const hydrated = useHydrated(prefsHydration);
 ```
 
 ```ts
 // Angular — Signal<boolean>
-import { useHydrated } from "@stainless-code/persist/frameworks/angular";
+import { useHydrated } from "{{pkg}}/frameworks/angular";
 const hydrated = useHydrated(prefsHydration);
 ```
 
 ```ts
 // Vue — Ref<boolean>
-import { useHydrated } from "@stainless-code/persist/frameworks/vue";
+import { useHydrated } from "{{pkg}}/frameworks/vue";
 const hydrated = useHydrated(prefsHydration);
 ```
 
 ```ts
 // Lit — ReactiveController
-import { HydrationController } from "@stainless-code/persist/frameworks/lit";
+import { HydrationController } from "{{pkg}}/frameworks/lit";
 // in LitElement: this.#hydration = new HydrationController(this, prefsHydration);
 // gate: this.#hydration.hydrated
 ```
 
 ```ts
 // Alpine — reactive bag + plugin
-import persist, { useHydrated } from "@stainless-code/persist/frameworks/alpine";
+import persist, { useHydrated } from "{{pkg}}/frameworks/alpine";
 Alpine.plugin(persist);
 const { hydrated } = useHydrated(prefsHydration);
 // template: x-show="hydrated" / $hydrated(prefsHydration).hydrated
@@ -57,14 +64,14 @@ const { hydrated } = useHydrated(prefsHydration);
 
 ```ts
 // Svelte 5 runes
-import { hydratedRune } from "@stainless-code/persist/frameworks/svelte";
+import { hydratedRune } from "{{pkg}}/frameworks/svelte";
 const hydrated = hydratedRune(prefsHydration);
 // hydrated.current
 ```
 
 ```ts
 // Svelte store (Svelte 4 / store users)
-import { hydratedStore } from "@stainless-code/persist/frameworks/svelte-store";
+import { hydratedStore } from "{{pkg}}/frameworks/svelte-store";
 const hydrated = hydratedStore(prefsHydration);
 ```
 

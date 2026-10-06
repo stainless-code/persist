@@ -1,5 +1,5 @@
 ---
-import PageLayout from "blume/components/layout/PageLayout.astro";
+import PageLayout from "../components/blume/PageLayout.astro";
 import data from "blume:data";
 import Batteries from "./_home/Batteries.astro";
 import FinalCta from "./_home/FinalCta.astro";
@@ -11,7 +11,7 @@ import Footer from "../components/blume/Footer.astro";
 const { config } = data;
 const pageTitle = `${config.title} — any store, any storage, one middleware`;
 
-const copyScript = `(()=>{const CHECK='<svg class="size-4" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="16"><path d="M20 6 9 17l-5-5"/></svg>';document.addEventListener("click",async(e)=>{const b=e.target.closest("[data-blume-copy-install]");if(!b){return;}try{await navigator.clipboard.writeText(b.dataset.command);}catch{return;}const o=b.innerHTML;b.innerHTML=CHECK;setTimeout(()=>{b.innerHTML=o;},1500);});})();`;
+const copyScript = `(()=>{if(document.documentElement.dataset.persistCopyBound==="true")return;document.documentElement.dataset.persistCopyBound="true";const CHECK='<svg class="size-4" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="16"><path d="M20 6 9 17l-5-5"/></svg>';document.addEventListener("click",async(e)=>{const t=e.target instanceof Element?e.target:null;const b=t?.closest("[data-blume-copy-install]");if(!(b instanceof HTMLElement))return;try{await navigator.clipboard.writeText(b.dataset.command);}catch{return;}const o=b.innerHTML;b.innerHTML=CHECK;setTimeout(()=>{b.innerHTML=o;},1500);});})();`;
 ---
 
 <PageLayout
@@ -31,7 +31,7 @@ const copyScript = `(()=>{const CHECK='<svg class="size-4" fill="none" height="1
   x={config.x}
 >
   <div
-    class="mx-auto grid max-w-[1400px] gap-16 px-6 py-20 sm:py-24 lg:gap-24 xl:gap-32"
+    class="grid gap-16 py-20 sm:py-24 lg:gap-24 xl:gap-32"
   >
     <Hero />
     <UseCases />
@@ -47,3 +47,9 @@ const copyScript = `(()=>{const CHECK='<svg class="size-4" fill="none" height="1
     ui={data.ui}
   />
 </PageLayout>
+
+<style>
+  :global(header[data-blume-header]) {
+    padding-inline: max(1.5rem, calc((100vw - 72.5rem) / 2));
+  }
+</style>

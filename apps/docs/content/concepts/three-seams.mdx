@@ -3,14 +3,16 @@ title: The three seams
 description: Backend, codec, and PersistableSource — compose any storage × serialization × store without rewriting.
 search:
   tags: ["concept", "seams"]
+  boost: 2
+  keywords: ["overview", "architecture", "how it works"]
 ---
 
 **1. Backend (`StateStorage<TRaw = string>`)** — anything with `getItem`/`setItem`/`removeItem`, sync or Promise-returning, string-wire by default, generic for structured backends.
 
 ```ts
-import { createSerovalStorage } from "@stainless-code/persist/codecs/seroval";
-import { createIdbStorage } from "@stainless-code/persist/backends/idb";
-import { createJSONStorage } from "@stainless-code/persist";
+import { createSerovalStorage } from "{{pkg}}/codecs/seroval";
+import { createIdbStorage } from "{{pkg}}/backends/idb";
+import { createJSONStorage } from "{{pkg}}";
 
 createSerovalStorage(() => localStorage); // durable prefs
 createSerovalStorage(() => sessionStorage); // per-visit state (dies with the tab)
@@ -28,10 +30,10 @@ import {
   jsonCodec,
   identityCodec,
   createStorage,
-} from "@stainless-code/persist";
-import { serovalCodec } from "@stainless-code/persist/codecs/seroval";
-import { standardSchemaCodec } from "@stainless-code/persist/codecs/standard-schema";
-import { idbStateStorage } from "@stainless-code/persist/backends/idb";
+} from "{{pkg}}";
+import { serovalCodec } from "{{pkg}}/codecs/seroval";
+import { standardSchemaCodec } from "{{pkg}}/codecs/standard-schema";
+import { idbStateStorage } from "{{pkg}}/backends/idb";
 import { z } from "zod";
 
 const prefs = z.object({ theme: z.enum(["light", "dark"]) });
@@ -55,8 +57,8 @@ const encryptedCodec = {
 import {
   persistStore,
   persistAtom,
-} from "@stainless-code/persist/sources/tanstack-store";
-import { persistSource } from "@stainless-code/persist";
+} from "{{pkg}}/sources/tanstack-store";
+import { persistSource } from "{{pkg}}";
 
 persistStore(store, opts); // @tanstack/store Store
 persistAtom(atom, opts); // writable Atom (replace-merge default)

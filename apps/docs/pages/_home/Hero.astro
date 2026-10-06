@@ -12,7 +12,8 @@ const pillMuted =
   "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground";
 ---
 
-<section class="text-center">
+<section class="landing-gutter text-center">
+  <div class="mx-auto max-w-[1160px]">
   <h1
     class="mx-auto max-w-3xl text-balance font-medium text-4xl tracking-tight sm:text-5xl lg:text-6xl"
   >
@@ -130,13 +131,14 @@ const pillMuted =
       </svg>
     </a>
   </div>
+  </div>
 </section>
 
 <script is:inline>
   (() => {
-    const pillContainer = document.querySelector("[data-source-pills]");
-    const installBox = document.querySelector("[data-blume-install-box]");
-    if (!pillContainer) return;
+    // Document-delegated so the pills survive ClientRouter swaps.
+    if (document.documentElement.dataset.persistPillsBound === "true") return;
+    document.documentElement.dataset.persistPillsBound = "true";
 
     const ACTIVE = [
       "border-accent",
@@ -151,38 +153,87 @@ const pillMuted =
       "hover:text-foreground",
     ];
 
-    pillContainer.addEventListener("click", (e) => {
-      const pill = e.target.closest("[data-source]");
-      if (!pill) return;
+    document.addEventListener("click", (e) => {
+      const target = e.target instanceof Element ? e.target : null;
+      const pill = target?.closest("[data-source-pills] [data-source]");
+      if (!(pill instanceof HTMLElement)) return;
 
       const source = pill.dataset.source;
       const installCommand = pill.dataset.installCommand;
+      const scope =
+        pill.closest("[data-source-pills]")?.parentElement ?? document;
 
-      pillContainer.querySelectorAll("[data-source]").forEach((p) => {
-        const isActive = p.dataset.source === source;
-        p.classList.remove(...ACTIVE, ...MUTED);
-        p.classList.add(...(isActive ? ACTIVE : MUTED));
+      scope
+        .querySelectorAll("[data-source-pills] [data-source]")
+        .forEach((p) => {
+          if (!(p instanceof HTMLElement)) return;
+          const isActive = p.dataset.source === source;
+          p.classList.remove(...ACTIVE, ...MUTED);
+          p.classList.add(...(isActive ? ACTIVE : MUTED));
+        });
+
+      scope.querySelectorAll("[data-code]").forEach((block) => {
+        if (!(block instanceof HTMLElement)) return;
+        block.classList.toggle("hidden", block.dataset.code !== source);
       });
 
-      document.querySelectorAll("[data-code]").forEach((block) => {
-        if (block.dataset.code === source) {
-          block.classList.remove("hidden");
-        } else {
-          block.classList.add("hidden");
+      document.querySelectorAll("[data-blume-install-box]").forEach((box) => {
+        if (!(box instanceof HTMLElement)) return;
+        box.querySelectorAll("[data-install-cmd]").forEach((block) => {
+          if (!(block instanceof HTMLElement)) return;
+          block.classList.toggle("hidden", block.dataset.installCmd !== source);
+        });
+        const copyBtn = box.querySelector("[data-blume-copy-install]");
+        if (copyBtn instanceof HTMLElement && installCommand) {
+          copyBtn.dataset.command = installCommand;
         }
       });
-
-      if (installBox && installCommand) {
-        installBox.querySelectorAll("[data-install-cmd]").forEach((block) => {
-          if (block.dataset.installCmd === source) {
-            block.classList.remove("hidden");
-          } else {
-            block.classList.add("hidden");
-          }
-        });
-        const copyBtn = installBox.querySelector("[data-blume-copy-install]");
-        if (copyBtn) copyBtn.dataset.command = installCommand;
-      }
     });
+  })();
+</script>
+
+<script is:inline>
+  (() => {
+    // This shell has no copy pipeline; own per-block button, re-run after swaps.
+    if (document.documentElement.dataset.persistHeroCopyBound === "true") return;
+    document.documentElement.dataset.persistHeroCopyBound = "true";
+    const COPY =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
+    const CHECK =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600 dark:text-green-500"><path d="M20 6 9 17l-5-5"/></svg>';
+    const ensureButtons = () => {
+      const scope = document.querySelector("[data-source-pills]")
+        ?.parentElement;
+      if (!scope) return;
+      scope.querySelectorAll("[data-code] pre").forEach((pre) => {
+        if (!(pre instanceof HTMLElement)) return;
+        if (pre.parentElement?.closest("pre")) return;
+        if (pre.querySelector("[data-persist-copy]")) return;
+        pre.classList.add("group", "relative");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className =
+          "absolute top-2 right-3 z-[2] inline-flex size-[1.875rem] select-none items-center justify-center rounded-md bg-background text-muted-foreground transition-colors hover:bg-muted hover:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0";
+        button.setAttribute("data-persist-copy", "");
+        button.setAttribute("aria-label", "Copy code");
+        button.innerHTML = COPY;
+        button.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(
+              pre.querySelector("code")?.textContent ?? "",
+            );
+          } catch {
+            return;
+          }
+          button.innerHTML = CHECK;
+          setTimeout(() => {
+            button.innerHTML = COPY;
+          }, 1500);
+        });
+        pre.appendChild(button);
+      });
+    };
+    ensureButtons();
+    document.addEventListener("astro:after-swap", ensureButtons);
   })();
 </script>
