@@ -258,10 +258,14 @@ jobs:
         # Blume image-size + braces/node-forge have no published fix; the latter reach
         # only via expo/React Native dev tooling, never the published tarball.
         # Reassess on every expo/Blume bump; any other high/critical still blocks.
+        # Docs/dev-only transitives, likewise no src/ or tarball reach — ignored, not overridden:
+        # dompurify + sharp + undici + astro's zod + MCP SDK/body-parser via Blume
+        # (+ MCP SDK/body-parser/zod via @stainless-code/codemap devDep — evidence script only),
+        # markdown-it via typedoc, launch-editor + shell-quote via changesets.
         run: |
           set +e
           # bun emits ANSI color even when piped — strip it or the severity grep misses it.
-          NO_COLOR=1 bun audit --ignore=GHSA-w3rx-r6r6-pgpr --ignore=GHSA-5p2g-fcmc-qvqq --ignore=GHSA-vfj7-8cjw-p6xm --ignore=GHSA-86w9-cpqp-85rv 2>&1 | sed -E 's/\x1b\[[0-9;]*m//g' > /tmp/bun-audit.log
+          NO_COLOR=1 bun audit --ignore=GHSA-w3rx-r6r6-pgpr --ignore=GHSA-5p2g-fcmc-qvqq --ignore=GHSA-vfj7-8cjw-p6xm --ignore=GHSA-86w9-cpqp-85rv --ignore=GHSA-cg2g-xh64-v4q7 --ignore=GHSA-mrv2-3pqr-j5jr --ignore=GHSA-587h-7wmj-h5pm --ignore=GHSA-pqg4-j6r4-53mv --ignore=GHSA-gfr2-rv44-r23c --ignore=GHSA-r7fv-28h4-cvq7 --ignore=GHSA-wq5f-xc86-pv6w --ignore=GHSA-xjj6-f33q-929c --ignore=GHSA-mrhx-c7xc-m3w5 --ignore=GHSA-6qxp-vccf-f47h --ignore=GHSA-22jm-h49p-29qw --ignore=GHSA-46jr-4wx8-v453 --ignore=GHSA-27r3-jxmh-p828 2>&1 | sed -E 's/\x1b\[[0-9;]*m//g' > /tmp/bun-audit.log
           cat /tmp/bun-audit.log
           if grep -E '(^|[[:space:]])(high|critical):[[:space:]]' /tmp/bun-audit.log; then
             echo "::error::high or critical vulnerabilities found — blocking"
