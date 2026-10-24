@@ -62,8 +62,7 @@ ErrorDocument 404 /persist/404.html
   SetEnvIf Request_URI "^/persist/index\.html$" IS_PERSIST_HOME
 </IfModule>
 <IfModule mod_headers.c>
-  # expr covers REDIRECT_ rename after internal rewrites (e.g. /persist/index.html -> /persist/index.md).
-  Header always set Link "</persist/.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </persist/.well-known/ai-catalog.json>; rel=\"ai-catalog\"; type=\"application/ai-catalog+json\", </persist/openapi.json>; rel=\"service-desc\"; type=\"application/json\", </persist/agent-readability.json>; rel=\"describedby\"; type=\"application/json\", </persist/llms.txt>; rel=\"describedby\"; type=\"text/plain\", </persist/index.md>; rel=\"alternate\"; type=\"text/markdown\"" "expr=%{ENV:IS_PERSIST_HOME} || %{ENV:REDIRECT_IS_PERSIST_HOME}"
+  Header always set Link "</persist/.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </persist/.well-known/ai-catalog.json>; rel=\"ai-catalog\"; type=\"application/ai-catalog+json\", </persist/openapi.json>; rel=\"service-desc\"; type=\"application/json\", </persist/agent-readability.json>; rel=\"describedby\"; type=\"application/json\", </persist/llms.txt>; rel=\"describedby\"; type=\"text/plain\", </persist/index.md>; rel=\"alternate\"; type=\"text/markdown\"" env=IS_PERSIST_HOME
 </IfModule>
 
 # Extensionless file needs explicit type (else text/plain fails the scan).
@@ -89,17 +88,17 @@ RewriteRule ^ - [L]
 
 # /persist/ -> /persist/index.md
 RewriteCond %{HTTP:Accept} text/markdown [NC]
-RewriteCond %{HTTP:Accept} !text/markdown(?:\s*;\s*(?!q\s*=)[^;,]+)*\s*;\s*q\s*=\s*0(\.0*)?(\s*[;,]|\s*$) [NC]
+RewriteCond %{HTTP:Accept} !text/markdown\s*;\s*q\s*=\s*0(\.0*)?(\s*[;,]|\s*$) [NC]
 RewriteRule ^$ /persist/index.md [L,T=text/markdown]
 
 # /persist/index.html -> /persist/index.md (same representation as /persist/)
 RewriteCond %{HTTP:Accept} text/markdown [NC]
-RewriteCond %{HTTP:Accept} !text/markdown(?:\s*;\s*(?!q\s*=)[^;,]+)*\s*;\s*q\s*=\s*0(\.0*)?(\s*[;,]|\s*$) [NC]
+RewriteCond %{HTTP:Accept} !text/markdown\s*;\s*q\s*=\s*0(\.0*)?(\s*[;,]|\s*$) [NC]
 RewriteRule ^index\.html$ /persist/index.md [L,T=text/markdown]
 
 # /persist/<route> -> twin .md
 RewriteCond %{HTTP:Accept} text/markdown [NC]
-RewriteCond %{HTTP:Accept} !text/markdown(?:\s*;\s*(?!q\s*=)[^;,]+)*\s*;\s*q\s*=\s*0(\.0*)?(\s*[;,]|\s*$) [NC]
+RewriteCond %{HTTP:Accept} !text/markdown\s*;\s*q\s*=\s*0(\.0*)?(\s*[;,]|\s*$) [NC]
 RewriteCond %{REQUEST_FILENAME} !\.md$ [NC]
 RewriteCond %{DOCUMENT_ROOT}/persist/$1.md -f
 RewriteRule ^(.+?)/?$ /persist/$1.md [L,T=text/markdown]
