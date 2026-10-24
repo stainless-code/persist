@@ -71,7 +71,7 @@ ErrorDocument 404 /persist/404.html
 </Files>
 
 <IfModule mod_headers.c>
-  <FilesMatch "(^ai-catalog\.json$|^ard\.json$|^api-catalog$|index\.json$)">
+  <FilesMatch "(^ai-catalog\.json$|^ard\.json$|^api-catalog$|^agent-readability\.json$|index\.json$)">
     Header set Access-Control-Allow-Origin "*"
   </FilesMatch>
 </IfModule>
@@ -90,6 +90,11 @@ RewriteRule ^ - [L]
 RewriteCond %{HTTP:Accept} text/markdown [NC]
 RewriteCond %{HTTP:Accept} !text/markdown\s*;\s*q\s*=\s*0(\.0*)?(\s*[;,]|\s*$) [NC]
 RewriteRule ^$ /persist/index.md [L,T=text/markdown]
+
+# /persist/index.html -> /persist/index.md (same representation as /persist/)
+RewriteCond %{HTTP:Accept} text/markdown [NC]
+RewriteCond %{HTTP:Accept} !text/markdown\s*;\s*q\s*=\s*0(\.0*)?(\s*[;,]|\s*$) [NC]
+RewriteRule ^index\.html$ /persist/index.md [L,T=text/markdown]
 
 # /persist/<route> -> twin .md
 RewriteCond %{HTTP:Accept} text/markdown [NC]
