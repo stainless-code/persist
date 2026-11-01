@@ -34,6 +34,8 @@ jobs:
           persist-credentials: false
           # Closed PR checkout defaults to a dead merge ref — pin the merge commit on main.
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.merge_commit_sha || github.sha }}
+          # The smoke check reads release tags; PR/dispatch checkouts need them too.
+          fetch-tags: true
           # Sitemap lastmod uses `git log` per file.
           fetch-depth: 0
 
@@ -67,7 +69,7 @@ jobs:
 
       # FTP account root is already /persist — server-dir ./ is correct (not ./persist/).
       - name: Upload to /persist via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287 # v4.4.0
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -81,3 +83,23 @@ jobs:
             **/.git*
             **/.git*/**
             **/node_modules/**
+
+      # Fail-closed deploy proof: the live changelog is built from the releases
+      # API at build time, so only a fresh deploy can contain this run's tags.
+      # No tags on HEAD (docs PR, manual dispatch): assert liveness only.
+      - name: Verify live site serves this release
+        run: |
+          SITE="https://stainless-code.com/persist"
+          TAGS="$(git tag --points-at HEAD)"
+          if [ -z "$TAGS" ]; then
+            curl -sSfL -o /dev/null "$SITE/"
+          else
+            for TAG in $TAGS; do
+              ATTEMPT=0
+              until curl -sSL "$SITE/changelog" | grep -qF "$TAG"; do
+                ATTEMPT=$((ATTEMPT + 1))
+                if [ "$ATTEMPT" -ge 3 ]; then exit 1; fi
+                sleep 30
+              done
+            done
+          fi
